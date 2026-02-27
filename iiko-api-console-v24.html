@@ -1,0 +1,2102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IIKO API Console</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#121b2e;
+      --card2:#0f172a;
+      --text:#e6edf7;
+      --muted:#9fb0c8;
+      --accent:#4aa3ff;
+      --good:#38d27a;
+      --bad:#ff4d4f;
+      --warn:#ffcc00;
+      --border:rgba(255,255,255,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --r:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(74,163,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(56,210,122,.12), transparent 55%),
+                  var(--bg);
+    }
+    header{
+      padding:20px 22px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .title{
+      display:flex; gap:12px; align-items:center;
+    }
+    .badge{
+      width:40px;height:40px;border-radius:12px;
+      background:linear-gradient(135deg, rgba(74,163,255,.95), rgba(56,210,122,.85));
+      box-shadow:var(--shadow);
+    }
+    h1{margin:0;font-size:18px}
+    .sub{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .wrap{padding:12px 22px 22px; max-width:1400px; margin:0 auto;}
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr 480px;
+      gap:14px;
+    }
+    .card{
+      background:rgba(18,27,46,.92);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+      border-bottom:1px solid var(--border);
+    }
+    .card .hd b{font-size:13px}
+    .card .bd{padding:12px 14px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    label{font-size:12px;color:var(--muted)}
+    input, select, textarea{
+      width:100%;
+      background:rgba(15,23,42,.9);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 10px;
+      outline:none;
+      transition:.15s;
+      font-family:var(--sans);
+    }
+    input:focus, select:focus, textarea:focus{border-color:rgba(74,163,255,.6); box-shadow:0 0 0 3px rgba(74,163,255,.12)}
+    textarea{font-family:var(--mono); font-size:12px; min-height:180px; resize:vertical}
+    .btn{
+      border:1px solid rgba(74,163,255,.35);
+      background:rgba(74,163,255,.15);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.15s;
+      font-weight:600;
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(74,163,255,.6)}
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(74,163,255,.95), rgba(74,163,255,.55));
+      border-color:transparent;
+    }
+    .btn.danger{background:rgba(255,77,79,.12); border-color:rgba(255,77,79,.35)}
+    .btn.good{background:rgba(56,210,122,.12); border-color:rgba(56,210,122,.35)}
+    .chk{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;user-select:none}
+    .chk input{accent-color:var(--accent)}
+
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:5px 10px; border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted); font-size:12px;
+      background:rgba(15,23,42,.6);
+    }
+    .dot{width:8px;height:8px;border-radius:50%}
+    .dot.good{background:var(--good)}
+    .dot.bad{background:var(--bad)}
+    .dot.warn{background:var(--warn)}
+    .split{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .list{
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      background:rgba(15,23,42,.55);
+    }
+    .list .item{
+      padding:10px 10px;
+      border-top:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      font-size:13px;
+    }
+    .list .item:first-child{border-top:none}
+    .muted{color:var(--muted)}
+    .mono{font-family:var(--mono)}
+    .small{font-size:12px}
+    .right{margin-left:auto}
+    .kpi{display:flex; gap:10px; flex-wrap:wrap}
+    .kpi .pill{font-family:var(--mono)}
+    .cart{
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .cartRow{
+      display:grid; grid-template-columns: 1fr 80px 90px 36px;
+      gap:8px; align-items:center;
+    }
+    .cartRow input{padding:8px 10px}
+    .cartRow .x{padding:8px 10px; text-align:center}
+    .footerNote{
+      color:var(--muted); font-size:12px; line-height:1.35;
+      margin-top:8px;
+    }
+  /* Accordion menu */
+.worker-row{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:rgba(15,23,42,.4);transition:border-color .15s}
+.worker-row.active{border-color:rgba(56,210,122,.5);background:rgba(56,210,122,.05)}
+.worker-badge{font-size:10px;font-weight:800;letter-spacing:.04em;padding:2px 5px;border-radius:5px;flex-shrink:0}
+.worker-badge.cf{background:rgba(249,115,22,.2);color:#fb923c;border:1px solid rgba(249,115,22,.3)}
+.worker-badge.vc{background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.3)}
+.worker-ping-dot{width:8px;height:8px;border-radius:50%;background:rgba(148,163,184,.3);flex-shrink:0;transition:background .3s}
+.worker-ping-dot.ok{background:#22c55e}
+.worker-ping-dot.fail{background:#ef4444}
+.worker-ping-dot.checking{background:#eab308;animation:pulse .6s infinite alternate}
+@keyframes pulse{from{opacity:.4}to{opacity:1}}
+
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  background:rgba(56,210,122,.15); border:1.5px solid rgba(56,210,122,.5);
+  color:var(--good); font-size:15px; font-weight:700; line-height:1;
+  cursor:pointer; transition:background .15s, transform .1s;
+  user-select:none;
+}
+.itm-add-btn:hover{background:rgba(56,210,122,.3); border-color:var(--good); transform:scale(1.12)}
+.itm-add-btn:active{transform:scale(.95)}
+details.cat, details.itm{border:1px solid var(--border); border-radius:14px; background:rgba(15,23,42,.55); overflow:hidden; margin-bottom:10px}
+details.cat > summary, details.itm > summary{list-style:none; cursor:pointer}
+details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-details-marker{display:none}
+.catHead{display:flex; align-items:center; justify-content:space-between; padding:10px 12px; gap:10px}
+.catTitle{font-weight:700}
+.catMeta{font-size:12px; color:var(--muted)}
+.catBody{padding:10px; display:flex; flex-direction:column; gap:10px; background:rgba(2,6,23,.25)}
+.itmRow{display:flex; align-items:center; justify-content:space-between; padding:10px 12px; gap:12px}
+.itmLeft{min-width:0; display:flex; flex-direction:column; gap:2px}
+.itmLeft .itmName{font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.itmLeft .itmSku{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.itmRight{display:flex; align-items:center; gap:10px}
+.itmPrice{font-variant-numeric:tabular-nums; min-width:80px; text-align:right; color:var(--text)}
+.itmBody{padding:10px 12px 12px; border-top:1px solid var(--border); background:rgba(2,6,23,.25)}
+.itmDesc{color:var(--muted); font-size:12px; margin-bottom:10px}
+.itmReq{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px}
+.mods{display:flex; flex-direction:column; gap:10px}
+.modGroup{border:1px solid rgba(148,163,184,.18); border-radius:12px; overflow:hidden}
+.modHead{display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:rgba(15,23,42,.45)}
+.modTitle{font-size:13px; font-weight:650}
+.modMeta{display:flex; align-items:center; gap:6px}
+.modList{padding:6px 8px; display:flex; flex-direction:column; gap:6px}
+.modRow{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 8px; border:1px solid rgba(148,163,184,.12); border-radius:10px; background:rgba(15,23,42,.35)}
+.modLeft{min-width:0}
+.modName{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.modHint{font-size:11px; color:var(--muted); height:12px}
+.modRight{display:flex; align-items:center; gap:10px}
+.modPrice{font-variant-numeric:tabular-nums; min-width:70px; text-align:right; color:var(--muted)}
+.modQty{min-width:32px; text-align:right; font-size:12px; color:var(--text); font-variant-numeric:tabular-nums}
+.pill{display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; border:1px solid rgba(148,163,184,.18); font-size:11px; color:var(--muted); background:rgba(15,23,42,.35)}
+.pill-req{color:var(--text)}
+.pill-warn{border-color:rgba(239,68,68,.4); color:#fecaca}
+.dot{width:8px;height:8px;border-radius:50%; display:inline-block}
+.dot-on{background:var(--good)}
+.dot-off{background:#ff4d4f}
+.dot-stop{background:#a855f7}
+.dot-zero{background:#ffcc00}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">
+    <div class="badge"></div>
+    <div>
+      <h1>IIKO API Console</h1>
+      <div class="sub">Веб-утилита для API. Project by @Teogarat.</div>
+    </div>
+  </div>
+  <div class="kpi">
+    <span class="pill"><span class="dot warn"></span><span id="statusText">Не подключено</span></span>
+    <span class="pill mono" id="ridPill">RID: —</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <!-- LEFT: Connection -->
+    <div class="card">
+      <div class="hd">
+        <b>Connection</b>
+        <div class="row">
+          <button class="btn" id="btnClear">Очистить</button>
+          <button class="btn primary" id="btnConnect">Connect</button>
+        </div>
+      </div>
+      <div class="bd">
+        <label>Proxy Worker URL</label>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+          <div class="worker-row" id="workerRowCF">
+            <span class="worker-badge cf">CF</span>
+            <input id="workerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
+            <span class="worker-ping-dot" id="pingDotCF" title="—"></span>
+          </div>
+          <div class="worker-row" id="workerRowVC">
+            <span class="worker-badge vc">VC</span>
+            <input id="workerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
+            <span class="worker-ping-dot" id="pingDotVC" title="—"></span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--muted)">Активный:</span>
+          <select id="workerActive" style="font-size:12px;flex:1;min-width:0">
+            <option value="cf">Cloudflare</option>
+            <option value="vc" selected>Vercel</option>
+          </select>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <label>API Key (apiLoginId)</label>
+        <input id="apiKey" placeholder="вставь ключ сюда" />
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div style="display:none">
+            <input id="accessToken" />
+          </div>
+          <div>
+            <label>Timeout (сек)</label>
+            <input id="timeout" type="number" value="15" min="1" max="120"/>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div>
+            <label>Organization</label>
+            <select id="orgSelect"></select>
+          </div>
+          <div>
+            <label>Terminal group</label>
+            <select id="tgSelect"></select>
+            <div class="muted small mono" id="tgInfo">—</div>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div>
+            <label>External menu</label>
+            <select id="menuSelect"></select>
+          </div>
+          <div>
+            <label>Price category</label>
+            <select id="priceCatSelect"></select>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <label class="chk"><input type="checkbox" id="useApi1Menu" /> Меню через API v1 (если внешнее меню не задано)</label>
+
+        <div class="row">
+          <button class="btn" id="btnLoadMenu">Загрузить меню</button>
+          <button class="btn" id="btnLoadStop">Стоп-листы</button>
+          <button class="btn good" id="btnExport">Export (json+log)</button>
+        </div>
+
+        <div class="footerNote">
+          Если где-то 401/400 — смотри <b>Logs</b> справа: там будет статус, тело ошибки и <b>RID</b> из Worker.
+        </div>
+      </div>
+    </div>
+
+    <!-- MID: Menu / Search -->
+    <div class="card">
+      <div class="hd">
+        <b>Menu & Items</b>
+        <div class="row">
+          <input id="search" placeholder="Поиск блюда по названию..." />
+          <button class="btn" id="btnAddById">Добавить по productId</button>
+        </div>
+      </div>
+      <div class="bd">
+        <div class="split">
+          <div>
+            <div class="pill">Категорий: <span class="mono" id="catCount">0</span></div>
+            <div class="pill">Товаров: <span class="mono" id="itemCount">0</span></div>
+          </div>
+          <div class="right">
+            <div class="pill">Меню: <span class="mono" id="menuInfo">—</span></div>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="list" id="itemsList"></div>
+
+        <div class="footerNote">
+          “товары” из external menu.
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Cart / Order / Logs -->
+    <div class="card">
+      <div class="hd">
+        <b>Order & Logs</b>
+        <div class="row">
+          <button class="btn danger" id="btnClearLog">Очистить логи</button>
+          <button class="btn primary" id="btnSendOrder">Тестовый заказ</button>
+          <button class="btn danger" id="btnCancelOrder" disabled title="Отменить последний отправленный заказ">Отменить заказ</button>
+        </div>
+      </div>
+      <div class="bd">
+        <!-- Last order ID display -->
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap">
+          <span style="font-size:12px; color:var(--muted); white-space:nowrap">Order ID:</span>
+          <input id="lastOrderIdDisplay" type="text" placeholder="вставь или отправь заказ..." style="font-family:var(--mono); font-size:12px; color:var(--accent); background:rgba(74,163,255,.06); padding:6px 10px; border-radius:8px; border:1px solid rgba(74,163,255,.25); flex:1; min-width:200px;" />
+          <button class="btn" id="btnCopyOrderId" style="padding:5px 10px; font-size:12px;" title="Скопировать Order ID">Copy</button>
+          <button class="btn" id="btnManualCancel" style="padding:5px 10px; font-size:12px; background:rgba(255,77,79,.12); border-color:rgba(255,77,79,.35);" title="Отменить заказ по введённому ID">Отмена по ID</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap">
+          <span style="font-size:12px; color:var(--muted); white-space:nowrap">Cancel cause:</span>
+          <select id="cancelCauseSelect" style="flex:1; min-width:180px; font-size:12px; padding:6px 10px;">
+            <option value="">— не указывать —</option>
+          </select>
+          <button class="btn" id="btnLoadCancelCauses" style="padding:5px 10px; font-size:12px;" title="Загрузить причины отмены из iiko">Загрузить</button>
+        </div>
+
+        <div class="split">
+          <div>
+            <label>Order service</label>
+            <select id="serviceType">
+              <option value="DeliveryByCourier">Delivery (курьер)</option>
+              <option value="DeliveryByClient">Pickup (самовывоз)</option>
+            </select>
+          </div>
+          <div>
+            <label>Payment kind</label>
+            <select id="payKind">
+              <option value="Cash">Cash</option>
+              <option value="Card">Card</option>
+              <option value="LoyaltyCard">iikoCard</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div>
+            <label>Order type</label>
+            <select id="orderTypeSelect"></select>
+          </div>
+          <div>
+            <label>Payment type</label>
+            <select id="paymentTypeSelect"></select>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div>
+            <label>Phone</label>
+            <input id="phone" value="+79034888816" />
+          </div>
+          <div>
+            <label>Customer name</label>
+            <input id="custName" value="ТЕСТ" />
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <div class="split">
+          <div>
+            <label>completeBefore</label>
+            <select id="completeBeforeMode">
+              <option value="null">null — срочный (iiko сам считает)</option>
+              <option value="60" selected>+60 мин от текущего времени</option>
+              <option value="120">+120 мин от текущего времени</option>
+              <option value="30">+30 мин от текущего времени</option>
+              <option value="custom">Вручную</option>
+            </select>
+          </div>
+          <div id="completeBeforeCustomWrap" style="display:none">
+            <label>Дата/время (local)</label>
+            <input id="completeBeforeCustom" type="datetime-local" />
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+        <!-- Поля для доставки курьером -->
+        <div id="deliveryFields">
+          <label style="color:var(--accent); font-size:12px; font-weight:600;">🚗 Адрес доставки (DeliveryByCourier)</label>
+          <div style="height:6px"></div>
+          <div class="split">
+            <div>
+              <label>Улица (name)</label>
+              <input id="deliveryStreet" placeholder="Ленина" />
+            </div>
+            <div>
+              <label>Дом</label>
+              <input id="deliveryHouse" placeholder="10" />
+            </div>
+          </div>
+          <div style="height:6px"></div>
+          <div class="split">
+            <div>
+              <label>Квартира</label>
+              <input id="deliveryFlat" placeholder="5" />
+            </div>
+            <div>
+              <label>Город</label>
+              <input id="deliveryCity" placeholder="Москва" />
+            </div>
+          </div>
+          <div style="height:6px"></div>
+          <div class="split">
+            <div>
+              <label>Подъезд</label>
+              <input id="deliveryEntrance" placeholder="" />
+            </div>
+            <div>
+              <label>Этаж</label>
+              <input id="deliveryFloor" placeholder="" />
+            </div>
+          </div>
+          <div style="height:6px"></div>
+          <div>
+            <label>Комментарий к адресу</label>
+            <input id="deliveryComment" placeholder="Домофон 123" />
+          </div>
+        </div>
+
+        <!-- Поля для самовывоза -->
+        <div id="pickupFields" style="display:none">
+          <label style="color:var(--good); font-size:12px; font-weight:600;">🏪 Самовывоз (DeliveryByClient)</label>
+          <div style="height:6px"></div>
+          <div class="footerNote">deliveryPoint не передаётся — клиент забирает сам.</div>
+        </div>
+
+        <div style="height:10px"></div>
+
+        <label>Cart</label>
+        <div class="cart" id="cart"></div>
+
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <span class="pill">Total: <span class="mono" id="totalSum">0</span></span>
+          <button class="btn" id="btnAddRandom">+ Add dummy item</button>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <label>Logs</label>
+        <textarea id="log" spellcheck="false" placeholder="Тут будет весь лог запросов/ответов..."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // === CONFIG ===
+  // Впиши сюда свой воркер (или вставь в поле UI)
+  const WORKER_BASE_DEFAULT = "";
+
+  // CF:  base + /proxy  + /api/1/...
+  // VC:  base (уже содержит /api/proxy) + /api/1/...  → prefix = ""
+  function proxyPrefix(){
+    const active = $("workerActive")?.value || "vc";
+    if (active === "vc") return "";
+    return "/proxy";
+  }
+
+  // === STATE ===
+  const state = {
+    token: "",
+    orgId: "",
+    terminalGroupId: "",
+    externalMenus: [],
+    externalMenuId: "",
+    priceCategories: [],
+    priceCategoryId: null,
+    useApi1Menu: false,
+    nomenclatureRevision: 0,
+    menuModel: null, // loaded external menu
+    itemsFlat: [],
+    cart: [],
+    
+    builderSelections: {}, // per-item modifier selections before adding to cart
+lastRid: null,
+  lastOrderId: null,
+  cancelCauses: [],
+    stopLists: null,
+    terminalGroups: [],
+    terminalAlive: new Map(),
+    paymentTypes: [],
+    uiOpenCats: new Set(),
+  };
+
+  // === DOM ===
+  const $ = (id) => document.getElementById(id);
+    const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+  const logEl = $("log");
+  const statusText = $("statusText");
+  const ridPill = $("ridPill");
+
+  function setStatus(text, kind="warn"){
+    statusText.textContent = text;
+    const dot = statusText.parentElement.querySelector(".dot");
+    dot.className = "dot " + (kind === "good" ? "good" : kind === "bad" ? "bad" : "warn");
+  }
+
+  function uiRid(rid){
+    state.lastRid = rid || null;
+    ridPill.textContent = "RID: " + (rid || "—");
+  }
+
+  function logLine(s){
+    const ts = new Date().toISOString().replace("T"," ").replace("Z","");
+    logEl.value += `[${ts}] ${s}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function safeJson(v){
+    try { return JSON.stringify(v, null, 2); } catch { return String(v); }
+  }
+
+  function workerBase(){
+    const active = $("workerActive")?.value || "vc";
+    const v = active === "vc"
+      ? ($("workerVC")?.value || "").trim()
+      : ($("workerCF")?.value || "").trim();
+    return v || WORKER_BASE_DEFAULT;
+  }
+
+  function updateWorkerActiveUI(){
+    const active = $("workerActive")?.value || "vc";
+    $("workerRowCF")?.classList.toggle("active", active === "cf");
+    $("workerRowVC")?.classList.toggle("active", active === "vc");
+  }
+
+  function timeoutSec(){
+    return Math.max(1, Math.min(120, Number($("timeout").value || 15)));
+  }
+
+  function authHeaders(){
+    const h = {};
+    if (state.token) h["Authorization"] = "Bearer " + state.token;
+    h["Timeout"] = String(timeoutSec());
+    return h;
+  }
+
+  async function api(path, body){
+    const base = workerBase();
+    if (!base) throw new Error("Worker base URL is empty. Впиши URL воркера.");
+    const baseClean = base.replace(/\/+$/,"");
+	const cleanPath = String(path || "").replace(/^\/+/, ""); // "api/1/access_token"
+	let url;
+
+	const active = $("workerActive")?.value || "vc";
+
+	if (active === "vc") {
+		// Vercel proxy: /api/proxy?region=ru&path=...
+		// region можно потом вынести в UI, пока пусть будет ru
+		const region = "ru";
+		url = `${baseClean}?region=${encodeURIComponent(region)}&path=${encodeURIComponent(cleanPath)}`;
+	} else {
+		// Cloudflare: base + /proxy + /api/1/...
+		url = baseClean + "/proxy/" + cleanPath;
+	}
+	
+
+    const headers = {
+      "content-type": "application/json",
+      ...authHeaders(),
+    };
+
+    logLine(`--> ${path}`);
+    if (body !== undefined) logLine(`REQ: ${safeJson(body)}`);
+
+    let resp, text, rid;
+    try {
+      resp = await fetch(url, {
+        method: "POST",
+        headers,
+        body: body === undefined ? null : JSON.stringify(body),
+      });
+    } catch (e) {
+      uiRid(null);
+      logLine(`!! fetch crashed: ${String(e)}`);
+      setStatus("Fetch error (см. лог)", "bad");
+      throw e;
+    }
+
+    rid = resp.headers.get("x-proxy-request-id") || resp.headers.get("x-request-id") || null;
+    uiRid(rid);
+
+    text = await resp.text();
+    logLine(`<-- ${path} :: ${resp.status}`);
+    logLine(`RID: ${rid || "—"}`);
+
+    // Try pretty JSON for readable Cyrillic etc.
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch { parsed = null; }
+
+    const pretty = parsed ? safeJson(parsed) : text;
+    const LIM = 12000; // keep textarea responsive
+    logLine(`RESP: ${pretty.slice(0, LIM)}${pretty.length > LIM ? " ...[trim]" : ""}`);
+
+    if (!resp.ok) {
+      setStatus(`Ошибка ${resp.status} (см. лог)`, "bad");
+      // try parse iiko error response
+      let errObj = null;
+      try { errObj = JSON.parse(text); } catch {}
+      const msg = errObj?.message || errObj?.error || text;
+      throw new Error(`HTTP ${resp.status}: ${msg}`);
+    }
+
+    setStatus("Подключено", "good");
+    try { return JSON.parse(text); } catch { return text; }
+  }
+
+  function fillSelect(sel, options, getText, getValue){
+    sel.innerHTML = "";
+    for (const o of options){
+      const opt = document.createElement("option");
+      opt.value = getValue(o);
+      opt.textContent = getText(o);
+      sel.appendChild(opt);
+    }
+  }
+
+  function money(n){
+    const v = Number(n||0);
+    return v.toFixed(2);
+  }
+
+  function recalcTotal(){
+    let sum = 0;
+    for (const c of state.cart){
+      sum += Number(c.price||0) * Number(c.amount||0);
+    }
+    $("totalSum").textContent = money(sum);
+  }
+
+  // === STOP LIST HELPERS (module-level, доступны везде) ===
+  // Структура ответа: terminalGroupStopLists[].items[].items[].productId
+  function isInStopList(productId){
+    if (!productId || !state.stopLists) return false;
+    const outerGroups = state.stopLists?.terminalGroupStopLists || [];
+    for (const outer of outerGroups){
+      const tgBlocks = Array.isArray(outer?.items) ? outer.items : [];
+      for (const tgBlock of tgBlocks){
+        const items = Array.isArray(tgBlock?.items) ? tgBlock.items : [];
+        if (items.some(it => it.productId === productId)) return true;
+      }
+    }
+    return false;
+  }
+
+  // 4 состояния: зелёный = в продаже, красный = не в продаже, фиолетовый = стоп-лист, жёлтый = цена 0
+  function mkStatusDot(hidden, hasPrice, productId){
+    const stopped = isInStopList(productId);
+    if (stopped)   return `<span class="dot dot-stop"  title="В стоп-листе"></span>`;
+    if (hidden)    return `<span class="dot dot-off"   title="Не в продаже"></span>`;
+    if (!hasPrice) return `<span class="dot dot-zero"  title="Цена не задана (0)"></span>`;
+    return               `<span class="dot dot-on"    title="В продаже"></span>`;
+  }
+
+  function renderCart(){
+  const root = $("cart");
+  if(!Array.isArray(state.cart) || state.cart.length===0){
+    root.innerHTML = '<div class="hint">Корзина пустая. Добавь блюдо из меню.</div>';
+    $("totalSum").textContent = "0.00";
+    return;
+  }
+
+  const money = (n)=> (Number(n)||0).toFixed(2);
+
+  const lineUnitPrice = (line)=>{
+    const mods = (line.modifiers||[]).reduce((acc,m)=>acc + (Number(m.price)||0) * (Number(m.qty)||0), 0);
+    return (Number(line.basePrice)||0) + mods;
+  };
+
+  let total = 0;
+
+  root.innerHTML = state.cart.map((line, idx)=>{
+    const unit = lineUnitPrice(line);
+    const lineTotal = unit * (Number(line.qty)||0);
+    total += lineTotal;
+
+    const modsHtml = (line.modifiers && line.modifiers.length)
+      ? `<div class="cartMods">${
+          line.modifiers.map(m=>{
+            const q = Number(m.qty)||0;
+            return `<div class="cartModRow">
+              <span class="muted">↳ ${escapeHtml(m.name||"Модификатор")} ${q?("×"+q):""}</span>
+              <span class="mono muted">${money((Number(m.price)||0) * q)}</span>
+            </div>`;
+          }).join("")
+        }</div>`
+      : "";
+
+    const statusDot = isInStopList(line.baseProductId)
+      ? '<span class="dot dot-stop" title="В стоп-листе"></span>'
+      : line.hidden
+        ? '<span class="dot dot-off" title="Не в продаже"></span>'
+        : '<span class="dot dot-on" title="В продаже"></span>';
+
+    return `<div class="cartItem">
+      <div class="cartTop">
+        <div class="cartTitle">${statusDot}<span>${escapeHtml(line.name)}${line.sizeName?(" • "+escapeHtml(line.sizeName)):""}</span></div>
+        <div class="cartRight">
+          <button class="btn ghost small" data-dec="${idx}">−</button>
+          <span class="mono" style="min-width:26px; text-align:center">${Number(line.qty)||0}</span>
+          <button class="btn ghost small" data-inc="${idx}">＋</button>
+          <button class="btn danger small" data-del="${idx}">×</button>
+        </div>
+      </div>
+      ${modsHtml}
+      <div class="cartBottom">
+        <span class="muted mono">${money(unit)} / шт</span>
+        <span class="mono">${money(lineTotal)}</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  $("totalSum").textContent = money(total);
+
+  // actions
+  root.querySelectorAll("[data-inc]").forEach(b=>b.addEventListener("click", ()=>{
+    const i=Number(b.getAttribute("data-inc"));
+    state.cart[i].qty += 1;
+    renderCart();
+  }));
+  root.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click", ()=>{
+    const i=Number(b.getAttribute("data-dec"));
+    state.cart[i].qty = Math.max(1, (Number(state.cart[i].qty)||1) - 1);
+    renderCart();
+  }));
+  root.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>{
+    const i=Number(b.getAttribute("data-del"));
+    state.cart.splice(i,1);
+    renderCart();
+  }));
+}
+
+  function flattenMenu(menu){
+    // Primary path: /api/2/menu/by_id returns Nomenclature-like model.
+    // We show real products (orderItemType/type Product/Compound) and ignore categories/groups.
+    const out = [];
+
+    const toNumber = (v) => {
+      if (typeof v === "number" && Number.isFinite(v)) return v;
+      if (typeof v === "string") {
+        const n = Number(v.replace(",", "."));
+        if (Number.isFinite(n)) return n;
+      }
+      return 0;
+    };
+
+    const pickPriceFromPriceObj = (p) => {
+      if (!p || typeof p !== "object") return 0;
+      // iiko: { currentPrice, basePrice } or { price } etc.
+      return toNumber(p.currentPrice ?? p.price ?? p.value ?? p.amount);
+    };
+
+    const extractPrice = (node) => {
+      if (!node || typeof node !== "object") return 0;
+
+      // direct
+      const direct = toNumber(node.price);
+      if (direct) return direct;
+
+      // "prices": [{ currentPrice | price | value }]
+      if (Array.isArray(node.prices)) {
+        for (const p of node.prices) {
+          const n = pickPriceFromPriceObj(p);
+          if (n) return n;
+        }
+      }
+
+      // "sizePrices": [{ price | prices:[] }]
+      if (Array.isArray(node.sizePrices)) {
+        for (const sp of node.sizePrices) {
+          const n1 = pickPriceFromPriceObj(sp?.price);
+          if (n1) return n1;
+          if (Array.isArray(sp?.prices)) {
+            for (const p of sp.prices) {
+              const n2 = pickPriceFromPriceObj(p);
+              if (n2) return n2;
+            }
+          }
+        }
+      }
+
+      // itemSizes/sizes recursion (на всякий)
+      const arrs = [];
+      if (Array.isArray(node.itemSizes)) arrs.push(node.itemSizes);
+      if (Array.isArray(node.sizes)) arrs.push(node.sizes);
+
+      for (const a of arrs) {
+        // prefer default size if присутствует
+        const sorted = [...a].sort((x,y)=> (y?.isDefault?1:0) - (x?.isDefault?1:0));
+        for (const s of sorted) {
+          const n = extractPrice(s);
+          if (n) return n;
+        }
+      }
+
+      return 0;
+    };
+
+    const isProductNode = (p) => {
+      if (!p || typeof p !== "object") return false;
+      if (p.isDeleted === true) return false;
+      const t = String(p.orderItemType ?? p.type ?? "").toLowerCase();
+      if (t && t !== "product" && t !== "compound") return false; // ignore categories/modifiers/etc
+      const id = p.id || p.productId || p.itemId;
+      const name = p.name || p.title;
+      if (!id || !name) return false;
+      // must have any pricing/size hints, иначе это скорее категория/группа
+      const hasPriceHints = ("price" in p) || Array.isArray(p.prices) || Array.isArray(p.sizePrices) || Array.isArray(p.itemSizes) || Array.isArray(p.sizes);
+      return hasPriceHints;
+    };
+
+    const addProduct = (p) => {
+      const productId = String(p.id || p.productId || p.itemId);
+      const name = String(p.name || p.title);
+      const price = Number(extractPrice(p) || 0);
+      out.push({ productId, name, price, raw: p });
+    };
+
+    // Preferred: menu.products
+    if (menu && typeof menu === "object" && Array.isArray(menu.products)) {
+      for (const p of menu.products) if (isProductNode(p)) addProduct(p);
+    } else {
+      // Fallback: deep-walk (older/other shapes)
+      const walk = (node) => {
+        if (!node || typeof node !== "object") return;
+        if (isProductNode(node)) addProduct(node);
+        for (const k of Object.keys(node)) {
+          const v = node[k];
+          if (Array.isArray(v)) v.forEach(walk);
+          else if (v && typeof v === "object") walk(v);
+        }
+      };
+      walk(menu);
+    }
+
+    // De-dup (first wins)
+    const seen = new Set();
+    return out.filter(x => (seen.has(x.productId) ? false : (seen.add(x.productId), true)));
+  }
+
+  function renderItemsList(){
+  const root = $("itemsList");
+  const q = ($("search").value || "").trim().toLowerCase();
+
+  if(!state.menu || !Array.isArray(state.menu.itemCategories)){
+    root.innerHTML = '<div class="hint">Сначала подключись и загрузи меню.</div>';
+    return;
+  }
+
+  // Build accordion by categories -> items
+  const cats = state.menu.itemCategories
+    .filter(c => c && c.name && Array.isArray(c.items))
+    .map(c => ({
+      id: c.id || c.name,
+      name: c.name,
+      items: c.items || []
+    }));
+
+  // Helper: price for current org
+  const getOrgPrice = (pricesArr) => {
+    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return 0;
+    const hit = pricesArr.find(p => p && p.organizationId === state.orgId);
+    const p = (hit || pricesArr[0] || {}).price;
+    return (typeof p === "number" && isFinite(p)) ? p : 0;
+  };
+
+  const pickDefaultSize = (item) => {
+    const sizes = Array.isArray(item.itemSizes) ? item.itemSizes : [];
+    return sizes.find(s => s && s.isDefault) || sizes[0] || null;
+  };
+
+  const baseIdOf = (item, size) => (size && (size.itemId || size.id)) || item.itemId || item.id || item.sku || (item.name + "::" + (size ? size.sizeCode : ""));
+  const isHiddenOf = (item, size) => Boolean((size && size.isHidden) || item.isHidden);
+
+  const ensureBuilder = (item, size) => {
+    const baseId = baseIdOf(item, size);
+    if(state.builderSelections[baseId]) return state.builderSelections[baseId];
+
+    const sel = {
+      baseId,
+      item,
+      size,
+      // map: modifierId -> qty
+      mods: {}
+    };
+
+    // auto-pick required modifiers (minQuantity / byDefault)
+    const mgs = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+    for(const g of mgs){
+      const r = g && g.restrictions ? g.restrictions : {};
+      const minQ = Number(r.minQuantity || 0);
+      const byDef = Number(r.byDefault || 0);
+      const need = Math.max(minQ, byDef);
+      if(need <= 0) continue;
+
+      const available = (g.items || []).filter(mi => mi && !mi.isHidden);
+      for(let i=0;i<Math.min(need, available.length);i++){
+        const mid = available[i].itemId || available[i].id || available[i].sku || (available[i].name + "::" + i);
+        sel.mods[mid] = (sel.mods[mid] || 0) + 1;
+      }
+    }
+
+    state.builderSelections[baseId] = sel;
+    return sel;
+  };
+
+  const computeModsCharge = (size, selModsMap) => {
+    const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+    let total = 0;
+
+    for(const g of groups){
+      const r = g && g.restrictions ? g.restrictions : {};
+      const freeQ = Number(r.freeQuantity || 0);
+      const items = (g.items || []).filter(mi => mi);
+      // collect selected in this group
+      const selected = [];
+      for(const mi of items){
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        const qty = Number(selModsMap[mid] || 0);
+        if(qty > 0){
+          const price = getOrgPrice(mi.prices);
+          selected.push({ price, qty, mid, mi });
+        }
+      }
+      // raw sum
+      let groupSum = 0;
+      for(const s of selected) groupSum += s.price * s.qty;
+
+      // apply freeQuantity by removing cheapest units
+      if(freeQ > 0 && selected.length > 0){
+        const units = [];
+        for(const s of selected){
+          for(let i=0;i<s.qty;i++) units.push(s.price);
+        }
+        units.sort((a,b)=>a-b);
+        let free = 0;
+        for(let i=0;i<Math.min(freeQ, units.length);i++) free += units[i];
+        groupSum -= free;
+      }
+
+      total += groupSum;
+    }
+    return total;
+  };
+
+  const computeBuiltPrice = (item, size, selModsMap) => {
+    const base = size ? getOrgPrice(size.prices) : 0;
+    const mods = computeModsCharge(size, selModsMap);
+    return base + mods;
+  };
+
+  const ensureRequiredSatisfied = (size, selModsMap) => {
+    const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+    for(const g of groups){
+      const r = g && g.restrictions ? g.restrictions : {};
+      const minQ = Number(r.minQuantity || 0);
+      if(minQ <= 0) continue;
+
+      const items = (g.items || []).filter(mi => mi && !mi.isHidden);
+      const countSelected = () => items.reduce((acc, mi) => {
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        return acc + Number(selModsMap[mid] || 0);
+      }, 0);
+
+      let cur = countSelected();
+      let idx = 0;
+      while(cur < minQ && idx < items.length){
+        const mi = items[idx++];
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        selModsMap[mid] = (selModsMap[mid] || 0) + 1;
+        cur++;
+      }
+    }
+  };
+
+  const toggleMod = (baseId, modId) => {
+    const sel = state.builderSelections[baseId];
+    if(!sel) return;
+    sel.mods[modId] = (sel.mods[modId] || 0) + 1;
+    // quick toggle behavior: if already 1 then set to 0 when shift-click
+  };
+
+  const addBuiltToCart = (item, size, sel) => {
+    if(!size){
+      log("No item size found for item: " + (item && item.name));
+      return;
+    }
+    // enforce required groups before final add
+    ensureRequiredSatisfied(size, sel.mods);
+
+    const baseId = sel.baseId;
+    const baseProductId = size.itemId || item.itemId || item.id || item.sku;
+    const basePrice = getOrgPrice(size.prices);
+    const hidden = isHiddenOf(item, size);
+
+    // build modifiers array
+    const mods = [];
+    const groups = Array.isArray(size.itemModifierGroups) ? size.itemModifierGroups : [];
+    for(const g of groups){
+      for(const mi of (g.items || [])){
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        const qty = Number(sel.mods[mid] || 0);
+        if(qty > 0){
+          mods.push({
+            productId: mi.itemId || mi.id || mi.sku,
+            name: mi.name || mi.sku || "Modifier",
+            qty,
+            price: getOrgPrice(mi.prices),
+            groupName: g.name || ""
+          });
+        }
+      }
+    }
+
+    // merge with existing identical line (same base + same mods set)
+    const modsKey = JSON.stringify(mods.map(m=>({p:m.productId,q:m.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p))));
+    let line = state.cart.find(x => x.baseProductId === baseProductId && x.modsKey === modsKey);
+    if(!line){
+      line = {
+        baseId,
+        baseProductId,
+        name: item.name || "Item",
+        sizeName: size.sizeName || size.sizeCode || "",
+        qty: 0,
+        basePrice,
+        hidden,
+        modifiers: mods,
+        modsKey
+      };
+      state.cart.push(line);
+    }
+    line.qty += 1;
+
+    renderCart();
+  };
+
+  // esc — локальный хелпер для HTML-шаблонов
+  const esc = (s) => (""+s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  let html = "";
+  for(const c of cats){
+    // filter by search
+    const items = c.items.filter(it => {
+      if(!it || !it.name) return false;
+      if(!q) return true;
+      return (it.name || "").toLowerCase().includes(q) || (it.sku || "").toLowerCase().includes(q);
+    });
+
+    if(items.length === 0 && q) continue;
+
+    const catId = String(c.id || c.name);
+    const isOpen = state.uiOpenCats.has(catId);
+    const openAttr = isOpen ? " open" : "";
+    html += `<details class="cat"${openAttr} data-cat-id="${esc(catId)}">
+      <summary class="catHead">
+        <div class="catTitle">${esc(c.name)}</div>
+        <div class="catMeta">${items.length ? items.length + " поз." : ""}</div>
+      </summary>
+      <div class="catBody">`;
+
+    for(const item of items){
+      const size = pickDefaultSize(item);
+      const sel = ensureBuilder(item, size);
+      const hidden = isHiddenOf(item, size);
+      const basePrice = size ? getOrgPrice(size.prices) : 0;
+      const builtPrice = computeBuiltPrice(item, size, sel.mods);
+      const hasPrice = (typeof basePrice === "number" && basePrice > 0) || builtPrice > 0;
+
+      // count required status
+      const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+      const reqSummary = groups.map(g=>{
+        const r=g && g.restrictions ? g.restrictions : {};
+        const minQ=Number(r.minQuantity||0);
+        if(minQ<=0) return null;
+        const cnt=(g.items||[]).reduce((acc,mi)=>acc+Number(sel.mods[(mi.itemId||mi.id||mi.sku||mi.name)]||0),0);
+        return {name:g.name||"Модификаторы", minQ, cnt};
+      }).filter(Boolean);
+
+      const baseId = sel.baseId;
+      const itemProductId = (size && (size.itemId || size.id)) || item.itemId || item.id || null;
+
+      html += `<details class="itm">
+          <summary class="itmRow">
+            <div class="itmLeft">
+              ${mkStatusDot(hidden, hasPrice, itemProductId)}
+              <div class="itmName">${esc(item.name || "")}</div>
+              <div class="itmSku">${esc(item.sku || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
+            </div>
+            <div class="itmRight">
+              <div class="itmPrice">${builtPrice ? builtPrice.toFixed(2) : "0.00"}</div>
+              <button class="itm-add-btn" data-add-item="${esc(baseId)}" title="Добавить в корзину">＋</button>
+            </div>
+          </summary>
+          <div class="itmBody">
+            ${item.description ? `<div class="itmDesc">${esc(item.description)}</div>` : ""}
+          ${reqSummary.length ? `<div class="itmReq">
+            ${reqSummary.map(r=>`<span class="pill ${r.cnt<r.minQ?'pill-warn':''}">${esc(r.name)}: ${r.cnt}/${r.minQ}</span>`).join("")}
+          </div>` : ""}
+          ${groups.length ? `<div class="mods">
+            ${groups.map(g=>{
+              const r=g && g.restrictions ? g.restrictions : {};
+              const minQ=Number(r.minQuantity||0);
+              const maxQ=Number(r.maxQuantity||0);
+              const freeQ=Number(r.freeQuantity||0);
+              const label = minQ>0 ? `<span class="pill pill-req">обязат. ${minQ}${freeQ?` • бесплатно ${freeQ}`:""}</span>` : `<span class="pill">необяз.</span>`;
+              const items=(g.items||[]).filter(mi=>mi && mi.name);
+              if(items.length===0) return "";
+              return `<div class="modGroup">
+                <div class="modHead">
+                  <div class="modTitle">${esc(g.name||"Модификаторы")}</div>
+                  <div class="modMeta">${label}</div>
+                </div>
+                <div class="modList">
+                  ${items.map(mi=>{
+                    const mid = mi.itemId || mi.id || mi.sku || mi.name;
+                    const qty = Number(sel.mods[mid] || 0);
+                    const price = getOrgPrice(mi.prices);
+                    const mHidden = Boolean(mi.isHidden);
+                    const mProductId = mi.itemId || mi.id || null;
+                    const mStopped = isInStopList(mProductId);
+                    const dot = mkStatusDot(mHidden, price>0, mProductId);
+                    const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : "");
+                    return `<div class="modRow">
+                      <div class="modLeft">
+                        ${dot}
+                        <div class="modName">${esc(mi.name)}</div>
+                        <div class="modHint">${esc(hintText)}</div>
+                      </div>
+                      <div class="modRight">
+                        <div class="modPrice">${price ? price.toFixed(2) : "0.00"}</div>
+                        <div class="modQty">${qty ? "×"+qty : ""}</div>
+                        <button class="btn ghost small" data-add-mod="${esc(baseId)}::${esc(mid)}">＋</button>
+                      </div>
+                    </div>`;
+                  }).join("")}
+                </div>
+              </div>`;
+            }).join("")}
+          </div>` : `<div class="hint">У этого блюда нет модификаторов.</div>`}
+        </div>
+        </details>`;
+    }
+
+    html += `</div></details>`;
+  }
+
+  if(!html){
+    root.innerHTML = '<div class="hint">Ничего не нашёл по запросу.</div>';
+    return;
+  }
+
+  root.innerHTML = html;
+  root.querySelectorAll('details.cat[data-cat-id]').forEach(d => {
+      const id = d.getAttribute("data-cat-id");
+      d.addEventListener("toggle", () => {
+        if (d.open) state.uiOpenCats.add(id);
+        else state.uiOpenCats.delete(id);
+    });
+  });
+
+  // Wire buttons (event delegation)
+  root.querySelectorAll("[data-add-item]").forEach(btn=>{
+    // pointerdown предотвращает toggle details ДО того как браузер его обработает
+    btn.addEventListener("pointerdown", (e)=>{ e.stopPropagation(); });
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const baseId = btn.getAttribute("data-add-item");
+      const sel = state.builderSelections[baseId];
+      if(!sel) return;
+      addBuiltToCart(sel.item, sel.size, sel);
+      // Анимация кнопки
+      btn.textContent = "✓";
+      setTimeout(() => { btn.textContent = "＋"; }, 600);
+      // Обновляем только корзину, не перерисовываем всё меню
+      renderCart();
+    });
+  });
+
+  root.querySelectorAll("[data-add-mod]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const v = btn.getAttribute("data-add-mod") || "";
+      const [baseId, modId] = v.split("::");
+      const sel = state.builderSelections[baseId];
+      if(!sel) return;
+      // toggle style: click adds 1, shift-click removes 1
+      if(e.shiftKey){
+        sel.mods[modId] = Math.max(0, Number(sel.mods[modId] || 0) - 1);
+        if(sel.mods[modId] === 0) delete sel.mods[modId];
+      }else{
+        sel.mods[modId] = Number(sel.mods[modId] || 0) + 1;
+      }
+      renderItemsList();
+    });
+  });
+}
+
+  function updateTgInfo(){
+    const id = $("tgSelect").value || "";
+    $("tgInfo").textContent = id ? id : "—";
+
+  }
+
+  function updateMenuInfo(){
+    const id = $("menuSelect").value || "";
+    const m = (state.externalMenus || []).find(x => (x.id || x.externalMenuId) == id);
+    $("menuInfo").textContent = m ? `${m.name || m.externalMenuName || "menu"} — ${id}` : (id || "—");
+  }
+
+  function syncPayKind(){
+    const id = $("paymentTypeSelect").value;
+    const pt = (state.paymentTypes || []).find(x => x.id == id);
+    const kind = pt?.paymentTypeKind || pt?.kind;
+    if (kind) $("payKind").value = kind;
+  }
+
+  function syncServiceTypeFromOrderType(){
+    const id = $("orderTypeSelect").value;
+    const ot = Array.isArray(window._orderTypesFlat)
+      ? window._orderTypesFlat.find(x => x.id === id)
+      : null;
+    if (!ot) return;
+    const stype = ot.orderServiceType || "";
+    if (stype === "DeliveryByCourier" || stype === "DeliveryByClient") {
+      $("serviceType").value = stype;
+      toggleDeliveryFields(stype);
+    }
+  }
+
+  function toggleDeliveryFields(stype){
+    const isDelivery = stype === "DeliveryByCourier";
+    $("deliveryFields").style.display = isDelivery ? "block" : "none";
+    $("pickupFields").style.display = isDelivery ? "none" : "block";
+  }
+
+// === ACTIONS ===
+  async function connect(){
+    setStatus("Подключаюсь…", "warn");
+    logLine("=== CONNECT ===");
+
+    const apiKey = $("apiKey").value.trim();
+    if (!apiKey) throw new Error("API Key пустой");
+
+    // 1) access token
+    // /api/1/access_token: GetAccessTokenRequest includes apiLoginId :contentReference[oaicite:6]{index=6}
+    const tokenResp = await api("/api/1/access_token", { apiLogin: apiKey });
+    const token = tokenResp?.token || tokenResp?.accessToken || tokenResp;
+    state.token = token;
+    $("accessToken").value = token;
+
+    // 2) orgs
+    const orgsResp = await api("/api/1/organizations", { organizationIds: null, returnAdditionalInfo: true });
+    const orgs = orgsResp?.organizations || orgsResp?.organizationsInfo || orgsResp?.items || orgsResp;
+    if (!Array.isArray(orgs) || orgs.length === 0) throw new Error("Организации не получены (проверь права ключа)");
+
+    fillSelect($("orgSelect"), orgs,
+     o => `${o.name || o.organizationName || "Org"}`,
+     o => o.id || o.organizationId
+    );
+
+    state.orgId = $("orgSelect").value;
+
+    // 3) terminal groups
+    const tgResp = await api("/api/1/terminal_groups", { organizationIds: [state.orgId] });
+    // terminal_groups может приходить пачкой по оргам: [{ organizationId, items:[...] }]
+    const tgBlocks = tgResp?.terminalGroups || tgResp?.items || tgResp || [];
+    const tgs = Array.isArray(tgBlocks)
+      ? tgBlocks.flatMap(g => Array.isArray(g?.items) ? g.items : (Array.isArray(g) ? g : []))
+      : [];
+    state.terminalGroups = tgs;
+
+    if (state.terminalGroups.length) {
+    // запрос alive-статуса
+    const aliveResp = await api("/api/1/terminal_groups/is_alive", {
+    organizationIds: [state.orgId],
+    terminalGroupIds: state.terminalGroups.map(t => t.id || t.terminalGroupId).filter(Boolean),
+    });
+
+    const aliveList = aliveResp?.isAliveStatus || aliveResp?.items || aliveResp || [];
+     state.terminalAlive = new Map(
+     (Array.isArray(aliveList) ? aliveList : []).map(x => [String(x.terminalGroupId), !!x.isAlive])
+    );
+
+    fillSelect($("tgSelect"), state.terminalGroups,
+      t => {
+        const id = String(t.id || t.terminalGroupId);
+        const ok = state.terminalAlive.get(id);
+        const dot = ok ? "🟢" : "🔴";
+        return `${dot} ${t.name || "TerminalGroup"}`;
+      },
+      t => t.id || t.terminalGroupId
+    );
+
+    state.terminalGroupId = $("tgSelect").value;
+    updateTgInfo();
+  } else {
+    $("tgSelect").innerHTML = "<option value=''>—</option>";
+    $("tgInfo").textContent = "—";
+    state.terminalGroupId = "";
+  }
+  
+
+
+  
+
+
+    // 4) external menus list (api/2/menu) -> then by_id with externalMenuId
+    const menusResp = await api("/api/2/menu", { organizationIds: [state.orgId] });
+    const menus = menusResp?.externalMenus || menusResp?.menus || menusResp?.items || menusResp;
+    state.externalMenus = Array.isArray(menus) ? menus : [];
+    fillSelect($("menuSelect"), state.externalMenus,
+     m => `${m.name || m.externalMenuName || "menu"} — ${m.id || m.externalMenuId}`,
+     m => m.id || m.externalMenuId
+  );
+
+// и сразу обновим pill
+updateMenuInfo();
+    // menu source toggle UI
+    state.useApi1Menu = !!($('useApi1Menu')?.checked);
+    applyMenuSourceUi();
+
+    state.externalMenuId = $("menuSelect").value || "";
+
+    // price categories — приходят в КОРНЕ ответа menusResp.priceCategories, НЕ внутри каждого меню
+    const priceCats = Array.isArray(menusResp?.priceCategories) ? menusResp.priceCategories : [];
+    state.priceCategories = priceCats;
+    if (priceCats.length){
+      // Первая опция — "без категории" (базовые цены меню)
+      $("priceCatSelect").innerHTML = "<option value=''>— Выбери категорию —</option>";
+      for (const pc of priceCats){
+        const opt = document.createElement("option");
+        opt.value = pc.id;
+        opt.textContent = pc.name || pc.id;
+        $("priceCatSelect").appendChild(opt);
+      }
+      state.priceCategoryId = $("priceCatSelect").value || null;
+      logLine(`Ценовых категорий: ${priceCats.length} (${priceCats.map(p=>p.name||p.id).join(", ")})`);
+    } else {
+      $("priceCatSelect").innerHTML = "<option value=''>— Нет категорий —</option>";
+      state.priceCategoryId = null;
+    }
+
+    // 5) order types (delivery/pickup)
+    // /api/1/deliveries/order_types
+    const otResp = await api("/api/1/deliveries/order_types", { organizationIds: [state.orgId] });
+
+    const otGroups = Array.isArray(otResp?.orderTypes) ? otResp.orderTypes : [];
+    const orderTypesFlat = otGroups
+      .flatMap(g => Array.isArray(g?.items) ? g.items.map(x => ({...x, organizationId: g.organizationId})) : [])
+      .filter(x => x && x.isDeleted !== true);
+
+    // prefer defaults first, then name
+    orderTypesFlat.sort((a,b)=> (b.isDefault?1:0)-(a.isDefault?1:0) || String(a.name||"").localeCompare(String(b.name||""), "ru"));
+    window._orderTypesFlat = orderTypesFlat;
+
+    if (orderTypesFlat.length){
+      fillSelect($("orderTypeSelect"), orderTypesFlat,
+        x => `${x.name} (${x.orderServiceType || "—"})`,
+        x => x.id
+      );
+      // if any default, preselect it
+      const def = orderTypesFlat.find(x=>x.isDefault);
+      if (def) $("orderTypeSelect").value = def.id;
+      syncServiceTypeFromOrderType();
+    } else {
+      $("orderTypeSelect").innerHTML = "<option value=''>—</option>";
+    }
+    // /api/1/payment_types :contentReference[oaicite:9]{index=9}
+    const ptResp = await api("/api/1/payment_types", { organizationIds: [state.orgId] });
+    const pts = ptResp?.paymentTypes || ptResp?.items || ptResp;
+    state.paymentTypes = Array.isArray(pts) ? pts : [];
+    if (Array.isArray(pts) && pts.length){
+      fillSelect($("paymentTypeSelect"), pts,
+        x => `${x.name} (${x.paymentTypeKind || x.kind || "?"}) — ${x.id}`,
+        x => x.id
+      );
+      syncPayKind();
+    } else {
+      $("paymentTypeSelect").innerHTML = "<option value=''>—</option>";
+    }
+
+    setStatus("Подключено", "good");
+    logLine("=== CONNECT DONE ===");
+  }
+
+  async function reloadOrgDeps(){
+    state.orgId = $("orgSelect").value || "";
+
+    // сброс зависимых селектов/стейта
+    state.terminalGroups = [];
+    state.terminalAlive = new Map();
+    state.externalMenus = [];
+    state.externalMenuId = "";
+    state.priceCategories = [];
+    state.priceCategoryId = null;
+
+    $("tgSelect").innerHTML = "<option value=''>—</option>";
+    $("tgInfo").textContent = "—";
+    $("menuSelect").innerHTML = "<option value=''>—</option>";
+    $("menuInfo").textContent = "—";
+    $("priceCatSelect").innerHTML = "<option value=''>—</option>";
+
+    $("orderTypeSelect").innerHTML = "<option value=''>—</option>";
+    $("paymentTypeSelect").innerHTML = "<option value=''>—</option>";
+
+    // сброс загруженного меню/корзины (чтобы не отправить заказ не в ту орг)
+    state.menuModel = null;
+    state.menu = null;
+    state.itemsFlat = [];
+    $("itemsList").innerHTML = "";
+    $("catCount").textContent = "0";
+    $("itemCount").textContent = "0";
+    state.uiOpenCats.clear();
+
+    // 1) terminal groups
+    const tgResp = await api("/api/1/terminal_groups", { organizationIds: [state.orgId] });
+    const tgBlocks = tgResp?.terminalGroups || tgResp?.items || tgResp || [];
+    const tgs = Array.isArray(tgBlocks)
+      ? tgBlocks.flatMap(g => Array.isArray(g?.items) ? g.items : (Array.isArray(g) ? g : []))
+      : [];
+    state.terminalGroups = tgs;
+
+    if (tgs.length){
+      const aliveResp = await api("/api/1/terminal_groups/is_alive", {
+        organizationIds: [state.orgId],
+        terminalGroupIds: tgs.map(t => t.id || t.terminalGroupId).filter(Boolean),
+      });
+
+      const aliveList = aliveResp?.isAliveStatus || aliveResp?.items || aliveResp || [];
+      state.terminalAlive = new Map(
+        (Array.isArray(aliveList) ? aliveList : []).map(x => [String(x.terminalGroupId), !!x.isAlive])
+      );
+
+      fillSelect($("tgSelect"), tgs,
+        t => {
+          const id = String(t.id || t.terminalGroupId);
+          const ok = state.terminalAlive.get(id);
+          const dot = ok ? "🟢" : "🔴";
+          return `${dot} ${t.name || "TerminalGroup"}`;
+        },
+        t => t.id || t.terminalGroupId
+      );
+
+      state.terminalGroupId = $("tgSelect").value;
+      updateTgInfo();
+    }
+
+    // 2) external menus list
+    const menusResp = await api("/api/2/menu", { organizationIds: [state.orgId] });
+    const menus = menusResp?.externalMenus || menusResp?.menus || menusResp?.items || menusResp;
+    state.externalMenus = Array.isArray(menus) ? menus : [];
+
+    if (state.externalMenus.length){
+      fillSelect($("menuSelect"), state.externalMenus,
+        m => `${m.name || m.externalMenuName || "menu"} — ${m.id || m.externalMenuId}`,
+        m => m.id || m.externalMenuId
+      );
+      state.externalMenuId = $("menuSelect").value || "";
+      updateMenuInfo();
+    }
+
+    // 3) price categories — из КОРНЯ ответа menusResp.priceCategories, не из каждого меню
+    const priceCats = Array.isArray(menusResp?.priceCategories) ? menusResp.priceCategories : [];
+    state.priceCategories = priceCats;
+
+    if (priceCats.length){
+      $("priceCatSelect").innerHTML = "<option value=''>— Выбери категорию —</option>";
+      for (const pc of priceCats){
+        const opt = document.createElement("option");
+        opt.value = pc.id;
+        opt.textContent = pc.name || pc.id;
+        $("priceCatSelect").appendChild(opt);
+      }
+      state.priceCategoryId = $("priceCatSelect").value || null;
+      logLine(`Ценовых категорий: ${priceCats.length} (${priceCats.map(p=>p.name||p.id).join(", ")})`);
+    } else {
+      $("priceCatSelect").innerHTML = "<option value=''>— Нет категорий —</option>";
+      state.priceCategoryId = null;
+    }
+
+    // 4) order types
+    const otResp = await api("/api/1/deliveries/order_types", { organizationIds: [state.orgId] });
+    const otGroups = Array.isArray(otResp?.orderTypes) ? otResp.orderTypes : [];
+    const orderTypesFlat = otGroups
+      .flatMap(g => Array.isArray(g?.items) ? g.items.map(x => ({...x, organizationId: g.organizationId})) : [])
+      .filter(x => x && x.isDeleted !== true);
+
+    orderTypesFlat.sort((a,b)=> (b.isDefault?1:0)-(a.isDefault?1:0) || String(a.name||"").localeCompare(String(b.name||""), "ru"));
+    window._orderTypesFlat = orderTypesFlat;
+
+    if (orderTypesFlat.length){
+      fillSelect($("orderTypeSelect"), orderTypesFlat,
+        x => `${x.name} (${x.orderServiceType || "—"})`,
+        x => x.id
+      );
+      const def = orderTypesFlat.find(x=>x.isDefault);
+      if (def) $("orderTypeSelect").value = def.id;
+      syncServiceTypeFromOrderType();
+    }
+
+    // 5) payment types
+    const ptResp = await api("/api/1/payment_types", { organizationIds: [state.orgId] });
+    const pts = ptResp?.paymentTypes || ptResp?.items || ptResp;
+    state.paymentTypes = Array.isArray(pts) ? pts : [];
+
+    if (state.paymentTypes.length){
+      fillSelect($("paymentTypeSelect"), state.paymentTypes,
+        x => `${x.name} (${x.paymentTypeKind || x.kind || "?"}) — ${x.id}`,
+        x => x.id
+      );
+      syncPayKind();
+    }
+  }
+
+
+  function applyMenuSourceUi(){
+  const useV1 = !!state.useApi1Menu;
+  $("useApi1Menu").checked = useV1;
+
+  // when using api/1 menu, external menu + price category are irrelevant
+  $("menuSelect").disabled = useV1;
+  $("priceCatSelect").disabled = useV1;
+
+  // small visual hint
+  if (useV1){
+    $("menuInfo").textContent = "API v1 /nomenclature";
+  } else {
+    updateMenuInfo();
+  }
+}
+
+function buildMenuModelFromNomenclature(nom){
+  // Normalize /api/1/nomenclature response to shape used by renderer: { itemCategories:[{id,name,items:[]}] }
+  const categories = Array.isArray(nom?.productCategories) ? nom.productCategories : [];
+  const products = Array.isArray(nom?.products) ? nom.products : [];
+
+  // Only real sellable items (dish/good) – exclude modifiers
+  const isSellable = (p) => {
+    if (!p || typeof p !== "object") return false;
+    if (p.isDeleted === true) return false;
+    const t = String(p.type || "").toLowerCase();
+    if (t === "modifier") return false;
+    const oit = String(p.orderItemType || "").toLowerCase();
+    // orderItemType can be missing for some integrations, so keep dish/good anyway
+    if (oit && oit !== "product" && oit !== "compound") return false;
+    return !!(p.id && p.name);
+  };
+
+  const orgId = state.orgId;
+
+  const normalizeItem = (p) => {
+    const sizePrices = Array.isArray(p.sizePrices) ? p.sizePrices : [];
+    const first = sizePrices[0];
+    const firstPrice = first?.price?.currentPrice ?? 0;
+
+    // map sizePrices -> itemSizes (what renderer expects)
+    const itemSizes = sizePrices.map((sp, idx) => ({
+      sizeId: sp.sizeId || null,
+      isDefault: idx === 0,
+      // renderer expects prices: [{ organizationId, price }]
+      prices: [{ organizationId: orgId, price: Number(sp?.price?.currentPrice || 0) }],
+      // keep raw as well
+      price: Number(sp?.price?.currentPrice || 0),
+    }));
+
+    return {
+      id: p.id,
+      name: p.name,
+      code: p.code || "",
+      orderItemType: p.orderItemType || "Product",
+      type: p.type || "dish",
+      productCategoryId: p.productCategoryId || null,
+      description: p.description || "",
+      isDeleted: p.isDeleted || false,
+      // fallback flat price
+      prices: [{ organizationId: orgId, price: Number(firstPrice || 0) }],
+      itemSizes,
+      // modifiers
+      modifiers: Array.isArray(p.modifiers) ? p.modifiers : [],
+      groupModifiers: Array.isArray(p.groupModifiers) ? p.groupModifiers : [],
+      // images
+      buttonImageUrl: (Array.isArray(p.imageLinks) && p.imageLinks[0]) ? p.imageLinks[0] : (p.buttonImageUrl || null),
+      raw: p,
+    };
+  };
+
+  const sellable = products.filter(isSellable).map(normalizeItem);
+
+  // Make a category map
+  const byCat = new Map();
+  for (const c of categories){
+    byCat.set(String(c.id), { id: c.id, name: c.name, items: [] });
+  }
+  // Unknown category bucket (если у блюда нет категории)
+  const uncId = "__uncat__";
+  byCat.set(uncId, { id: uncId, name: "Без категории", items: [] });
+
+  for (const it of sellable){
+    const cid = it.productCategoryId ? String(it.productCategoryId) : uncId;
+    if (!byCat.has(cid)) byCat.set(cid, { id: cid, name: "Без категории", items: [] });
+    byCat.get(cid).items.push(it);
+  }
+
+  // Keep only categories that have items
+  const itemCategories = [...byCat.values()].filter(c => Array.isArray(c.items) && c.items.length > 0);
+
+  // Stable sort: by name
+  itemCategories.sort((a,b)=> String(a.name||"").localeCompare(String(b.name||""), "ru"));
+
+  return { itemCategories };
+}
+
+async function loadMenuApi1(){
+  logLine("LOAD MENU MODE: API v1 (/api/1/nomenclature)");
+  state.orgId = $("orgSelect").value;
+  if (!state.orgId) throw new Error("Не выбрана организация");
+
+  const body = { organizationId: state.orgId, startRevision: 0 };
+  const nom = await api("/api/1/nomenclature", body);
+
+  state.nomenclatureRevision = Number(nom?.revision || 0) || 0;
+  state.menuModel = nom;
+  state.menu = buildMenuModelFromNomenclature(nom);
+  state.itemsFlat = flattenMenu(nom); // оставим для совместимости/экспорта
+  state.uiOpenCats.clear();
+
+  $("catCount").textContent = String(state.menu?.itemCategories?.length || 0);
+  renderItemsList();
+
+  logLine(`Loaded API1 nomenclature. revision=${state.nomenclatureRevision} itemsFlat=${state.itemsFlat.length}`);
+}
+
+async function loadMenuApi2External(){
+  logLine("LOAD MENU MODE: API v2 (/api/2/menu/by_id)");
+  state.orgId = $("orgSelect").value;
+  state.externalMenuId = $("menuSelect").value;
+  state.priceCategoryId = $("priceCatSelect").value || null;
+
+  if (!state.externalMenuId) throw new Error("Не выбран external menu");
+
+  const body = {
+    externalMenuId: state.externalMenuId,
+    organizationIds: [state.orgId],
+    priceCategoryId: state.priceCategoryId || null,
+  };
+
+  const menu = await api("/api/2/menu/by_id", body);
+  state.menuModel = menu;
+  state.menu = menu;
+  state.itemsFlat = flattenMenu(menu);
+  state.uiOpenCats.clear();
+
+  $("menuInfo").textContent = state.externalMenuId;
+  const loadedCats = Array.isArray(menu?.itemCategories) ? menu.itemCategories : [];
+  const loadedItems = loadedCats.reduce((acc, c) => acc + (Array.isArray(c.items) ? c.items.length : 0), 0);
+  $("catCount").textContent = String(loadedCats.length);
+  $("itemCount").textContent = String(loadedItems);
+  renderItemsList();
+
+  logLine(`Loaded menu. itemsFlat=${state.itemsFlat.length}`);
+}
+
+async function loadMenu(){
+  logLine("=== LOAD MENU ===");
+  if (state.useApi1Menu) return loadMenuApi1();
+  return loadMenuApi2External();
+}
+
+async function sendOrder(){
+    logLine("=== SEND ORDER ===");
+
+    state.orgId = $("orgSelect").value;
+    state.terminalGroupId = $("tgSelect").value;
+
+    if (!state.orgId) throw new Error("Не выбрана организация");
+    if (!state.terminalGroupId) throw new Error("Не выбрана terminalGroupId");
+    if (!state.cart.length) throw new Error("Корзина пустая");
+
+    const serviceType = $("serviceType").value; // DeliveryByCourier / DeliveryByClient
+    const orderTypeId = $("orderTypeSelect").value || null;
+    const paymentTypeId = $("paymentTypeSelect").value || null;
+    const paymentTypeKind = $("payKind").value;
+
+    if (!paymentTypeId) throw new Error("Не выбран тип оплаты");
+
+    const phone = $("phone").value.trim();
+    if (!phone) throw new Error("Phone пустой");
+
+    const sum = Number($("totalSum").textContent || 0);
+
+    // completeBefore — по выбору пользователя
+    const cbMode = $("completeBeforeMode").value;
+    let completeBefore = null;
+    if (cbMode === "null") {
+      completeBefore = null; // срочный заказ, iiko сам считает время
+    } else if (cbMode === "custom") {
+      const val = $("completeBeforeCustom").value; // "2026-02-26T12:30"
+      if (!val) throw new Error("Укажи дату/время в поле completeBefore");
+      // конвертим из datetime-local (YYYY-MM-DDTHH:mm) в нужный формат
+      completeBefore = val.replace("T", " ") + ":00.000";
+    } else {
+      // +N минут от текущего момента
+      const offset = parseInt(cbMode, 10) * 60 * 1000;
+      const t = new Date(Date.now() + offset);
+      const pad = n => String(n).padStart(2,"0");
+      const pad3 = n => String(n).padStart(3,"0");
+      completeBefore = `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())} ${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
+    }
+
+    // Items — по схеме ProductOrderItem: type, productId, amount, price, modifiers[]{productId, amount}
+    const items = state.cart.map(line => ({
+      type: "Product",
+      productId: line.baseProductId,
+      amount: Number(line.qty || 1),
+      price: Number(line.basePrice || 0),
+      modifiers: (line.modifiers || []).map(m => ({
+        productId: m.productId,
+        amount: Number(m.qty || 1),
+        price: Number(m.price || 0)
+      }))
+    }));
+
+    // Customer — тип "one-time" (анонимный), не добавляет в БД
+    const customer = {
+      type: "one-time",
+      name: $("custName").value.trim() || "ТЕСТ"
+    };
+
+    // DeliveryPoint — только для курьера, для самовывоза null
+    let deliveryPoint = null;
+    if (serviceType === "DeliveryByCourier") {
+      const street = $("deliveryStreet").value.trim();
+      const house = $("deliveryHouse").value.trim();
+      if (!street || !house) throw new Error("Для доставки курьером укажи улицу и дом");
+      const flat = $("deliveryFlat").value.trim();
+      const city = $("deliveryCity").value.trim();
+      const entrance = $("deliveryEntrance").value.trim();
+      const floor = $("deliveryFloor").value.trim();
+      const addrComment = $("deliveryComment").value.trim();
+
+      deliveryPoint = {
+        address: {
+          type: "legacy",
+          street: {
+            name: street,
+            ...(city ? { city } : {})
+          },
+          house,
+          ...(flat ? { flat } : {}),
+          ...(entrance ? { entrance } : {}),
+          ...(floor ? { floor } : {})
+        },
+        ...(addrComment ? { comment: addrComment } : {})
+      };
+    }
+
+    const order = {
+      id: null,
+      completeBefore,
+      phone,
+      orderTypeId: orderTypeId || null,
+      orderServiceType: orderTypeId ? null : serviceType,
+      deliveryPoint,
+      customer,
+      comment: "Тестовый заказ (Console)",
+      guests: { count: 1, splitBetweenPersons: false },
+      items,
+      payments: [{
+        paymentTypeKind,
+        sum,
+        paymentTypeId,
+        isProcessedExternally: true
+      }]
+    };
+
+    const body = {
+      organizationId: state.orgId,
+      terminalGroupId: state.terminalGroupId,
+      createOrderSettings: {},
+      order
+    };
+
+    logLine(`serviceType=${serviceType} | orderTypeId=${orderTypeId||"—"} | completeBefore=${completeBefore}`);
+    logLine("ORDER BODY: " + safeJson(body));
+
+    const resp = await api("/api/1/deliveries/create", body);
+    logLine("ORDER SENT OK: " + safeJson(resp));
+
+    // Сохраняем orderId для последующей отмены
+    const orderId = resp?.orderInfo?.id;
+    if (orderId) {
+      state.lastOrderId = orderId;
+      logLine(`ORDER ID: ${orderId}`);
+      $("lastOrderIdDisplay").value = orderId;
+      $("btnCancelOrder").disabled = false;
+      setStatus("Заказ отправлен ✓", "good");
+    }
+  }
+
+  async function loadCancelCauses(){
+    logLine("=== LOAD CANCEL CAUSES ===");
+    if (!state.orgId) throw new Error("Не выбрана организация");
+
+    const resp = await api("/api/1/cancel_causes", { organizationIds: [state.orgId] });
+    const causes = (resp?.cancelCauses || []).filter(c => !c.isDeleted);
+    state.cancelCauses = causes;
+
+    const sel = $("cancelCauseSelect");
+    sel.innerHTML = '<option value="">— не указывать —</option>';
+    for (const c of causes) {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    }
+    logLine(`Причин отмены загружено: ${causes.length} (${causes.map(c=>c.name).join(", ")})`);
+  }
+
+  async function cancelOrder(){
+    logLine("=== CANCEL ORDER ===");
+    // Читаем orderId из поля (либо из стейта, либо вручную вставленный)
+    const orderId = $("lastOrderIdDisplay").value.trim() || state.lastOrderId;
+    if (!orderId) throw new Error("Нет orderId. Введи вручную или сначала отправь заказ.");
+    if (!state.orgId) throw new Error("Не выбрана организация");
+
+    const cancelCauseId = $("cancelCauseSelect").value || null;
+    const body = {
+      organizationId: state.orgId,
+      orderId: orderId,
+      ...(cancelCauseId ? { cancelCauseId } : {}),
+      cancelComment: "Отменено через IIKO API Console"
+    };
+    if (cancelCauseId) {
+      const causeName = state.cancelCauses.find(c => c.id === cancelCauseId)?.name || cancelCauseId;
+      logLine(`Причина отмены: ${causeName}`);
+    }
+
+    logLine("CANCEL BODY: " + safeJson(body));
+    const resp = await api("/api/1/deliveries/cancel", body);
+    logLine("CANCEL OK: " + safeJson(resp));
+    setStatus("Заказ отменён ✓", "warn");
+    $("btnCancelOrder").disabled = true;
+    state.lastOrderId = null;
+    $("lastOrderIdDisplay").value = "";
+  }
+
+  async function loadStopLists(){
+    logLine("=== LOAD STOP LISTS ===");
+    state.orgId = $("orgSelect").value;
+    state.terminalGroupId = $("tgSelect").value;
+
+    if (!state.orgId) throw new Error("Не выбрана организация");
+
+    // По docs: organizationIds обязателен, terminalGroupsIds опционален
+    const body = {
+      organizationIds: [state.orgId],
+      returnSize: false,
+      ...(state.terminalGroupId ? { terminalGroupsIds: [state.terminalGroupId] } : {})
+    };
+
+    const resp = await api("/api/1/stop_lists", body);
+    state.stopLists = resp;
+
+    // Реальная структура: terminalGroupStopLists[].items[].items[].productId
+    const outerGroups = resp?.terminalGroupStopLists || [];
+    if (!outerGroups.length) {
+      logLine("Стоп-лист пустой или нет данных.");
+    } else {
+      let totalStopped = 0;
+      for (const outer of outerGroups) {
+        const tgBlocks = Array.isArray(outer?.items) ? outer.items : [];
+        for (const tgBlock of tgBlocks) {
+          const tgId = tgBlock?.terminalGroupId || "—";
+          const items = Array.isArray(tgBlock?.items) ? tgBlock.items : [];
+          totalStopped += items.length;
+          logLine(`TerminalGroup ${tgId}: ${items.length} позиций в стоп-листе`);
+          for (const it of items.slice(0, 30)) {
+            logLine(`  [STOP] productId=${it.productId || "?"} | sku=${it.sku || "?"} | balance=${it.balance ?? 0}`);
+          }
+          if (items.length > 30) logLine(`  ... ещё ${items.length - 30} позиций`);
+        }
+      }
+      if (totalStopped === 0) logLine("Стоп-лист пустой.");
+    }
+    logLine("=== STOP LISTS DONE ===");
+
+    // Обновляем индикаторы в меню и корзине
+    if (state.menu) renderItemsList();
+    renderCart();
+  }
+
+  function exportAll(){
+    const blob = new Blob([JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      rid: state.lastRid,
+      orgId: state.orgId,
+      terminalGroupId: state.terminalGroupId,
+      externalMenuId: state.externalMenuId,
+      priceCategoryId: state.priceCategoryId,
+      cart: state.cart,
+      menuSample: state.menuModel ? "[menu loaded]" : "[no menu]",
+      log: logEl.value,
+    }, null, 2)], {type:"application/json;charset=utf-8"});
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "iiko-l1-export.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // === EVENTS ===
+  $("workerCF").value = "";
+  $("workerVC").value = "";
+  updateWorkerActiveUI();
+  state.useApi1Menu = $("useApi1Menu").checked;
+  applyMenuSourceUi();
+
+  $("btnConnect").addEventListener("click", async ()=>{
+    try { await connect(); }
+    catch(e){ logLine("CONNECT ERROR: " + String(e)); setStatus("Ошибка подключения", "bad"); }
+  });
+
+  $("btnLoadMenu").addEventListener("click", async ()=>{
+    try { await loadMenu(); }
+    catch(e){ logLine("LOAD MENU ERROR: " + String(e)); setStatus("Ошибка меню", "bad"); }
+  });
+
+  $("search").addEventListener("input", renderItemsList);
+
+  $("tgSelect").addEventListener("change", updateTgInfo);
+  $("menuSelect").addEventListener("change", updateMenuInfo);
+
+  $("priceCatSelect").addEventListener("change", ()=>{
+    state.priceCategoryId = $("priceCatSelect").value || null;
+    const label = state.priceCategoryId
+      ? ($("priceCatSelect").options[$("priceCatSelect").selectedIndex]?.text || state.priceCategoryId)
+      : "базовые цены";
+    logLine(`Ценовая категория изменена: ${label}. Нажми «Загрузить меню» чтобы применить.`);
+  });
+  $("useApi1Menu").addEventListener("change", ()=>{ state.useApi1Menu = $("useApi1Menu").checked; applyMenuSourceUi(); });
+  $("completeBeforeMode").addEventListener("change", ()=>{
+    const isCustom = $("completeBeforeMode").value === "custom";
+    $("completeBeforeCustomWrap").style.display = isCustom ? "block" : "none";
+    if (isCustom) {
+      // предзаполним на +60 мин
+      const t = new Date(Date.now() + 60*60*1000);
+      const pad = n => String(n).padStart(2,"0");
+      $("completeBeforeCustom").value = `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}T${pad(t.getHours())}:${pad(t.getMinutes())}`;
+    }
+  });
+
+  $("paymentTypeSelect").addEventListener("change", syncPayKind);
+
+  $("orderTypeSelect").addEventListener("change", syncServiceTypeFromOrderType);
+
+  $("serviceType").addEventListener("change", ()=>{
+    toggleDeliveryFields($("serviceType").value);
+  });
+
+  $("btnLoadStop").addEventListener("click", async ()=>{
+    try { await loadStopLists(); }
+    catch(e){ logLine("STOP LISTS ERROR: " + String(e)); setStatus("Ошибка стоп-листов", "bad"); }
+  });
+  $("orgSelect").addEventListener("change", async ()=>{
+    try { await reloadOrgDeps(); }
+    catch(e){ logLine("ORG CHANGE ERROR: " + String(e)); setStatus("Ошибка при смене орг", "bad"); }
+  });
+
+  $("workerActive").addEventListener("change", updateWorkerActiveUI);
+
+  $("btnClearLog").addEventListener("click", ()=>{ logEl.value=""; });
+
+  $("btnClear").addEventListener("click", ()=>{
+    state.token=""; state.menuModel=null; state.menu=null; state.itemsFlat=[]; state.cart=[]; state.lastOrderId=null;
+    state.uiOpenCats.clear();
+    $("accessToken").value="";
+    $("itemsList").innerHTML="";
+    $("cart").innerHTML="";
+    $("totalSum").textContent="0";
+    $("catCount").textContent="0";
+    $("itemCount").textContent="0";
+    $("menuInfo").textContent="—";
+    uiRid(null);
+    $("lastOrderIdDisplay").value="";
+    $("btnCancelOrder").disabled=true;
+    setStatus("Не подключено", "warn");
+    logEl.value="";
+  });
+
+  $("btnExport").addEventListener("click", exportAll);
+
+  $("btnLoadCancelCauses").addEventListener("click", async ()=>{
+    try { await loadCancelCauses(); }
+    catch(e){ logLine("LOAD CANCEL CAUSES ERROR: " + String(e)); setStatus("Ошибка загрузки причин", "bad"); }
+  });
+
+  // btnManualCancel — отмена по ID из поля (читается внутри cancelOrder)
+  $("btnManualCancel").addEventListener("click", async ()=>{
+    try { await cancelOrder(); }
+    catch(e){ logLine("CANCEL ORDER ERROR: " + String(e)); setStatus("Ошибка отмены заказа", "bad"); }
+  });
+
+  $("btnCancelOrder").addEventListener("click", async ()=>{
+    try { await cancelOrder(); }
+    catch(e){ logLine("CANCEL ORDER ERROR: " + String(e)); setStatus("Ошибка отмены заказа", "bad"); }
+  });
+
+  $("btnCopyOrderId").addEventListener("click", ()=>{
+    const id = $("lastOrderIdDisplay").value.trim() || state.lastOrderId;
+    if (!id) { logLine("Нет Order ID для копирования"); return; }
+    navigator.clipboard.writeText(id).then(()=>{ logLine("Order ID скопирован: " + id); });
+  });
+
+  $("btnSendOrder").addEventListener("click", async ()=>{
+    try { await sendOrder(); }
+    catch(e){ logLine("SEND ORDER ERROR: " + String(e)); setStatus("Ошибка отправки заказа", "bad"); }
+  });
+
+  $("btnAddRandom").addEventListener("click", ()=>{
+    state.cart.push({ baseProductId: "00000000-0000-0000-0000-000000000000", name: "Dummy item", sizeName: "", qty: 1, basePrice: 0, hidden: false, modifiers: [], modsKey: "[]" });
+    renderCart();
+  });
+
+  $("btnAddById").addEventListener("click", ()=>{
+    const id = prompt("Вставь productId (uuid):");
+    if (!id) return;
+    state.cart.push({ productId: id.trim(), name: "Manual productId", amount: 1, price: 0 });
+    renderCart();
+  });
+
+  // init
+  setStatus("Не подключено", "warn");
+  toggleDeliveryFields($("serviceType").value);
+</script>
+</body>
+</html>
