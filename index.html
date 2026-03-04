@@ -400,6 +400,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
           <div class="row">
             <button class="btn" id="btnYLoadMenu">Загрузить меню</button>
+            <button class="btn" id="btnYLoadStop">Стоп-листы</button>
             <button class="btn good" id="btnExportY">Export</button>
           </div>
 
@@ -720,6 +721,8 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     yRestaurants: [],
     yRestaurantId: "",
     yMenu: null,
+    yStopItems: new Set(),
+    yStopModifiers: new Set(),
   };
 
   // === DOM ===
@@ -992,6 +995,23 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     logLine("=== YANDEX CONNECT DONE ===");
   }
 
+  async function yandexLoadAvailability() {
+    logLine("=== YANDEX STOP LIST ===");
+    state.yRestaurantId = $("yRestaurantSelect").value;
+    if (!state.yRestaurantId) throw new Error("Не выбран ресторан");
+
+    const data = await yandexApi(`menu/${state.yRestaurantId}/availability`, undefined, "GET");
+    const unavailableItems     = (data?.items     || []).map(i => String(i.itemId));
+    const unavailableModifiers = (data?.modifiers || []).map(m => String(m.modifierId));
+
+    state.yStopItems     = new Set(unavailableItems);
+    state.yStopModifiers = new Set(unavailableModifiers);
+
+    logLine(`Недоступно блюд: ${unavailableItems.length}, модификаторов: ${unavailableModifiers.length}`);
+    logLine("=== YANDEX STOP LIST DONE ===");
+    renderItemsList();
+  }
+
   async function yandexLoadMenu() {
     logLine("=== YANDEX LOAD MENU ===");
     state.yRestaurantId = $("yRestaurantSelect").value;
@@ -1230,7 +1250,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   // === STOP LIST HELPERS (module-level, доступны везде) ===
   // Структура ответа: terminalGroupStopLists[].items[].items[].productId
   function isInStopList(productId){
-    if (!productId || !state.stopLists) return false;
+    if (!productId) return false;
+    if (apiMode === "yandex") return state.yStopItems.has(String(productId));
+    if (!state.stopLists) return false;
     const outerGroups = state.stopLists?.terminalGroupStopLists || [];
     for (const outer of outerGroups){
       const tgBlocks = Array.isArray(outer?.items) ? outer.items : [];
@@ -2533,6 +2555,11 @@ async function sendOrder(){
   $("btnYLoadMenu").addEventListener("click", async ()=>{
     try { await yandexLoadMenu(); }
     catch(e){ logLine("YANDEX LOAD MENU ERROR: " + String(e)); setStatus("Ошибка меню Yandex", "bad"); }
+  });
+
+  $("btnYLoadStop").addEventListener("click", async ()=>{
+    try { await yandexLoadAvailability(); }
+    catch(e){ logLine("YANDEX STOP ERROR: " + String(e)); setStatus("Ошибка стоп-листа Yandex", "bad"); }
   });
 
   $("search").addEventListener("input", renderItemsList);
