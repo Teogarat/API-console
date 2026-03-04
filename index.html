@@ -207,6 +207,33 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 .dot-off{background:#ff4d4f}
 .dot-stop{background:#a855f7}
 .dot-zero{background:#ffcc00}
+
+/* API Mode Toggle */
+.api-mode-bar{
+  display:flex; gap:0; border-radius:12px; overflow:hidden;
+  border:1px solid var(--border); background:rgba(15,23,42,.6);
+  margin-bottom:10px; flex-shrink:0;
+}
+.api-mode-btn{
+  flex:1; padding:8px 10px; font-size:12px; font-weight:700;
+  border:none; background:transparent; color:var(--muted);
+  cursor:pointer; transition:.15s; letter-spacing:.03em;
+}
+.api-mode-btn.active-cloud{background:linear-gradient(135deg,rgba(74,163,255,.35),rgba(74,163,255,.15));color:#4aa3ff;border-right:1px solid var(--border);}
+.api-mode-btn.active-yandex{background:linear-gradient(135deg,rgba(255,204,0,.35),rgba(255,204,0,.15));color:#ffcc00;}
+.api-mode-btn:not(.active-cloud):not(.active-yandex):hover{background:rgba(255,255,255,.06)}
+
+.yandex-fields{display:none}
+.yandex-fields.visible{display:block}
+.cloud-fields{display:block}
+.cloud-fields.hidden{display:none}
+
+.badge-yandex{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:800;letter-spacing:.05em;
+  padding:2px 7px;border-radius:5px;
+  background:rgba(255,204,0,.18);color:#ffcc00;border:1px solid rgba(255,204,0,.3);
+}
 </style>
 </head>
 <body>
@@ -236,82 +263,154 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         </div>
       </div>
       <div class="bd">
-        <label>Proxy Worker URL</label>
-        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
-          <div class="worker-row" id="workerRowCF">
-            <span class="worker-badge cf">CF</span>
-            <input id="workerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
-            <span class="worker-ping-dot" id="pingDotCF" title="—"></span>
-          </div>
-          <div class="worker-row" id="workerRowVC">
-            <span class="worker-badge vc">VC</span>
-            <input id="workerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
-            <span class="worker-ping-dot" id="pingDotVC" title="—"></span>
-          </div>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-          <span style="font-size:12px;color:var(--muted)">Активный:</span>
-          <select id="workerActive" style="font-size:12px;flex:1;min-width:0">
-            <option value="cf">Cloudflare</option>
-            <option value="vc" selected>Vercel</option>
-          </select>
+
+        <!-- API Mode Toggle -->
+        <div class="api-mode-bar">
+          <button class="api-mode-btn active-cloud" id="modeBtnCloud" onclick="setApiMode('cloud')">☁️ iiko Cloud API</button>
+          <button class="api-mode-btn" id="modeBtnYandex" onclick="setApiMode('yandex')">🍕 Yandex Eda API</button>
         </div>
 
-        <div style="height:10px"></div>
-
-        <label>API Key (apiLoginId)</label>
-        <input id="apiKey" placeholder="вставь ключ сюда" />
-
-        <div style="height:10px"></div>
-
-        <div class="split">
-          <div style="display:none">
-            <input id="accessToken" />
+        <!-- iiko Cloud fields -->
+        <div class="cloud-fields" id="cloudFields">
+          <label>Proxy Worker URL</label>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+            <div class="worker-row" id="workerRowCF">
+              <span class="worker-badge cf">CF</span>
+              <input id="workerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="pingDotCF" title="—"></span>
+            </div>
+            <div class="worker-row" id="workerRowVC">
+              <span class="worker-badge vc">VC</span>
+              <input id="workerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="pingDotVC" title="—"></span>
+            </div>
           </div>
-          <div>
-            <label>Timeout (сек)</label>
-            <input id="timeout" type="number" value="15" min="1" max="120"/>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+            <span style="font-size:12px;color:var(--muted)">Активный:</span>
+            <select id="workerActive" style="font-size:12px;flex:1;min-width:0">
+              <option value="cf">Cloudflare</option>
+              <option value="vc" selected>Vercel</option>
+            </select>
+          </div>
+
+          <label>API Key (apiLoginId)</label>
+          <input id="apiKey" placeholder="вставь ключ сюда" />
+
+          <div style="height:10px"></div>
+          <div class="split">
+            <div style="display:none"><input id="accessToken" /></div>
+            <div>
+              <label>Timeout (сек)</label>
+              <input id="timeout" type="number" value="15" min="1" max="120"/>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="split">
+            <div>
+              <label>Organization</label>
+              <select id="orgSelect"></select>
+            </div>
+            <div>
+              <label>Terminal group</label>
+              <select id="tgSelect"></select>
+              <div class="muted small mono" id="tgInfo">—</div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="split">
+            <div>
+              <label>External menu</label>
+              <select id="menuSelect"></select>
+            </div>
+            <div>
+              <label>Price category</label>
+              <select id="priceCatSelect"></select>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <label class="chk"><input type="checkbox" id="useApi1Menu" /> Меню через API v1 (если внешнее меню не задано)</label>
+
+          <div class="row">
+            <button class="btn" id="btnLoadMenu">Загрузить меню</button>
+            <button class="btn" id="btnLoadStop">Стоп-листы</button>
+            <button class="btn good" id="btnExport">Export (json+log)</button>
           </div>
         </div>
 
-        <div style="height:10px"></div>
-
-        <div class="split">
-          <div>
-            <label>Organization</label>
-            <select id="orgSelect"></select>
+        <!-- Yandex Eda fields -->
+        <div class="yandex-fields" id="yandexFields">
+          <div style="margin-bottom:8px">
+            <span class="badge-yandex">Yandex Eda Vendor API</span>
           </div>
-          <div>
-            <label>Terminal group</label>
-            <select id="tgSelect"></select>
-            <div class="muted small mono" id="tgInfo">—</div>
+
+          <label>Proxy Worker URL</label>
+          <div style="display:block">
+            <div class="worker-row" id="yWorkerRowCF">
+              <span class="worker-badge cf">CF</span>
+              <input id="yWorkerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="yPingDotCF" title="—"></span>
+            </div>
+            <div class="worker-row" id="yWorkerRowVC">
+              <span class="worker-badge vc">VC</span>
+              <input id="yWorkerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="yPingDotVC" title="—"></span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+              <span style="font-size:12px;color:var(--muted)">Активный:</span>
+              <select id="yWorkerActive" style="font-size:12px;flex:1;min-width:0">
+                <option value="cf">Cloudflare</option>
+                <option value="vc" selected>Vercel</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Webhook URL <span style="font-size:11px;color:var(--muted)">(хост для всех запросов Yandex Eda)</span></label>
+          <input id="yWebhookUrl" placeholder="https://ip-hozhiev-a-a.iikoweb.ru/api/integrations/yandex-food" />
+
+          <div style="height:8px"></div>
+
+          <label>Client ID</label>
+          <input id="yClientId" placeholder="client_id из кабинета партнёра" />
+
+          <div style="height:8px"></div>
+
+          <label>Client Secret</label>
+          <input id="yClientSecret" placeholder="client_secret" type="password" />
+
+          <div style="height:8px"></div>
+
+          <div class="split">
+            <div>
+              <label>Timeout (сек)</label>
+              <input id="yTimeout" type="number" value="15" min="1" max="120"/>
+            </div>
+            <div>
+              <label>Ресторан</label>
+              <select id="yRestaurantSelect"><option value="">— подключись —</option></select>
+            </div>
+          </div>
+
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <button class="btn" id="btnYLoadMenu">Загрузить меню</button>
+            <button class="btn good" id="btnExportY">Export</button>
+          </div>
+
+          <div style="height:6px"></div>
+          <div class="footerNote">
+            Auth: OAuth2 client_credentials → Bearer token.<br>
+            Base URL: <span class="mono">https://b2b.taxi.yandex.net/api/v1/eats-restapi</span>
           </div>
         </div>
 
-        <div style="height:10px"></div>
-
-        <div class="split">
-          <div>
-            <label>External menu</label>
-            <select id="menuSelect"></select>
-          </div>
-          <div>
-            <label>Price category</label>
-            <select id="priceCatSelect"></select>
-          </div>
-        </div>
-
-        <div style="height:10px"></div>
-
-        <label class="chk"><input type="checkbox" id="useApi1Menu" /> Меню через API v1 (если внешнее меню не задано)</label>
-
-        <div class="row">
-          <button class="btn" id="btnLoadMenu">Загрузить меню</button>
-          <button class="btn" id="btnLoadStop">Стоп-листы</button>
-          <button class="btn good" id="btnExport">Export (json+log)</button>
-        </div>
-
-        <div class="footerNote">
+        <div class="footerNote cloud-fields" id="cloudNote">
           Если где-то 401/400 — смотри <b>Logs</b> справа: там будет статус, тело ошибки и <b>RID</b> из Worker.
         </div>
       </div>
@@ -388,6 +487,47 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
               <option value="Card">Card</option>
               <option value="LoyaltyCard">iikoCard</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Yandex order options (hidden by default) -->
+        <div id="yandexOrderFields" style="display:none">
+          <div style="height:8px"></div>
+          <div class="split">
+            <div>
+              <label>Discriminator (тип заказа)</label>
+              <select id="yDiscriminator">
+                <option value="yandex">yandex (доставка Яндекса)</option>
+                <option value="marketplace">marketplace (доставка партнёра)</option>
+                <option value="pickup">pickup (самовывоз)</option>
+              </select>
+            </div>
+            <div>
+              <label>Payment type</label>
+              <select id="yPaymentType">
+                <option value="CARD">CARD (оплачен)</option>
+                <option value="CASH">CASH (наличные)</option>
+              </select>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div>
+            <label>eatsId (ID заказа Яндекса, формат DDDDDD-DDDDDDDD)</label>
+            <input id="yEatsId" placeholder="190330-12345678" value="000000-00000001" />
+          </div>
+          <div style="height:8px"></div>
+          <div class="split">
+            <div>
+              <label>Сумма заказа (itemsCost)</label>
+              <input id="yItemsCost" type="number" value="0" min="0" />
+            </div>
+            <div>
+              <label>Platform</label>
+              <select id="yPlatform">
+                <option value="YE">YE (Yandex Eda)</option>
+                <option value="DC">DC (Delivery Club)</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -510,7 +650,6 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
 <script>
   // === CONFIG ===
-  // Впиши сюда свой воркер (или вставь в поле UI)
   const WORKER_BASE_DEFAULT = "";
 
   // CF:  base + /proxy  + /api/1/...
@@ -519,6 +658,38 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const active = $("workerActive")?.value || "vc";
     if (active === "vc") return "";
     return "/proxy";
+  }
+
+  // === API MODE ===
+  let apiMode = "cloud"; // "cloud" | "yandex"
+
+  function setApiMode(mode) {
+    // Save current inputs before switching
+    if (apiMode !== mode) {
+      apiMode = mode;
+      updateApiModeUI();
+      logLine(`Переключено на: ${mode === "cloud" ? "iiko Cloud API" : "Yandex Eda API"}`);
+      setStatus("Не подключено", "warn");
+    }
+  }
+
+  function updateApiModeUI() {
+    const isYandex = apiMode === "yandex";
+    $("modeBtnCloud").className = "api-mode-btn" + (!isYandex ? " active-cloud" : "");
+    $("modeBtnYandex").className = "api-mode-btn" + (isYandex ? " active-yandex" : "");
+    $("cloudFields").className = "cloud-fields" + (isYandex ? " hidden" : "");
+    $("cloudNote").className = "footerNote cloud-fields" + (isYandex ? " hidden" : "");
+    $("yandexFields").className = "yandex-fields" + (isYandex ? " visible" : "");
+    $("yandexOrderFields").style.display = isYandex ? "block" : "none";
+    // Hide iiko-only order rows when Yandex
+    const iikoOrderRows = ["orderTypeSelect", "paymentTypeSelect", "serviceType", "payKind"];
+    const iikoOrderWrap = document.querySelector("#serviceType")?.closest(".split");
+    const orderTypeWrap = document.querySelector("#orderTypeSelect")?.closest(".split");
+    if (iikoOrderWrap) iikoOrderWrap.style.display = isYandex ? "none" : "";
+    if (orderTypeWrap) orderTypeWrap.style.display = isYandex ? "none" : "";
+    // Cancel causes row
+    const causeRow = $("cancelCauseSelect")?.closest("div[style]");
+    if (causeRow) causeRow.style.display = isYandex ? "none" : "";
   }
 
   // === STATE ===
@@ -532,19 +703,23 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     priceCategoryId: null,
     useApi1Menu: false,
     nomenclatureRevision: 0,
-    menuModel: null, // loaded external menu
+    menuModel: null,
     itemsFlat: [],
     cart: [],
-    
-    builderSelections: {}, // per-item modifier selections before adding to cart
-lastRid: null,
-  lastOrderId: null,
-  cancelCauses: [],
+    builderSelections: {},
+    lastRid: null,
+    lastOrderId: null,
+    cancelCauses: [],
     stopLists: null,
     terminalGroups: [],
     terminalAlive: new Map(),
     paymentTypes: [],
     uiOpenCats: new Set(),
+    // Yandex state
+    yToken: "",
+    yRestaurants: [],
+    yRestaurantId: "",
+    yMenu: null,
   };
 
   // === DOM ===
@@ -576,6 +751,13 @@ lastRid: null,
   }
 
   function workerBase(){
+    if (apiMode === "yandex") {
+      const active = $("yWorkerActive")?.value || "vc";
+      const v = active === "vc"
+        ? ($("yWorkerVC")?.value || "").trim()
+        : ($("yWorkerCF")?.value || "").trim();
+      return v || WORKER_BASE_DEFAULT;
+    }
     const active = $("workerActive")?.value || "vc";
     const v = active === "vc"
       ? ($("workerVC")?.value || "").trim()
@@ -584,9 +766,14 @@ lastRid: null,
   }
 
   function updateWorkerActiveUI(){
+    // Cloud workers
     const active = $("workerActive")?.value || "vc";
     $("workerRowCF")?.classList.toggle("active", active === "cf");
     $("workerRowVC")?.classList.toggle("active", active === "vc");
+    // Yandex workers
+    const yActive = $("yWorkerActive")?.value || "vc";
+    $("yWorkerRowCF")?.classList.toggle("active", yActive === "cf");
+    $("yWorkerRowVC")?.classList.toggle("active", yActive === "vc");
   }
 
   function timeoutSec(){
@@ -608,10 +795,8 @@ lastRid: null,
 	let url;
 
 	const active = $("workerActive")?.value || "vc";
-
 	if (active === "vc") {
 		// Vercel proxy: /api/proxy?region=ru&path=...
-		// region можно потом вынести в UI, пока пусть будет ru
 		const region = "ru";
 		url = `${baseClean}?region=${encodeURIComponent(region)}&path=${encodeURIComponent(cleanPath)}`;
 	} else {
@@ -668,6 +853,355 @@ lastRid: null,
 
     setStatus("Подключено", "good");
     try { return JSON.parse(text); } catch { return text; }
+  }
+
+  // === YANDEX EDA API ===
+  // Запросы идут через Vercel-прокси, хост твоего iiko-сервера передаётся в X-Yandex-Host
+
+  function yandexHost() {
+    const v = ($("yWebhookUrl")?.value || "").trim().replace(/\/+$/, "");
+    if (!v) throw new Error("Заполни Webhook URL — это хост для всех запросов Yandex Eda API");
+    return v;
+  }
+
+  async function yandexApi(path, body, method) {
+    const proxyBase = workerBase().replace(/\/+$/, "");
+    const yHost     = yandexHost();
+    const cleanPath = String(path || "").replace(/^\/+/, "");
+
+    const active = $("yWorkerActive")?.value || "vc";
+    let url;
+    if (active === "vc") {
+      url = `${proxyBase}?target=yandex&path=${encodeURIComponent(cleanPath)}`;
+    } else {
+      url = `${proxyBase}/yandex/${cleanPath}`;
+    }
+
+    const m = method || (body !== undefined ? "POST" : "GET");
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "X-Yandex-Host": yHost,
+    };
+    if (state.yToken) headers["Authorization"] = "Bearer " + state.yToken;
+    const tSec = Math.max(1, Math.min(120, Number($("yTimeout")?.value || 15)));
+    headers["Timeout"] = String(tSec);
+
+    logLine(`--> [Yandex] ${m} /${cleanPath}`);
+    if (body !== undefined) logLine(`REQ: ${safeJson(body)}`);
+
+    let resp, text, rid;
+    try {
+      resp = await fetch(url, {
+        method: m,
+        headers,
+        body: (m === "GET" || body === undefined) ? undefined : JSON.stringify(body),
+      });
+    } catch (e) {
+      logLine(`!! fetch crashed: ${String(e)}`);
+      setStatus("Fetch error (см. лог)", "bad");
+      throw e;
+    }
+
+    rid = resp.headers.get("x-proxy-request-id") || null;
+    uiRid(rid);
+    text = await resp.text();
+    logLine(`<-- [Yandex] /${cleanPath} :: ${resp.status}`);
+    if (rid) logLine(`RID: ${rid}`);
+
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch { parsed = null; }
+    const pretty = parsed ? safeJson(parsed) : text;
+    const LIM = 12000;
+    logLine(`RESP: ${pretty.slice(0, LIM)}${pretty.length > LIM ? " ...[trim]" : ""}`);
+
+    if (!resp.ok) {
+      setStatus(`Ошибка ${resp.status} (см. лог)`, "bad");
+      const msg = parsed?.message || parsed?.error || parsed?.description || text;
+      throw new Error(`HTTP ${resp.status}: ${msg}`);
+    }
+
+    setStatus("Подключено", "good");
+    try { return JSON.parse(text); } catch { return text; }
+  }
+
+  async function yandexConnect() {
+    setStatus("Подключаюсь к Yandex…", "warn");
+    logLine("=== YANDEX CONNECT ===");
+
+    const clientId     = $("yClientId").value.trim();
+    const clientSecret = $("yClientSecret").value.trim();
+    const yHost        = yandexHost(); // бросит ошибку если пусто
+    if (!clientId || !clientSecret) throw new Error("Заполни Client ID и Client Secret");
+
+    // 1) OAuth — через прокси с X-Yandex-Host
+    const proxyBase = workerBase().replace(/\/+$/, "");
+    const active    = $("yWorkerActive")?.value || "vc";
+    let authUrl;
+    if (active === "vc") {
+      authUrl = `${proxyBase}?target=yandex&path=${encodeURIComponent("security/oauth/token")}`;
+    } else {
+      authUrl = `${proxyBase}/yandex/security/oauth/token`;
+    }
+
+    const formBody = `client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials&scope=${encodeURIComponent("read write")}`;
+    logLine(`--> [Yandex] POST ${yHost}/security/oauth/token`);
+    logLine(`REQ body: ${formBody}`);
+
+    let authResp;
+    try {
+      authResp = await fetch(authUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/json",
+          "X-Yandex-Host": yHost,
+          "Timeout": String(Math.max(1, Math.min(120, Number($("yTimeout")?.value || 15)))),
+        },
+        body: formBody,
+      });
+    } catch(e) {
+      throw new Error("Fetch auth error: " + String(e));
+    }
+
+    const authText = await authResp.text();
+    logLine(`<-- [Yandex] /security/oauth/token :: ${authResp.status}`);
+    logLine(`RESP: ${authText.slice(0, 2000)}`);
+    if (!authResp.ok) throw new Error(`Auth HTTP ${authResp.status}: ${authText}`);
+
+    let authJson;
+    try { authJson = JSON.parse(authText); } catch { throw new Error("Auth response не JSON: " + authText); }
+
+    state.yToken = authJson.access_token || authJson.accessToken || authJson.token;
+    if (!state.yToken) throw new Error("access_token не получен. Ответ: " + authText);
+    logLine(`Yandex token получен (первые 20 символов): ${state.yToken.slice(0,20)}...`);
+
+    // 2) Рестораны
+    const restResp = await yandexApi("restaurants", undefined, "GET");
+    const places = restResp?.places || restResp || [];
+    state.yRestaurants = Array.isArray(places) ? places : [];
+
+    fillSelect($("yRestaurantSelect"), state.yRestaurants,
+      r => `${r.title || r.name || "Ресторан"} — ${r.id}`,
+      r => r.id
+    );
+    state.yRestaurantId = $("yRestaurantSelect").value || "";
+    logLine(`Ресторанов: ${state.yRestaurants.length}`);
+
+    setStatus("Yandex подключено", "good");
+    logLine("=== YANDEX CONNECT DONE ===");
+  }
+
+  async function yandexLoadMenu() {
+    logLine("=== YANDEX LOAD MENU ===");
+    state.yRestaurantId = $("yRestaurantSelect").value;
+    if (!state.yRestaurantId) throw new Error("Не выбран ресторан");
+
+    const menuResp = await yandexApi(`menu/${state.yRestaurantId}/composition`, undefined, "GET");
+    state.yMenu = menuResp;
+
+    // Convert Yandex menu to iiko-like itemCategories format for renderer
+    const yCategories = Array.isArray(menuResp?.categories) ? menuResp.categories : [];
+    const yItems = Array.isArray(menuResp?.items) ? menuResp.items : [];
+
+    // Build map id -> category
+    const catMap = new Map(yCategories.map(c => [String(c.id), c]));
+
+    // Group items by category
+    const byCat = new Map();
+    for (const it of yItems) {
+      const catIds = Array.isArray(it.category_ids) ? it.category_ids :
+                     it.categoryId ? [it.categoryId] : ["__uncat__"];
+      for (const cid of catIds.slice(0,1)) { // use first category
+        const key = String(cid);
+        if (!byCat.has(key)) {
+          const cat = catMap.get(key);
+          byCat.set(key, { id: key, name: cat?.name || "Без категории", items: [] });
+        }
+        byCat.get(key).items.push(yandexItemToIiko(it));
+      }
+    }
+    if (byCat.size === 0 && yItems.length) {
+      byCat.set("__all__", { id: "__all__", name: "Меню", items: yItems.map(yandexItemToIiko) });
+    }
+
+    const itemCategories = [...byCat.values()].filter(c => c.items.length > 0);
+    itemCategories.sort((a,b) => String(a.name).localeCompare(String(b.name), "ru"));
+
+    state.menu = { itemCategories };
+    state.itemsFlat = yItems.map(it => ({
+      productId: String(it.id),
+      name: it.name || "Блюдо",
+      price: Number(it.price || 0),
+    }));
+    state.uiOpenCats.clear();
+
+    $("catCount").textContent = String(itemCategories.length);
+    $("itemCount").textContent = String(yItems.length);
+    $("menuInfo").textContent = `Yandex • ${state.yRestaurantId}`;
+    renderItemsList();
+    logLine(`Yandex меню загружено: ${itemCategories.length} кат., ${yItems.length} позиций`);
+  }
+
+  function yandexItemToIiko(it) {
+    // Map Yandex menu item to iiko-like shape for the existing renderer
+    const price = Number(it.price || 0);
+    return {
+      id: String(it.id),
+      itemId: String(it.id),
+      name: it.name || "Блюдо",
+      description: it.description || "",
+      orderItemType: "Product",
+      type: "dish",
+      isDeleted: false,
+      prices: [{ organizationId: "yandex", price }],
+      itemSizes: [{
+        isDefault: true,
+        itemId: String(it.id),
+        sizeName: "",
+        prices: [{ organizationId: "yandex", price }],
+        price,
+        itemModifierGroups: yandexModGroupsToIiko(it.modifier_groups || it.modifiers || []),
+      }],
+    };
+  }
+
+  function yandexModGroupsToIiko(groups) {
+    if (!Array.isArray(groups)) return [];
+    return groups.map(g => ({
+      id: String(g.id || g.group_id || ""),
+      name: g.name || "Модификаторы",
+      restrictions: {
+        minQuantity: Number(g.minSelectedModifiers ?? g.min_selected_modifiers ?? 0),
+        maxQuantity: Number(g.maxSelectedModifiers ?? g.max_selected_modifiers ?? 99),
+        freeQuantity: 0,
+      },
+      items: Array.isArray(g.modifiers || g.items) ? (g.modifiers || g.items).map(m => ({
+        itemId: String(m.id || ""),
+        id: String(m.id || ""),
+        name: m.name || "Опция",
+        isHidden: false,
+        prices: [{ organizationId: "yandex", price: Number(m.price || 0) }],
+      })) : [],
+    }));
+  }
+
+  async function yandexSendOrder() {
+    logLine("=== YANDEX SEND ORDER ===");
+    if (!state.yToken) throw new Error("Сначала подключись к Yandex API");
+    if (!state.yRestaurantId) throw new Error("Не выбран ресторан");
+    if (!state.cart.length) throw new Error("Корзина пустая");
+
+    const discriminator = $("yDiscriminator").value;
+    const paymentType = $("yPaymentType").value;
+    const eatsId = $("yEatsId").value.trim() || "000000-00000001";
+    const phone = $("phone").value.trim() || "+79000000000";
+    const custName = $("custName").value.trim() || "ТЕСТ";
+    const now = new Date();
+
+    // Дата доставки берётся из селекта completeBefore (того же что для iiko)
+    const cbMode = $("yCompleteBeforeMode")?.value || $("completeBeforeMode")?.value || "+60";
+    let deliveryDate;
+    if (cbMode === "custom") {
+      const val = $("yCompleteBeforeCustom")?.value || $("completeBeforeCustom")?.value;
+      deliveryDate = val ? new Date(val) : new Date(now.getTime() + 60 * 60000);
+    } else {
+      const mins = parseInt(cbMode, 10) || 60;
+      deliveryDate = new Date(now.getTime() + mins * 60000);
+    }
+    const rfcDate = deliveryDate.toISOString().replace("Z", "+00:00");
+
+    const items = state.cart.map(line => ({
+      id: String(line.baseProductId),
+      name: line.name,
+      quantity: Number(line.qty || 1),
+      price: Number(line.basePrice || 0),
+      modifications: (line.modifiers || []).map(m => ({
+        id: String(m.productId || ""),
+        name: m.name || "",
+        quantity: Number(m.qty || 1),
+        price: Number(m.price || 0),
+      })),
+      promos: [],
+    }));
+
+    const itemsCostCalc = state.cart.reduce((s, l) => s + (Number(l.basePrice||0) * Number(l.qty||1)), 0);
+    const itemsCost = Number($("yItemsCost").value) || itemsCostCalc;
+
+    let deliveryInfo;
+    if (discriminator === "yandex") {
+      deliveryInfo = {
+        clientName: custName,
+        phoneNumber: phone,
+        additionalPhoneNumbers: [],
+        courierArrivementDate: rfcDate,
+        realPhoneNumber: phone.replace(/\D/g, ""),
+        pickupCode: "0000",
+      };
+    } else if (discriminator === "marketplace") {
+      const street = ($("deliveryStreet")?.value || "").trim() || "Тестовая";
+      const house = ($("deliveryHouse")?.value || "").trim() || "1";
+      deliveryInfo = {
+        clientName: custName,
+        phoneNumber: phone,
+        additionalPhoneNumbers: [],
+        deliveryAddress: { full: `${street}, ${house}`, latitude: "55.756994", longitude: "37.614006" },
+        deliveryDate: rfcDate,
+      };
+    } else {
+      // pickup
+      deliveryInfo = {
+        clientName: custName,
+        phoneNumber: phone,
+        additionalPhoneNumbers: [],
+        clientArrivementDate: rfcDate,
+      };
+    }
+
+    let paymentInfo;
+    if (discriminator === "marketplace" || discriminator === "pickup") {
+      paymentInfo = { itemsCost, paymentType, change: 0, deliveryFee: 0 };
+    } else {
+      paymentInfo = { itemsCost, paymentType };
+    }
+
+    const body = {
+      platform: $("yPlatform").value || "YE",
+      discriminator,
+      eatsId,
+      restaurantId: state.yRestaurantId,
+      deliveryInfo,
+      paymentInfo,
+      items,
+      promos: [],
+      persons: 1,
+      comment: "Тестовый заказ (iiko API Console)",
+    };
+
+    logLine("YANDEX ORDER BODY: " + safeJson(body));
+    const resp = await yandexApi("order", body, "POST");
+    logLine("YANDEX ORDER SENT OK: " + safeJson(resp));
+
+    const orderId = resp?.orderId || resp?.order_id || resp?.id;
+    if (orderId) {
+      state.lastOrderId = orderId;
+      $("lastOrderIdDisplay").value = orderId;
+      $("btnCancelOrder").disabled = false;
+      setStatus("Yandex заказ отправлен ✓", "good");
+      logLine(`YANDEX ORDER ID: ${orderId}`);
+    }
+  }
+
+  async function yandexCancelOrder() {
+    const orderId = $("lastOrderIdDisplay").value.trim() || state.lastOrderId;
+    if (!orderId) throw new Error("Нет orderId");
+    logLine("=== YANDEX CANCEL ORDER ===");
+    const resp = await yandexApi(`order/${orderId}`, undefined, "DELETE");
+    logLine("YANDEX CANCEL OK: " + safeJson(resp));
+    setStatus("Yandex заказ отменён ✓", "warn");
+    $("btnCancelOrder").disabled = true;
+    state.lastOrderId = null;
+    $("lastOrderIdDisplay").value = "";
   }
 
   function fillSelect(sel, options, getText, getValue){
@@ -1977,18 +2511,28 @@ async function sendOrder(){
   // === EVENTS ===
   $("workerCF").value = "";
   $("workerVC").value = "";
+  $("yWorkerCF").value = "";
+  $("yWorkerVC").value = "";
   updateWorkerActiveUI();
   state.useApi1Menu = $("useApi1Menu").checked;
   applyMenuSourceUi();
 
   $("btnConnect").addEventListener("click", async ()=>{
-    try { await connect(); }
+    try {
+      if (apiMode === "yandex") await yandexConnect();
+      else await connect();
+    }
     catch(e){ logLine("CONNECT ERROR: " + String(e)); setStatus("Ошибка подключения", "bad"); }
   });
 
   $("btnLoadMenu").addEventListener("click", async ()=>{
     try { await loadMenu(); }
     catch(e){ logLine("LOAD MENU ERROR: " + String(e)); setStatus("Ошибка меню", "bad"); }
+  });
+
+  $("btnYLoadMenu").addEventListener("click", async ()=>{
+    try { await yandexLoadMenu(); }
+    catch(e){ logLine("YANDEX LOAD MENU ERROR: " + String(e)); setStatus("Ошибка меню Yandex", "bad"); }
   });
 
   $("search").addEventListener("input", renderItemsList);
@@ -2033,6 +2577,7 @@ async function sendOrder(){
   });
 
   $("workerActive").addEventListener("change", updateWorkerActiveUI);
+  $("yWorkerActive").addEventListener("change", updateWorkerActiveUI);
 
   $("btnClearLog").addEventListener("click", ()=>{ logEl.value=""; });
 
@@ -2055,19 +2600,46 @@ async function sendOrder(){
 
   $("btnExport").addEventListener("click", exportAll);
 
+  $("btnExportY").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      apiMode: "yandex",
+      yWorkerVC: $("yWorkerVC").value,
+      yWorkerCF: $("yWorkerCF").value,
+      webhookUrl: $("yWebhookUrl").value,
+      yRestaurantId: state.yRestaurantId,
+      cart: state.cart,
+      lastOrderId: state.lastOrderId,
+      log: logEl.value,
+    }, null, 2)], {type:"application/json;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "yandex-api-export.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // init
+  updateApiModeUI();
+
   $("btnLoadCancelCauses").addEventListener("click", async ()=>{
     try { await loadCancelCauses(); }
     catch(e){ logLine("LOAD CANCEL CAUSES ERROR: " + String(e)); setStatus("Ошибка загрузки причин", "bad"); }
   });
 
-  // btnManualCancel — отмена по ID из поля (читается внутри cancelOrder)
   $("btnManualCancel").addEventListener("click", async ()=>{
-    try { await cancelOrder(); }
+    try {
+      if (apiMode === "yandex") await yandexCancelOrder();
+      else await cancelOrder();
+    }
     catch(e){ logLine("CANCEL ORDER ERROR: " + String(e)); setStatus("Ошибка отмены заказа", "bad"); }
   });
 
   $("btnCancelOrder").addEventListener("click", async ()=>{
-    try { await cancelOrder(); }
+    try {
+      if (apiMode === "yandex") await yandexCancelOrder();
+      else await cancelOrder();
+    }
     catch(e){ logLine("CANCEL ORDER ERROR: " + String(e)); setStatus("Ошибка отмены заказа", "bad"); }
   });
 
@@ -2078,7 +2650,10 @@ async function sendOrder(){
   });
 
   $("btnSendOrder").addEventListener("click", async ()=>{
-    try { await sendOrder(); }
+    try {
+      if (apiMode === "yandex") await yandexSendOrder();
+      else await sendOrder();
+    }
     catch(e){ logLine("SEND ORDER ERROR: " + String(e)); setStatus("Ошибка отправки заказа", "bad"); }
   });
 
