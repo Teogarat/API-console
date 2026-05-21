@@ -725,6 +725,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     builderSelections: {},
     lastRid: null,
     lastOrderId: null,
+    lastYandexEatsId: null,
     cancelCauses: [],
     stopLists: null,
     terminalGroups: [],
@@ -1251,10 +1252,12 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const orderId = resp?.orderId || resp?.order_id || resp?.id;
     if (orderId) {
       state.lastOrderId = orderId;
+      state.lastYandexEatsId = eatsId;
       $("lastOrderIdDisplay").value = orderId;
       $("btnCancelOrder").disabled = false;
       setStatus("Yandex заказ отправлен ✓", "good");
       logLine(`YANDEX ORDER ID: ${orderId}`);
+      logLine(`YANDEX EATS ID: ${eatsId}`);
     }
   }
 
@@ -1262,11 +1265,37 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const orderId = $("lastOrderIdDisplay").value.trim() || state.lastOrderId;
     if (!orderId) throw new Error("Нет orderId");
     logLine("=== YANDEX CANCEL ORDER ===");
-    const resp = await yandexApi(`order/${orderId}`, undefined, "DELETE");
+
+    const typedEatsId = $("yEatsId").value.trim();
+    let eatsId = state.lastYandexEatsId;
+    if (!eatsId) {
+      logLine("Trying GET /order/{orderId} to resolve Yandex eatsId before cancel");
+      try {
+        const order = await yandexApi(`order/${orderId}`, undefined, "GET");
+        eatsId = order?.eatsId || order?.eats_id || order?.order?.eatsId || order?.order?.eats_id || "";
+        if (eatsId) {
+          state.lastYandexEatsId = eatsId;
+          $("yEatsId").value = eatsId;
+          logLine(`YANDEX EATS ID FROM ORDER: ${eatsId}`);
+        }
+      } catch (e) {
+        logLine("GET order before cancel failed: " + String(e));
+      }
+    }
+    if (!eatsId && typedEatsId) {
+      eatsId = typedEatsId;
+      logLine(`Using typed Yandex eatsId for cancel: ${eatsId}`);
+    }
+    if (!eatsId) throw new Error("Нет eatsId для отмены Yandex заказа: GET /order не вернул eatsId, и поле eatsId пустое.");
+
+    const body = { eatsId, comment: "Отмена из iiko API Console" };
+    logLine("YANDEX CANCEL BODY: " + safeJson(body));
+    const resp = await yandexApi(`order/${orderId}`, body, "DELETE");
     logLine("YANDEX CANCEL OK: " + safeJson(resp));
     setStatus("Yandex заказ отменён ✓", "warn");
     $("btnCancelOrder").disabled = true;
     state.lastOrderId = null;
+    state.lastYandexEatsId = null;
     $("lastOrderIdDisplay").value = "";
   }
 
@@ -2665,7 +2694,7 @@ async function sendOrder(){
   $("btnClearLog").addEventListener("click", ()=>{ logEl.value=""; });
 
   $("btnClear").addEventListener("click", ()=>{
-    state.token=""; state.menuModel=null; state.menu=null; state.itemsFlat=[]; state.cart=[]; state.lastOrderId=null;
+    state.token=""; state.menuModel=null; state.menu=null; state.itemsFlat=[]; state.cart=[]; state.lastOrderId=null; state.lastYandexEatsId=null;
     state.uiOpenCats.clear();
     $("accessToken").value="";
     $("itemsList").innerHTML="";
@@ -2693,6 +2722,7 @@ async function sendOrder(){
       yRestaurantId: state.yRestaurantId,
       cart: state.cart,
       lastOrderId: state.lastOrderId,
+      lastYandexEatsId: state.lastYandexEatsId,
       log: logEl.value,
     }, null, 2)], {type:"application/json;charset=utf-8"});
     const a = document.createElement("a");
