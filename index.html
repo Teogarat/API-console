@@ -513,7 +513,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           <div style="height:8px"></div>
           <div>
             <label>eatsId (ID заказа Яндекса, формат DDDDDD-DDDDDDDD)</label>
-            <input id="yEatsId" placeholder="190330-12345678" value="000000-00000001" />
+            <input id="yEatsId" placeholder="190330-12345678" value="" />
           </div>
           <div style="height:8px"></div>
           <div class="split">
@@ -527,6 +527,22 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
                 <option value="YE">YE (Yandex Eda)</option>
                 <option value="DC">DC (Delivery Club)</option>
               </select>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div class="split">
+            <div>
+              <label>Yandex delivery date</label>
+              <select id="yCompleteBeforeMode">
+                <option value="180" selected>+180 мин от текущего времени</option>
+                <option value="120">+120 мин от текущего времени</option>
+                <option value="240">+240 мин от текущего времени</option>
+                <option value="custom">Вручную</option>
+              </select>
+            </div>
+            <div id="yCompleteBeforeCustomWrap" style="display:none">
+              <label>Дата/время Yandex (local)</label>
+              <input id="yCompleteBeforeCustom" type="datetime-local" />
             </div>
           </div>
         </div>
@@ -1105,6 +1121,31 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     }));
   }
 
+  // Generate eatsId as YYMMDD-XXXXXXXX
+  function generateEatsId() {
+    const now = new Date();
+    const yy = String(now.getFullYear()).slice(2);
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const seq = String(Math.floor(10000000 + Math.random() * 89999999));
+    return `${yy}${mm}${dd}-${seq}`;
+  }
+
+  const YANDEX_MIN_DELIVERY_LEAD_MINUTES = 180;
+
+  // RFC3339 with microseconds: 2026-05-21T15:00:00.000000+00:00
+  function toRfc3339Micro(date) {
+    const iso = date.toISOString();
+    return iso.replace(/\.(\d{3})Z$/, ".$1000+00:00");
+  }
+
+  function ensureYandexDeliveryDate(date, now = new Date()) {
+    const minDate = new Date(now.getTime() + YANDEX_MIN_DELIVERY_LEAD_MINUTES * 60000);
+    if (!(date instanceof Date) || Number.isNaN(date.getTime()) || date < minDate) {
+      return minDate;
+    }
+    return date;
+  }
   async function yandexSendOrder() {
     logLine("=== YANDEX SEND ORDER ===");
     if (!state.yToken) throw new Error("Сначала подключись к Yandex API");
@@ -1113,22 +1154,28 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
     const discriminator = $("yDiscriminator").value;
     const paymentType = $("yPaymentType").value;
-    const eatsId = $("yEatsId").value.trim() || "000000-00000001";
+    const generatedEatsId = $("yEatsId").value.trim() || generateEatsId();
+    if (!$("yEatsId").value.trim()) $("yEatsId").value = generatedEatsId;
+    const eatsId = generatedEatsId;
     const phone = $("phone").value.trim() || "+79000000000";
     const custName = $("custName").value.trim() || "ТЕСТ";
     const now = new Date();
 
-    // Дата доставки берётся из селекта completeBefore (того же что для iiko)
-    const cbMode = $("yCompleteBeforeMode")?.value || $("completeBeforeMode")?.value || "+60";
-    let deliveryDate;
+    // Yandex rejects dates that are too close to the current time, so keep a safe lead time.
+    const cbMode = $("yCompleteBeforeMode")?.value || "180";
+    let requestedDeliveryDate;
     if (cbMode === "custom") {
-      const val = $("yCompleteBeforeCustom")?.value || $("completeBeforeCustom")?.value;
-      deliveryDate = val ? new Date(val) : new Date(now.getTime() + 60 * 60000);
+      const val = $("yCompleteBeforeCustom")?.value;
+      requestedDeliveryDate = val ? new Date(val) : new Date(now.getTime() + YANDEX_MIN_DELIVERY_LEAD_MINUTES * 60000);
     } else {
-      const mins = parseInt(cbMode, 10) || 60;
-      deliveryDate = new Date(now.getTime() + mins * 60000);
+      const mins = parseInt(cbMode, 10) || YANDEX_MIN_DELIVERY_LEAD_MINUTES;
+      requestedDeliveryDate = new Date(now.getTime() + mins * 60000);
     }
-    const rfcDate = deliveryDate.toISOString().replace("Z", "+00:00");
+    const deliveryDate = ensureYandexDeliveryDate(requestedDeliveryDate, now);
+    if (deliveryDate.getTime() !== requestedDeliveryDate.getTime()) {
+      logLine(`Yandex delivery date was too close; adjusted to ${toRfc3339Micro(deliveryDate)}`);
+    }
+    const rfcDate = toRfc3339Micro(deliveryDate);
 
     const items = state.cart.map(line => ({
       id: String(line.baseProductId),
@@ -2582,6 +2629,16 @@ async function sendOrder(){
       const t = new Date(Date.now() + 60*60*1000);
       const pad = n => String(n).padStart(2,"0");
       $("completeBeforeCustom").value = `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}T${pad(t.getHours())}:${pad(t.getMinutes())}`;
+    }
+  });
+
+  $("yCompleteBeforeMode").addEventListener("change", ()=>{
+    const isCustom = $("yCompleteBeforeMode").value === "custom";
+    $("yCompleteBeforeCustomWrap").style.display = isCustom ? "block" : "none";
+    if (isCustom) {
+      const t = new Date(Date.now() + YANDEX_MIN_DELIVERY_LEAD_MINUTES * 60000);
+      const pad = n => String(n).padStart(2,"0");
+      $("yCompleteBeforeCustom").value = `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}T${pad(t.getHours())}:${pad(t.getMinutes())}`;
     }
   });
 
