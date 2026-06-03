@@ -234,6 +234,61 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   padding:2px 7px;border-radius:5px;
   background:rgba(255,204,0,.18);color:#ffcc00;border:1px solid rgba(255,204,0,.3);
 }
+
+
+/* Modifier picker modal */
+.hidden{display:none!important}
+.modalOverlay{
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(2,6,23,.74);
+  display:flex; align-items:center; justify-content:center;
+  padding:18px;
+}
+.modModal{
+  width:min(760px, 96vw); max-height:92vh;
+  display:flex; flex-direction:column;
+  background:rgba(18,27,46,.98);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.modModalHd,.modModalFt{
+  padding:12px 14px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+}
+.modModalFt{border-top:1px solid var(--border); border-bottom:none; justify-content:flex-end; background:rgba(15,23,42,.72)}
+.modModalTitle{min-width:0}
+.modModalTitle b{display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.modModalTitle span{display:block; color:var(--muted); font-size:12px; margin-top:2px}
+.modModalBody{padding:12px 14px; overflow:auto; display:flex; flex-direction:column; gap:10px}
+.modStepNote{padding:8px 10px; border-radius:12px; border:1px solid var(--border); background:rgba(15,23,42,.65); color:var(--muted); font-size:12px}
+.modPickGroup{border:1px solid rgba(148,163,184,.18); border-radius:14px; overflow:hidden; background:rgba(15,23,42,.42)}
+.modPickGroupHead{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-bottom:1px solid rgba(148,163,184,.16)}
+.modPickTitle{font-weight:750; font-size:13px}
+.modPickMeta{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+.modPickList{display:flex; flex-direction:column; gap:6px; padding:8px}
+.modPickRow{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; padding:8px; border:1px solid rgba(148,163,184,.12); border-radius:12px; background:rgba(2,6,23,.22)}
+.modPickName{font-weight:650; font-size:13px; display:flex; align-items:center; gap:7px; min-width:0}
+.modPickName span:last-child{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.modPickSub{font-size:11px; color:var(--muted); margin-top:2px}
+.modPickControls{display:flex; align-items:center; gap:8px}
+.modPickQty{min-width:28px; text-align:center; font-family:var(--mono)}
+.btn.small{padding:5px 8px; font-size:12px; border-radius:9px}
+.btn.ghost{background:rgba(148,163,184,.10); border-color:rgba(148,163,184,.22)}
+.btn:disabled,.itm-add-btn:disabled{opacity:.42; cursor:not-allowed; transform:none!important}
+.cartMods{padding:6px 0 0 18px; display:flex; flex-direction:column; gap:3px}
+.cartModRow{display:flex; justify-content:space-between; gap:8px; font-size:12px}
+.cartItem{border:1px solid var(--border); border-radius:12px; padding:9px 10px; background:rgba(15,23,42,.55)}
+.cartTop,.cartBottom{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.cartTitle{display:flex; align-items:center; gap:7px; min-width:0; font-weight:700}
+.cartTitle span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cartRight{display:flex; align-items:center; gap:6px; flex-shrink:0}
+.cartBottom{margin-top:6px; font-size:12px}
+.hint{color:var(--muted); font-size:12px; padding:8px 0}
+
 </style>
 </head>
 <body>
@@ -273,28 +328,28 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         <!-- iiko Cloud fields -->
         <div class="cloud-fields" id="cloudFields">
           <label>Proxy Worker URL</label>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
-            <div class="worker-row" id="workerRowCF">
-              <span class="worker-badge cf">CF</span>
-              <input id="workerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
-              <span class="worker-ping-dot" id="pingDotCF" title="—"></span>
-            </div>
-            <div class="worker-row" id="workerRowVC">
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+            <div class="worker-row active" id="workerRowVC">
               <span class="worker-badge vc">VC</span>
-              <input id="workerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
+              <input id="workerVC" placeholder="https://yandex-proxy-seven.vercel.app/api/proxy" value="https://yandex-proxy-seven.vercel.app/api/proxy" style="flex:1;min-width:0" />
               <span class="worker-ping-dot" id="pingDotVC" title="—"></span>
             </div>
           </div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-            <span style="font-size:12px;color:var(--muted)">Активный:</span>
-            <select id="workerActive" style="font-size:12px;flex:1;min-width:0">
-              <option value="cf">Cloudflare</option>
-              <option value="vc" selected>Vercel</option>
-            </select>
-          </div>
 
-          <label>API Key (apiLoginId)</label>
-          <input id="apiKey" placeholder="вставь ключ сюда" />
+          <label>API Key</label>
+          <input id="apiKey" placeholder="API key из iikoWeb → Integrations → API Keys" />
+
+          <div style="height:10px"></div>
+          <div class="split">
+            <div>
+              <label>App ID</label>
+              <input id="appId" placeholder="appId из iiko Developer Portal" />
+            </div>
+            <div>
+              <label>Client Secret</label>
+              <input id="clientSecret" type="password" placeholder="clientSecret из iiko Developer Portal" />
+            </div>
+          </div>
 
           <div style="height:10px"></div>
           <div class="split">
@@ -350,23 +405,11 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           </div>
 
           <label>Proxy Worker URL</label>
-          <div style="display:block">
-            <div class="worker-row" id="yWorkerRowCF">
-              <span class="worker-badge cf">CF</span>
-              <input id="yWorkerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
-              <span class="worker-ping-dot" id="yPingDotCF" title="—"></span>
-            </div>
-            <div class="worker-row" id="yWorkerRowVC">
+          <div style="display:block;margin-bottom:10px">
+            <div class="worker-row active" id="yWorkerRowVC">
               <span class="worker-badge vc">VC</span>
-              <input id="yWorkerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
+              <input id="yWorkerVC" placeholder="https://yandex-proxy-seven.vercel.app/api/proxy" value="https://yandex-proxy-seven.vercel.app/api/proxy" style="flex:1;min-width:0" />
               <span class="worker-ping-dot" id="yPingDotVC" title="—"></span>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-              <span style="font-size:12px;color:var(--muted)">Активный:</span>
-              <select id="yWorkerActive" style="font-size:12px;flex:1;min-width:0">
-                <option value="cf">Cloudflare</option>
-                <option value="vc" selected>Vercel</option>
-              </select>
             </div>
           </div>
 
@@ -664,16 +707,32 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   </div>
 </div>
 
+
+<div id="modModalOverlay" class="modalOverlay hidden">
+  <div class="modModal" role="dialog" aria-modal="true" aria-labelledby="modModalName">
+    <div class="modModalHd">
+      <div class="modModalTitle">
+        <b id="modModalName">Модификаторы</b>
+        <span id="modModalSub">—</span>
+      </div>
+      <button class="btn danger small" id="modModalClose" type="button">×</button>
+    </div>
+    <div class="modModalBody" id="modModalBody"></div>
+    <div class="modModalFt">
+      <button class="btn" id="modModalBack" type="button">Назад</button>
+      <button class="btn primary" id="modModalNext" type="button">Далее</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // === CONFIG ===
-  const WORKER_BASE_DEFAULT = "";
+  const WORKER_BASE_DEFAULT = "https://yandex-proxy-seven.vercel.app/api/proxy";
 
   // CF:  base + /proxy  + /api/1/...
   // VC:  base (уже содержит /api/proxy) + /api/1/...  → prefix = ""
   function proxyPrefix(){
-    const active = $("workerActive")?.value || "vc";
-    if (active === "vc") return "";
-    return "/proxy";
+    return "";
   }
 
   // === API MODE ===
@@ -723,6 +782,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     itemsFlat: [],
     cart: [],
     builderSelections: {},
+    activeModifierBuilder: null,
     lastRid: null,
     lastOrderId: null,
     lastYandexEatsId: null,
@@ -769,30 +829,353 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     try { return JSON.stringify(v, null, 2); } catch { return String(v); }
   }
 
-  function workerBase(){
-    if (apiMode === "yandex") {
-      const active = $("yWorkerActive")?.value || "vc";
-      const v = active === "vc"
-        ? ($("yWorkerVC")?.value || "").trim()
-        : ($("yWorkerCF")?.value || "").trim();
-      return v || WORKER_BASE_DEFAULT;
+  function menuGetOrgPrice(pricesArr){
+    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return 0;
+    const hit = pricesArr.find(p => p && p.organizationId === state.orgId);
+    const obj = hit || pricesArr[0] || {};
+    const raw = obj.price ?? obj.currentPrice ?? obj.value ?? obj.amount ?? 0;
+    const n = typeof raw === "string" ? Number(raw.replace(",", ".")) : Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function menuPickDefaultSize(item){
+    const sizes = Array.isArray(item?.itemSizes) ? item.itemSizes : [];
+    if (sizes.length) return sizes.find(s => s && s.isDefault) || sizes[0] || null;
+    return { isDefault:true, prices: Array.isArray(item?.prices) ? item.prices : [], itemId:item?.itemId || item?.id || null, sizeName:"" };
+  }
+
+  function menuBaseIdOf(item, size){
+    return String((size && (size.itemId || size.id || size.sizeId)) || item?.itemId || item?.id || item?.sku || (String(item?.name||"item") + "::default"));
+  }
+
+  function menuIsHiddenOf(item, size){
+    return Boolean((size && size.isHidden) || item?.isHidden || item?.isDeleted);
+  }
+
+  function menuModIdOf(mi){
+    return String(mi?.itemId || mi?.productId || mi?.modifierId || mi?.id || mi?.sku || mi?.name || "");
+  }
+
+  function menuGroupIdOf(g, idx){
+    return String(g?.id || g?.itemGroupId || g?.modifierGroupId || g?.name || ("group" + idx));
+  }
+
+  function menuGroupRestrictions(g){
+    const r = g?.restrictions || {};
+    let minQ = Number(r.minQuantity ?? r.minAmount ?? g?.minQuantity ?? g?.minAmount ?? 0) || 0;
+    let maxQ = Number(r.maxQuantity ?? r.maxAmount ?? g?.maxQuantity ?? g?.maxAmount ?? 0) || 0;
+    const freeQ = Number(r.freeQuantity ?? r.freeOfChargeAmount ?? g?.freeQuantity ?? g?.freeOfChargeAmount ?? 0) || 0;
+    const byDefault = Number(r.byDefault ?? r.defaultAmount ?? g?.byDefault ?? g?.defaultAmount ?? 0) || 0;
+    if ((g?.required === true || r.required === true) && minQ <= 0) minQ = 1;
+    return { minQ, maxQ, freeQ, byDefault };
+  }
+
+  function menuModifierRestrictions(mi){
+    const minQ = Number(mi?.minQuantity ?? mi?.minAmount ?? 0) || 0;
+    const maxQ = Number(mi?.maxQuantity ?? mi?.maxAmount ?? 0) || 0;
+    const byDefault = Number(mi?.byDefault ?? mi?.defaultAmount ?? 0) || 0;
+    return { minQ, maxQ, byDefault };
+  }
+
+  function menuGetModifierGroups(item, size){
+    const direct = [];
+    if (Array.isArray(size?.itemModifierGroups)) direct.push(...size.itemModifierGroups);
+    if (Array.isArray(item?.itemModifierGroups)) direct.push(...item.itemModifierGroups);
+    if (direct.length) return direct.map((g, idx)=>({ ...g, __idx: idx, items: Array.isArray(g.items) ? g.items : [] }));
+
+    // API v1 /nomenclature fallback: simple modifiers + groupModifiers, already enriched in buildMenuModelFromNomenclature.
+    const groups = [];
+    if (Array.isArray(item?.modifiers)) {
+      for (const m of item.modifiers) {
+        const minQ = Number(m.minAmount ?? 0) || (m.required ? 1 : 0);
+        const maxQ = Number(m.maxAmount ?? 0) || 1;
+        groups.push({
+          id: "simple::" + (m.id || m.itemId || m.name),
+          name: m.name || "Модификатор",
+          restrictions: { minQuantity: minQ, maxQuantity: maxQ, freeQuantity: Number(m.freeOfChargeAmount || 0), byDefault: Number(m.defaultAmount || 0) },
+          items: [{ ...m, itemId: m.itemId || m.id, id: m.id, name: m.name || m.id, prices: m.prices || [] }]
+        });
+      }
     }
-    const active = $("workerActive")?.value || "vc";
-    const v = active === "vc"
-      ? ($("workerVC")?.value || "").trim()
-      : ($("workerCF")?.value || "").trim();
+    if (Array.isArray(item?.groupModifiers)) {
+      for (const g of item.groupModifiers) {
+        const children = Array.isArray(g.items) ? g.items : (Array.isArray(g.childModifiers) ? g.childModifiers : []);
+        groups.push({
+          id: g.id,
+          name: g.name || "Группа модификаторов",
+          restrictions: { minQuantity: Number(g.minAmount || 0), maxQuantity: Number(g.maxAmount || 0), freeQuantity: Number(g.freeOfChargeAmount || 0), byDefault: Number(g.defaultAmount || 0) },
+          items: children.map(ch => ({ ...ch, itemId: ch.itemId || ch.id, id: ch.id, name: ch.name || ch.id, prices: ch.prices || [] }))
+        });
+      }
+    }
+    return groups.map((g, idx)=>({ ...g, __idx: idx }));
+  }
+
+  function menuFindItemByBaseId(baseId){
+    const cats = Array.isArray(state.menu?.itemCategories) ? state.menu.itemCategories : [];
+    for (const c of cats){
+      const items = Array.isArray(c.items) ? c.items : [];
+      for (const item of items){
+        const size = menuPickDefaultSize(item);
+        if (menuBaseIdOf(item, size) === String(baseId)) return { item, size };
+      }
+    }
+    return null;
+  }
+
+  function modifierPrice(mi){
+    const fromPrices = menuGetOrgPrice(mi?.prices);
+    if (fromPrices) return fromPrices;
+    const n = Number(mi?.price ?? mi?.currentPrice ?? 0);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function lineUnitPrice(line){
+    const mods = (line.modifiers||[]).reduce((acc,m)=>acc + (Number(m.price)||0) * (Number(m.qty)||0), 0);
+    return (Number(line.basePrice)||0) + mods;
+  }
+
+  function selectionKey(gi, mi){ return `${gi}::${menuModIdOf(mi)}`; }
+
+  function builderGroups(){ return Array.isArray(state.activeModifierBuilder?.groups) ? state.activeModifierBuilder.groups : []; }
+
+  function groupSelectedCount(gi){
+    const b = state.activeModifierBuilder;
+    const g = builderGroups()[gi];
+    if (!b || !g) return 0;
+    return (g.items || []).reduce((acc, mi)=> acc + Number(b.mods[selectionKey(gi, mi)] || 0), 0);
+  }
+
+  function requiredGroupsSatisfied(){
+    const groups = builderGroups();
+    for (let gi=0; gi<groups.length; gi++){
+      const r = menuGroupRestrictions(groups[gi]);
+      if (r.minQ > 0 && groupSelectedCount(gi) < r.minQ) return false;
+    }
+    return true;
+  }
+
+  function buildSelectedModifiers(item, size, modsMap){
+    const groups = menuGetModifierGroups(item, size);
+    const mods = [];
+    for (let gi=0; gi<groups.length; gi++){
+      const g = groups[gi];
+      for (const mi of (g.items || [])){
+        const key = selectionKey(gi, mi);
+        const qty = Number(modsMap[key] || 0);
+        if (qty > 0){
+          mods.push({
+            productId: menuModIdOf(mi),
+            name: mi.name || mi.title || menuModIdOf(mi),
+            qty,
+            price: modifierPrice(mi),
+            groupName: g.name || ""
+          });
+        }
+      }
+    }
+    return mods;
+  }
+
+  function addConfiguredItemToCart(item, size, modsMap){
+    const baseProductId = String((size && (size.itemId || size.id)) || item.itemId || item.id || item.sku || "");
+    if (!baseProductId) throw new Error("Не найден productId блюда");
+
+    const basePrice = menuGetOrgPrice(size?.prices) || menuGetOrgPrice(item?.prices) || Number(item?.price || 0) || 0;
+    const hidden = menuIsHiddenOf(item, size);
+    const mods = buildSelectedModifiers(item, size, modsMap || {});
+    const modsKey = JSON.stringify(mods.map((m, i)=>({g:m.groupName || "", p:m.productId, q:m.qty, i})).sort((a,b)=>String(a.p).localeCompare(String(b.p)) || String(a.g).localeCompare(String(b.g))));
+
+    let line = state.cart.find(x => x.baseProductId === baseProductId && x.modsKey === modsKey);
+    if (!line){
+      line = {
+        baseId: menuBaseIdOf(item, size),
+        baseProductId,
+        name: item.name || item.title || "Item",
+        sizeName: size?.sizeName || size?.sizeCode || "",
+        qty: 0,
+        basePrice,
+        hidden,
+        modifiers: mods,
+        modsKey
+      };
+      state.cart.push(line);
+    }
+    line.qty += 1;
+    renderCart();
+  }
+
+  function closeModifierModal(){
+    state.activeModifierBuilder = null;
+    $("modModalOverlay")?.classList.add("hidden");
+  }
+
+  function openModifierModal(item, size){
+    const groups = menuGetModifierGroups(item, size).filter(g => Array.isArray(g.items) && g.items.length > 0);
+    if (!groups.length){
+      addConfiguredItemToCart(item, size, {});
+      return;
+    }
+    const hasRequired = groups.some(g => menuGroupRestrictions(g).minQ > 0);
+    state.activeModifierBuilder = {
+      item,
+      size,
+      groups,
+      mods: {},
+      step: hasRequired ? 0 : 1
+    };
+    $("modModalOverlay")?.classList.remove("hidden");
+    renderModifierModal();
+  }
+
+  function currentStepGroupIndexes(){
+    const b = state.activeModifierBuilder;
+    if (!b) return [];
+    const required = [];
+    const optional = [];
+    b.groups.forEach((g, idx)=>{
+      if (menuGroupRestrictions(g).minQ > 0) required.push(idx);
+      else optional.push(idx);
+    });
+    return b.step === 0 ? required : optional;
+  }
+
+  function adjustModalModifier(gi, mid, delta){
+    const b = state.activeModifierBuilder;
+    const g = b?.groups?.[gi];
+    if (!b || !g) return;
+    const items = Array.isArray(g.items) ? g.items : [];
+    const mi = items.find(x => menuModIdOf(x) === String(mid));
+    if (!mi) return;
+
+    const key = selectionKey(gi, mi);
+    const current = Number(b.mods[key] || 0);
+    if (delta < 0){
+      const next = Math.max(0, current - 1);
+      if (next) b.mods[key] = next;
+      else delete b.mods[key];
+      renderModifierModal();
+      return;
+    }
+
+    const r = menuGroupRestrictions(g);
+    const mr = menuModifierRestrictions(mi);
+    const groupCount = groupSelectedCount(gi);
+    const maxGroup = r.maxQ > 0 ? r.maxQ : Infinity;
+    const maxItem = mr.maxQ > 0 ? mr.maxQ : Infinity;
+
+    // При max=1 выбор другого модификатора заменяет старый — не заставляем гостя делать лишний клик.
+    if (maxGroup === 1){
+      for (const other of items){
+        delete b.mods[selectionKey(gi, other)];
+      }
+      b.mods[key] = 1;
+      renderModifierModal();
+      return;
+    }
+
+    if (groupCount >= maxGroup || current >= maxItem) return;
+    b.mods[key] = current + 1;
+    renderModifierModal();
+  }
+
+  function renderModifierModal(){
+    const b = state.activeModifierBuilder;
+    if (!b) return;
+    const item = b.item;
+    const size = b.size;
+    const groups = b.groups;
+    const requiredIdx = groups.map((g,i)=>menuGroupRestrictions(g).minQ>0?i:null).filter(i=>i!==null);
+    const optionalIdx = groups.map((g,i)=>menuGroupRestrictions(g).minQ<=0?i:null).filter(i=>i!==null);
+    const stepIndexes = currentStepGroupIndexes();
+    const onRequiredStep = b.step === 0;
+    const hasOptional = optionalIdx.length > 0;
+    const canGoNext = !onRequiredStep || requiredGroupsSatisfied();
+    const finalStep = !onRequiredStep || !hasOptional;
+    const body = $("modModalBody");
+    const nextBtn = $("modModalNext");
+    const backBtn = $("modModalBack");
+
+    $("modModalName").textContent = item.name || "Блюдо";
+    $("modModalSub").textContent = onRequiredStep
+      ? "Сначала обязательные модификаторы"
+      : "Теперь необязательные модификаторы";
+
+    const note = onRequiredStep
+      ? "Выбери обязательные модификаторы. Пока минимум не набран — дальше не пущу. Всё честно."
+      : "Необязательные можно выбрать, изменить или пропустить.";
+
+    const groupsHtml = stepIndexes.length ? stepIndexes.map(gi=>{
+      const g = groups[gi];
+      const r = menuGroupRestrictions(g);
+      const selected = groupSelectedCount(gi);
+      const maxText = r.maxQ > 0 ? ` / максимум ${r.maxQ}` : "";
+      const freeText = r.freeQ > 0 ? ` • бесплатно ${r.freeQ}` : "";
+      const warn = r.minQ > 0 && selected < r.minQ;
+      const items = (g.items || []).filter(mi => mi && (mi.name || menuModIdOf(mi)));
+      return `<div class="modPickGroup">
+        <div class="modPickGroupHead">
+          <div class="modPickTitle">${escapeHtml(g.name || "Модификаторы")}</div>
+          <div class="modPickMeta">
+            <span class="pill ${warn ? 'pill-warn' : ''}">${selected}${r.minQ > 0 ? ` / минимум ${r.minQ}` : ''}${maxText}${freeText}</span>
+          </div>
+        </div>
+        <div class="modPickList">
+          ${items.map(mi=>{
+            const mid = menuModIdOf(mi);
+            const key = selectionKey(gi, mi);
+            const qty = Number(b.mods[key] || 0);
+            const price = modifierPrice(mi);
+            const mr = menuModifierRestrictions(mi);
+            const mHidden = Boolean(mi.isHidden || mi.isDeleted);
+            const mStopped = isInStopList(mid) || (apiMode === "yandex" && state.yStopModifiers.has(String(mid)));
+            const groupMaxReached = r.maxQ > 0 && selected >= r.maxQ;
+            const itemMaxReached = mr.maxQ > 0 && qty >= mr.maxQ;
+            const plusDisabled = mHidden || mStopped || groupMaxReached || itemMaxReached;
+            const dot = mkStatusDot(mHidden, price > 0, mid);
+            const sub = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : (mr.maxQ > 0 ? `лимит на модификатор: ${mr.maxQ}` : ""));
+            return `<div class="modPickRow">
+              <div>
+                <div class="modPickName">${dot}<span>${escapeHtml(mi.name || mid)}</span></div>
+                <div class="modPickSub">${price ? money(price) : "0.00"}${sub ? " • " + escapeHtml(sub) : ""}</div>
+              </div>
+              <div class="modPickControls">
+                <button class="btn ghost small" data-modal-dec="${gi}::${escapeHtml(mid)}" ${qty<=0 ? 'disabled' : ''}>−</button>
+                <span class="modPickQty">${qty}</span>
+                <button class="btn ghost small" data-modal-inc="${gi}::${escapeHtml(mid)}" ${plusDisabled ? 'disabled' : ''}>＋</button>
+              </div>
+            </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+    }).join("") : `<div class="hint">На этом шаге модификаторов нет.</div>`;
+
+    body.innerHTML = `<div class="modStepNote">${note}</div>${groupsHtml}`;
+
+    backBtn.style.display = onRequiredStep ? "none" : "";
+    nextBtn.disabled = !canGoNext;
+    nextBtn.textContent = finalStep ? "Добавить в корзину" : "Далее";
+
+    body.querySelectorAll("[data-modal-inc]").forEach(btn=>btn.addEventListener("click", ()=>{
+      const [gi, mid] = (btn.getAttribute("data-modal-inc") || "").split("::");
+      adjustModalModifier(Number(gi), mid, 1);
+    }));
+    body.querySelectorAll("[data-modal-dec]").forEach(btn=>btn.addEventListener("click", ()=>{
+      const [gi, mid] = (btn.getAttribute("data-modal-dec") || "").split("::");
+      adjustModalModifier(Number(gi), mid, -1);
+    }));
+  }
+
+
+  function workerBase(){
+    const inputId = apiMode === "yandex" ? "yWorkerVC" : "workerVC";
+    const v = ($(inputId)?.value || "").trim();
     return v || WORKER_BASE_DEFAULT;
   }
 
   function updateWorkerActiveUI(){
-    // Cloud workers
-    const active = $("workerActive")?.value || "vc";
-    $("workerRowCF")?.classList.toggle("active", active === "cf");
-    $("workerRowVC")?.classList.toggle("active", active === "vc");
-    // Yandex workers
-    const yActive = $("yWorkerActive")?.value || "vc";
-    $("yWorkerRowCF")?.classList.toggle("active", yActive === "cf");
-    $("yWorkerRowVC")?.classList.toggle("active", yActive === "vc");
+    $("workerRowVC")?.classList.add("active");
+    $("yWorkerRowVC")?.classList.add("active");
   }
 
   function timeoutSec(){
@@ -810,18 +1193,12 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const base = workerBase();
     if (!base) throw new Error("Worker base URL is empty. Впиши URL воркера.");
     const baseClean = base.replace(/\/+$/,"");
-	const cleanPath = String(path || "").replace(/^\/+/, ""); // "api/1/access_token"
+	const cleanPath = String(path || "").replace(/^\/+/, ""); // "api/..."
 	let url;
 
-	const active = $("workerActive")?.value || "vc";
-	if (active === "vc") {
-		// Vercel proxy: /api/proxy?region=ru&path=...
-		const region = "ru";
-		url = `${baseClean}?region=${encodeURIComponent(region)}&path=${encodeURIComponent(cleanPath)}`;
-	} else {
-		// Cloudflare: base + /proxy + /api/1/...
-		url = baseClean + "/proxy/" + cleanPath;
-	}
+	// Vercel proxy: /api/proxy?region=ru&path=...
+	const region = "ru";
+	url = `${baseClean}?region=${encodeURIComponent(region)}&path=${encodeURIComponent(cleanPath)}`;
 	
 
     const headers = {
@@ -888,13 +1265,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const yHost     = yandexHost();
     const cleanPath = String(path || "").replace(/^\/+/, "");
 
-    const active = $("yWorkerActive")?.value || "vc";
-    let url;
-    if (active === "vc") {
-      url = `${proxyBase}?target=yandex&path=${encodeURIComponent(cleanPath)}`;
-    } else {
-      url = `${proxyBase}/yandex/${cleanPath}`;
-    }
+    const url = `${proxyBase}?target=yandex&path=${encodeURIComponent(cleanPath)}`;
 
     const m = method || (body !== undefined ? "POST" : "GET");
     const headers = {
@@ -955,13 +1326,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
     // 1) OAuth — через прокси с X-Yandex-Host
     const proxyBase = workerBase().replace(/\/+$/, "");
-    const active    = $("yWorkerActive")?.value || "vc";
-    let authUrl;
-    if (active === "vc") {
-      authUrl = `${proxyBase}?target=yandex&path=${encodeURIComponent("security/oauth/token")}`;
-    } else {
-      authUrl = `${proxyBase}/yandex/security/oauth/token`;
-    }
+    const authUrl = `${proxyBase}?target=yandex&path=${encodeURIComponent("security/oauth/token")}`;
 
     const formBody = `client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials&scope=${encodeURIComponent("read write")}`;
     logLine(`--> [Yandex] POST ${yHost}/security/oauth/token`);
@@ -1192,7 +1557,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       promos: [],
     }));
 
-    const itemsCostCalc = state.cart.reduce((s, l) => s + (Number(l.basePrice||0) * Number(l.qty||1)), 0);
+    const itemsCostCalc = state.cart.reduce((s, l) => s + (lineUnitPrice(l) * Number(l.qty||1)), 0);
     const itemsCost = Number($("yItemsCost").value) || itemsCostCalc;
 
     let deliveryInfo;
@@ -1358,11 +1723,6 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
   const money = (n)=> (Number(n)||0).toFixed(2);
 
-  const lineUnitPrice = (line)=>{
-    const mods = (line.modifiers||[]).reduce((acc,m)=>acc + (Number(m.price)||0) * (Number(m.qty)||0), 0);
-    return (Number(line.basePrice)||0) + mods;
-  };
-
   let total = 0;
 
   root.innerHTML = state.cart.map((line, idx)=>{
@@ -1421,6 +1781,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   }));
   root.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>{
     const i=Number(b.getAttribute("data-del"));
+    if (state.cart[i]) state.cart[i].modifiers = [];
     state.cart.splice(i,1);
     renderCart();
   }));
@@ -1535,361 +1896,139 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   }
 
   function renderItemsList(){
-  const root = $("itemsList");
-  const q = ($("search").value || "").trim().toLowerCase();
+    const root = $("itemsList");
+    const q = ($("search").value || "").trim().toLowerCase();
 
-  if(!state.menu || !Array.isArray(state.menu.itemCategories)){
-    root.innerHTML = '<div class="hint">Сначала подключись и загрузи меню.</div>';
-    return;
-  }
-
-  // Build accordion by categories -> items
-  const cats = state.menu.itemCategories
-    .filter(c => c && c.name && Array.isArray(c.items))
-    .map(c => ({
-      id: c.id || c.name,
-      name: c.name,
-      items: c.items || []
-    }));
-
-  // Helper: price for current org
-  const getOrgPrice = (pricesArr) => {
-    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return 0;
-    const hit = pricesArr.find(p => p && p.organizationId === state.orgId);
-    const p = (hit || pricesArr[0] || {}).price;
-    return (typeof p === "number" && isFinite(p)) ? p : 0;
-  };
-
-  const pickDefaultSize = (item) => {
-    const sizes = Array.isArray(item.itemSizes) ? item.itemSizes : [];
-    return sizes.find(s => s && s.isDefault) || sizes[0] || null;
-  };
-
-  const baseIdOf = (item, size) => (size && (size.itemId || size.id)) || item.itemId || item.id || item.sku || (item.name + "::" + (size ? size.sizeCode : ""));
-  const isHiddenOf = (item, size) => Boolean((size && size.isHidden) || item.isHidden);
-
-  const ensureBuilder = (item, size) => {
-    const baseId = baseIdOf(item, size);
-    if(state.builderSelections[baseId]) return state.builderSelections[baseId];
-
-    const sel = {
-      baseId,
-      item,
-      size,
-      // map: modifierId -> qty
-      mods: {}
-    };
-
-    // auto-pick required modifiers (minQuantity / byDefault)
-    const mgs = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
-    for(const g of mgs){
-      const r = g && g.restrictions ? g.restrictions : {};
-      const minQ = Number(r.minQuantity || 0);
-      const byDef = Number(r.byDefault || 0);
-      const need = Math.max(minQ, byDef);
-      if(need <= 0) continue;
-
-      const available = (g.items || []).filter(mi => mi && !mi.isHidden);
-      for(let i=0;i<Math.min(need, available.length);i++){
-        const mid = available[i].itemId || available[i].id || available[i].sku || (available[i].name + "::" + i);
-        sel.mods[mid] = (sel.mods[mid] || 0) + 1;
-      }
-    }
-
-    state.builderSelections[baseId] = sel;
-    return sel;
-  };
-
-  const computeModsCharge = (size, selModsMap) => {
-    const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
-    let total = 0;
-
-    for(const g of groups){
-      const r = g && g.restrictions ? g.restrictions : {};
-      const freeQ = Number(r.freeQuantity || 0);
-      const items = (g.items || []).filter(mi => mi);
-      // collect selected in this group
-      const selected = [];
-      for(const mi of items){
-        const mid = mi.itemId || mi.id || mi.sku || mi.name;
-        const qty = Number(selModsMap[mid] || 0);
-        if(qty > 0){
-          const price = getOrgPrice(mi.prices);
-          selected.push({ price, qty, mid, mi });
-        }
-      }
-      // raw sum
-      let groupSum = 0;
-      for(const s of selected) groupSum += s.price * s.qty;
-
-      // apply freeQuantity by removing cheapest units
-      if(freeQ > 0 && selected.length > 0){
-        const units = [];
-        for(const s of selected){
-          for(let i=0;i<s.qty;i++) units.push(s.price);
-        }
-        units.sort((a,b)=>a-b);
-        let free = 0;
-        for(let i=0;i<Math.min(freeQ, units.length);i++) free += units[i];
-        groupSum -= free;
-      }
-
-      total += groupSum;
-    }
-    return total;
-  };
-
-  const computeBuiltPrice = (item, size, selModsMap) => {
-    const base = size ? getOrgPrice(size.prices) : 0;
-    const mods = computeModsCharge(size, selModsMap);
-    return base + mods;
-  };
-
-  const ensureRequiredSatisfied = (size, selModsMap) => {
-    const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
-    for(const g of groups){
-      const r = g && g.restrictions ? g.restrictions : {};
-      const minQ = Number(r.minQuantity || 0);
-      if(minQ <= 0) continue;
-
-      const items = (g.items || []).filter(mi => mi && !mi.isHidden);
-      const countSelected = () => items.reduce((acc, mi) => {
-        const mid = mi.itemId || mi.id || mi.sku || mi.name;
-        return acc + Number(selModsMap[mid] || 0);
-      }, 0);
-
-      let cur = countSelected();
-      let idx = 0;
-      while(cur < minQ && idx < items.length){
-        const mi = items[idx++];
-        const mid = mi.itemId || mi.id || mi.sku || mi.name;
-        selModsMap[mid] = (selModsMap[mid] || 0) + 1;
-        cur++;
-      }
-    }
-  };
-
-  const toggleMod = (baseId, modId) => {
-    const sel = state.builderSelections[baseId];
-    if(!sel) return;
-    sel.mods[modId] = (sel.mods[modId] || 0) + 1;
-    // quick toggle behavior: if already 1 then set to 0 when shift-click
-  };
-
-  const addBuiltToCart = (item, size, sel) => {
-    if(!size){
-      log("No item size found for item: " + (item && item.name));
+    if(!state.menu || !Array.isArray(state.menu.itemCategories)){
+      root.innerHTML = '<div class="hint">Сначала подключись и загрузи меню.</div>';
       return;
     }
-    // enforce required groups before final add
-    ensureRequiredSatisfied(size, sel.mods);
 
-    const baseId = sel.baseId;
-    const baseProductId = size.itemId || item.itemId || item.id || item.sku;
-    const basePrice = getOrgPrice(size.prices);
-    const hidden = isHiddenOf(item, size);
+    const cats = state.menu.itemCategories
+      .filter(c => c && c.name && Array.isArray(c.items))
+      .map(c => ({ id: c.id || c.name, name: c.name, items: c.items || [] }));
 
-    // build modifiers array
-    const mods = [];
-    const groups = Array.isArray(size.itemModifierGroups) ? size.itemModifierGroups : [];
-    for(const g of groups){
-      for(const mi of (g.items || [])){
-        const mid = mi.itemId || mi.id || mi.sku || mi.name;
-        const qty = Number(sel.mods[mid] || 0);
-        if(qty > 0){
-          mods.push({
-            productId: mi.itemId || mi.id || mi.sku,
-            name: mi.name || mi.sku || "Modifier",
-            qty,
-            price: getOrgPrice(mi.prices),
-            groupName: g.name || ""
-          });
-        }
-      }
-    }
+    const esc = escapeHtml;
+    let html = "";
 
-    // merge with existing identical line (same base + same mods set)
-    const modsKey = JSON.stringify(mods.map(m=>({p:m.productId,q:m.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p))));
-    let line = state.cart.find(x => x.baseProductId === baseProductId && x.modsKey === modsKey);
-    if(!line){
-      line = {
-        baseId,
-        baseProductId,
-        name: item.name || "Item",
-        sizeName: size.sizeName || size.sizeCode || "",
-        qty: 0,
-        basePrice,
-        hidden,
-        modifiers: mods,
-        modsKey
-      };
-      state.cart.push(line);
-    }
-    line.qty += 1;
+    for(const c of cats){
+      const items = c.items.filter(it => {
+        if(!it || !it.name) return false;
+        if(!q) return true;
+        return (it.name || "").toLowerCase().includes(q) || (it.sku || it.code || "").toLowerCase().includes(q);
+      });
 
-    renderCart();
-  };
+      if(items.length === 0 && q) continue;
 
-  // esc — локальный хелпер для HTML-шаблонов
-  const esc = (s) => (""+s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      const catId = String(c.id || c.name);
+      const isOpen = state.uiOpenCats.has(catId);
+      html += `<details class="cat"${isOpen ? " open" : ""} data-cat-id="${esc(catId)}">
+        <summary class="catHead">
+          <div class="catTitle">${esc(c.name)}</div>
+          <div class="catMeta">${items.length ? items.length + " поз." : ""}</div>
+        </summary>
+        <div class="catBody">`;
 
-  let html = "";
-  for(const c of cats){
-    // filter by search
-    const items = c.items.filter(it => {
-      if(!it || !it.name) return false;
-      if(!q) return true;
-      return (it.name || "").toLowerCase().includes(q) || (it.sku || "").toLowerCase().includes(q);
-    });
+      for(const item of items){
+        const size = menuPickDefaultSize(item);
+        const baseId = menuBaseIdOf(item, size);
+        const hidden = menuIsHiddenOf(item, size);
+        const basePrice = menuGetOrgPrice(size?.prices) || menuGetOrgPrice(item?.prices) || Number(item.price || 0) || 0;
+        const itemProductId = (size && (size.itemId || size.id)) || item.itemId || item.id || null;
+        const groups = menuGetModifierGroups(item, size);
+        const hasPrice = basePrice > 0;
+        const reqSummary = groups.map(g=>{
+          const r = menuGroupRestrictions(g);
+          if(r.minQ <= 0) return null;
+          return { name:g.name||"Модификаторы", minQ:r.minQ, maxQ:r.maxQ };
+        }).filter(Boolean);
 
-    if(items.length === 0 && q) continue;
-
-    const catId = String(c.id || c.name);
-    const isOpen = state.uiOpenCats.has(catId);
-    const openAttr = isOpen ? " open" : "";
-    html += `<details class="cat"${openAttr} data-cat-id="${esc(catId)}">
-      <summary class="catHead">
-        <div class="catTitle">${esc(c.name)}</div>
-        <div class="catMeta">${items.length ? items.length + " поз." : ""}</div>
-      </summary>
-      <div class="catBody">`;
-
-    for(const item of items){
-      const size = pickDefaultSize(item);
-      const sel = ensureBuilder(item, size);
-      const hidden = isHiddenOf(item, size);
-      const basePrice = size ? getOrgPrice(size.prices) : 0;
-      const builtPrice = computeBuiltPrice(item, size, sel.mods);
-      const hasPrice = (typeof basePrice === "number" && basePrice > 0) || builtPrice > 0;
-
-      // count required status
-      const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
-      const reqSummary = groups.map(g=>{
-        const r=g && g.restrictions ? g.restrictions : {};
-        const minQ=Number(r.minQuantity||0);
-        if(minQ<=0) return null;
-        const cnt=(g.items||[]).reduce((acc,mi)=>acc+Number(sel.mods[(mi.itemId||mi.id||mi.sku||mi.name)]||0),0);
-        return {name:g.name||"Модификаторы", minQ, cnt};
-      }).filter(Boolean);
-
-      const baseId = sel.baseId;
-      const itemProductId = (size && (size.itemId || size.id)) || item.itemId || item.id || null;
-
-      html += `<details class="itm">
+        html += `<details class="itm">
           <summary class="itmRow">
             <div class="itmLeft">
               ${mkStatusDot(hidden, hasPrice, itemProductId)}
               <div class="itmName">${esc(item.name || "")}</div>
-              <div class="itmSku">${esc(item.sku || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
+              <div class="itmSku">${esc(item.sku || item.code || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
             </div>
             <div class="itmRight">
-              <div class="itmPrice">${builtPrice ? builtPrice.toFixed(2) : "0.00"}</div>
-              <button class="itm-add-btn" data-add-item="${esc(baseId)}" title="Добавить в корзину">＋</button>
+              <div class="itmPrice">${money(basePrice)}</div>
+              <button class="itm-add-btn" data-add-item="${esc(baseId)}" title="Выбрать модификаторы и добавить">＋</button>
             </div>
           </summary>
           <div class="itmBody">
             ${item.description ? `<div class="itmDesc">${esc(item.description)}</div>` : ""}
-          ${reqSummary.length ? `<div class="itmReq">
-            ${reqSummary.map(r=>`<span class="pill ${r.cnt<r.minQ?'pill-warn':''}">${esc(r.name)}: ${r.cnt}/${r.minQ}</span>`).join("")}
-          </div>` : ""}
-          ${groups.length ? `<div class="mods">
-            ${groups.map(g=>{
-              const r=g && g.restrictions ? g.restrictions : {};
-              const minQ=Number(r.minQuantity||0);
-              const maxQ=Number(r.maxQuantity||0);
-              const freeQ=Number(r.freeQuantity||0);
-              const label = minQ>0 ? `<span class="pill pill-req">обязат. ${minQ}${freeQ?` • бесплатно ${freeQ}`:""}</span>` : `<span class="pill">необяз.</span>`;
-              const items=(g.items||[]).filter(mi=>mi && mi.name);
-              if(items.length===0) return "";
-              return `<div class="modGroup">
-                <div class="modHead">
-                  <div class="modTitle">${esc(g.name||"Модификаторы")}</div>
-                  <div class="modMeta">${label}</div>
-                </div>
-                <div class="modList">
-                  ${items.map(mi=>{
-                    const mid = mi.itemId || mi.id || mi.sku || mi.name;
-                    const qty = Number(sel.mods[mid] || 0);
-                    const price = getOrgPrice(mi.prices);
-                    const mHidden = Boolean(mi.isHidden);
-                    const mProductId = mi.itemId || mi.id || null;
-                    const mStopped = isInStopList(mProductId);
-                    const dot = mkStatusDot(mHidden, price>0, mProductId);
-                    const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : "");
-                    return `<div class="modRow">
-                      <div class="modLeft">
-                        ${dot}
-                        <div class="modName">${esc(mi.name)}</div>
-                        <div class="modHint">${esc(hintText)}</div>
-                      </div>
-                      <div class="modRight">
-                        <div class="modPrice">${price ? price.toFixed(2) : "0.00"}</div>
-                        <div class="modQty">${qty ? "×"+qty : ""}</div>
-                        <button class="btn ghost small" data-add-mod="${esc(baseId)}::${esc(mid)}">＋</button>
-                      </div>
-                    </div>`;
-                  }).join("")}
-                </div>
-              </div>`;
-            }).join("")}
-          </div>` : `<div class="hint">У этого блюда нет модификаторов.</div>`}
-        </div>
+            <div class="itmReq">
+              <span class="pill">${groups.length ? `модификаторов: ${groups.length} гр.` : "модификаторов нет"}</span>
+              ${reqSummary.map(r=>`<span class="pill pill-req">${esc(r.name)}: обязат. ${r.minQ}${r.maxQ ? ` / макс. ${r.maxQ}` : ""}</span>`).join("")}
+            </div>
+            ${groups.length ? `<div class="mods">
+              ${groups.map((g, gi)=>{
+                const r = menuGroupRestrictions(g);
+                const label = r.minQ>0 ? `<span class="pill pill-req">обязат. ${r.minQ}${r.maxQ?` • макс ${r.maxQ}`:""}${r.freeQ?` • бесплатно ${r.freeQ}`:""}</span>` : `<span class="pill">необяз.${r.maxQ?` • макс ${r.maxQ}`:""}</span>`;
+                const mods = (g.items || []).filter(mi=>mi && (mi.name || menuModIdOf(mi)));
+                if(!mods.length) return "";
+                return `<div class="modGroup">
+                  <div class="modHead">
+                    <div class="modTitle">${esc(g.name || "Модификаторы")}</div>
+                    <div class="modMeta">${label}</div>
+                  </div>
+                  <div class="modList">
+                    ${mods.map(mi=>{
+                      const mid = menuModIdOf(mi);
+                      const price = modifierPrice(mi);
+                      const mHidden = Boolean(mi.isHidden || mi.isDeleted);
+                      const mStopped = isInStopList(mid) || (apiMode === "yandex" && state.yStopModifiers.has(String(mid)));
+                      const dot = mkStatusDot(mHidden, price>0, mid);
+                      const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : "");
+                      return `<div class="modRow">
+                        <div class="modLeft">
+                          ${dot}
+                          <div class="modName">${esc(mi.name || mid)}</div>
+                          <div class="modHint">${esc(hintText)}</div>
+                        </div>
+                        <div class="modRight">
+                          <div class="modPrice">${money(price)}</div>
+                        </div>
+                      </div>`;
+                    }).join("")}
+                  </div>
+                </div>`;
+              }).join("")}
+            </div>` : `<div class="hint">У этого блюда нет модификаторов.</div>`}
+          </div>
         </details>`;
+      }
+
+      html += `</div></details>`;
     }
 
-    html += `</div></details>`;
-  }
+    if(!html){
+      root.innerHTML = '<div class="hint">Ничего не нашёл по запросу.</div>';
+      return;
+    }
 
-  if(!html){
-    root.innerHTML = '<div class="hint">Ничего не нашёл по запросу.</div>';
-    return;
-  }
+    root.innerHTML = html;
 
-  root.innerHTML = html;
-  root.querySelectorAll('details.cat[data-cat-id]').forEach(d => {
+    root.querySelectorAll('details.cat[data-cat-id]').forEach(d => {
       const id = d.getAttribute("data-cat-id");
       d.addEventListener("toggle", () => {
         if (d.open) state.uiOpenCats.add(id);
         else state.uiOpenCats.delete(id);
+      });
     });
-  });
 
-  // Wire buttons (event delegation)
-  root.querySelectorAll("[data-add-item]").forEach(btn=>{
-    // pointerdown предотвращает toggle details ДО того как браузер его обработает
-    btn.addEventListener("pointerdown", (e)=>{ e.stopPropagation(); });
-    btn.addEventListener("click", (e)=>{
-      e.preventDefault(); e.stopPropagation();
-      const baseId = btn.getAttribute("data-add-item");
-      const sel = state.builderSelections[baseId];
-      if(!sel) return;
-      addBuiltToCart(sel.item, sel.size, sel);
-      // Анимация кнопки
-      btn.textContent = "✓";
-      setTimeout(() => { btn.textContent = "＋"; }, 600);
-      // Обновляем только корзину, не перерисовываем всё меню
-      renderCart();
+    root.querySelectorAll("[data-add-item]").forEach(btn=>{
+      btn.addEventListener("pointerdown", (e)=>{ e.stopPropagation(); });
+      btn.addEventListener("click", (e)=>{
+        e.preventDefault(); e.stopPropagation();
+        const baseId = btn.getAttribute("data-add-item");
+        const found = menuFindItemByBaseId(baseId);
+        if(!found) return;
+        openModifierModal(found.item, found.size);
+      });
     });
-  });
+  }
 
-  root.querySelectorAll("[data-add-mod]").forEach(btn=>{
-    btn.addEventListener("click", (e)=>{
-      e.preventDefault(); e.stopPropagation();
-      const v = btn.getAttribute("data-add-mod") || "";
-      const [baseId, modId] = v.split("::");
-      const sel = state.builderSelections[baseId];
-      if(!sel) return;
-      // toggle style: click adds 1, shift-click removes 1
-      if(e.shiftKey){
-        sel.mods[modId] = Math.max(0, Number(sel.mods[modId] || 0) - 1);
-        if(sel.mods[modId] === 0) delete sel.mods[modId];
-      }else{
-        sel.mods[modId] = Number(sel.mods[modId] || 0) + 1;
-      }
-      renderItemsList();
-    });
-  });
-}
 
   function updateTgInfo(){
     const id = $("tgSelect").value || "";
@@ -1935,12 +2074,26 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     logLine("=== CONNECT ===");
 
     const apiKey = $("apiKey").value.trim();
+    const appId = $("appId").value.trim();
+    const clientSecret = $("clientSecret").value.trim();
+
     if (!apiKey) throw new Error("API Key пустой");
+    if (!appId) throw new Error("App ID пустой");
+    if (!clientSecret) throw new Error("Client Secret пустой");
 
     // 1) access token
-    // /api/1/access_token: GetAccessTokenRequest includes apiLoginId :contentReference[oaicite:6]{index=6}
-    const tokenResp = await api("/api/1/access_token", { apiLogin: apiKey });
+    // Новые API keys авторизуются через /api/v2/access_token: apiKey + appId + clientSecret.
+    state.token = "";
+    $("accessToken").value = "";
+
+    const tokenResp = await api("/api/v2/access_token", {
+      apiKey,
+      appId,
+      clientSecret,
+    });
     const token = tokenResp?.token || tokenResp?.accessToken || tokenResp;
+    if (!token || typeof token !== "string") throw new Error("Токен не получен. Ответ: " + safeJson(tokenResp));
+
     state.token = token;
     $("accessToken").value = token;
 
@@ -2229,6 +2382,71 @@ function buildMenuModelFromNomenclature(nom){
   // Normalize /api/1/nomenclature response to shape used by renderer: { itemCategories:[{id,name,items:[]}] }
   const categories = Array.isArray(nom?.productCategories) ? nom.productCategories : [];
   const products = Array.isArray(nom?.products) ? nom.products : [];
+  const productsById = new Map(products.filter(p => p && p.id).map(p => [String(p.id), p]));
+
+  const priceFromProduct = (p) => {
+    const sp = Array.isArray(p?.sizePrices) ? p.sizePrices[0] : null;
+    return Number(sp?.price?.currentPrice || p?.price || 0) || 0;
+  };
+
+  const enrichModifier = (m) => {
+    const id = String(m?.id || m?.itemId || "");
+    const src = productsById.get(id) || {};
+    return {
+      ...m,
+      id,
+      itemId: id,
+      name: src.name || m.name || id,
+      isHidden: src.isHidden || src.isDeleted || false,
+      prices: [{ organizationId: state.orgId, price: priceFromProduct(src) }],
+      minAmount: Number(m?.minAmount || 0),
+      maxAmount: Number(m?.maxAmount || 0),
+      defaultAmount: Number(m?.defaultAmount || 0),
+      freeOfChargeAmount: Number(m?.freeOfChargeAmount || 0),
+    };
+  };
+
+  const normalizeGroups = (p) => {
+    const groups = [];
+
+    if (Array.isArray(p.modifiers)) {
+      for (const m of p.modifiers) {
+        const em = enrichModifier(m);
+        const minQ = Number(m.minAmount || 0) || (m.required ? 1 : 0);
+        const maxQ = Number(m.maxAmount || 0) || 1;
+        groups.push({
+          id: "simple::" + em.id,
+          name: em.name,
+          restrictions: {
+            minQuantity: minQ,
+            maxQuantity: maxQ,
+            freeQuantity: Number(m.freeOfChargeAmount || 0),
+            byDefault: Number(m.defaultAmount || 0)
+          },
+          items: [em]
+        });
+      }
+    }
+
+    if (Array.isArray(p.groupModifiers)) {
+      for (const g of p.groupModifiers) {
+        const children = Array.isArray(g.childModifiers) ? g.childModifiers.map(enrichModifier) : [];
+        groups.push({
+          id: g.id,
+          name: g.name || g.modifierSchemaName || "Группа модификаторов",
+          restrictions: {
+            minQuantity: Number(g.minAmount || 0),
+            maxQuantity: Number(g.maxAmount || 0),
+            freeQuantity: Number(g.freeOfChargeAmount || 0),
+            byDefault: Number(g.defaultAmount || 0)
+          },
+          items: children
+        });
+      }
+    }
+
+    return groups;
+  };
 
   // Only real sellable items (dish/good) – exclude modifiers
   const isSellable = (p) => {
@@ -2237,7 +2455,6 @@ function buildMenuModelFromNomenclature(nom){
     const t = String(p.type || "").toLowerCase();
     if (t === "modifier") return false;
     const oit = String(p.orderItemType || "").toLowerCase();
-    // orderItemType can be missing for some integrations, so keep dish/good anyway
     if (oit && oit !== "product" && oit !== "compound") return false;
     return !!(p.id && p.name);
   };
@@ -2248,33 +2465,32 @@ function buildMenuModelFromNomenclature(nom){
     const sizePrices = Array.isArray(p.sizePrices) ? p.sizePrices : [];
     const first = sizePrices[0];
     const firstPrice = first?.price?.currentPrice ?? 0;
+    const modifierGroups = normalizeGroups(p);
 
-    // map sizePrices -> itemSizes (what renderer expects)
-    const itemSizes = sizePrices.map((sp, idx) => ({
+    const itemSizes = (sizePrices.length ? sizePrices : [{ sizeId:null, price:{ currentPrice:firstPrice } }]).map((sp, idx) => ({
       sizeId: sp.sizeId || null,
       isDefault: idx === 0,
-      // renderer expects prices: [{ organizationId, price }]
+      itemId: p.id,
       prices: [{ organizationId: orgId, price: Number(sp?.price?.currentPrice || 0) }],
-      // keep raw as well
       price: Number(sp?.price?.currentPrice || 0),
+      itemModifierGroups: modifierGroups
     }));
 
     return {
       id: p.id,
+      itemId: p.id,
       name: p.name,
       code: p.code || "",
+      sku: p.code || "",
       orderItemType: p.orderItemType || "Product",
       type: p.type || "dish",
       productCategoryId: p.productCategoryId || null,
       description: p.description || "",
       isDeleted: p.isDeleted || false,
-      // fallback flat price
       prices: [{ organizationId: orgId, price: Number(firstPrice || 0) }],
       itemSizes,
-      // modifiers
-      modifiers: Array.isArray(p.modifiers) ? p.modifiers : [],
-      groupModifiers: Array.isArray(p.groupModifiers) ? p.groupModifiers : [],
-      // images
+      modifiers: [],
+      groupModifiers: [],
       buttonImageUrl: (Array.isArray(p.imageLinks) && p.imageLinks[0]) ? p.imageLinks[0] : (p.buttonImageUrl || null),
       raw: p,
     };
@@ -2282,12 +2498,10 @@ function buildMenuModelFromNomenclature(nom){
 
   const sellable = products.filter(isSellable).map(normalizeItem);
 
-  // Make a category map
   const byCat = new Map();
   for (const c of categories){
     byCat.set(String(c.id), { id: c.id, name: c.name, items: [] });
   }
-  // Unknown category bucket (если у блюда нет категории)
   const uncId = "__uncat__";
   byCat.set(uncId, { id: uncId, name: "Без категории", items: [] });
 
@@ -2297,12 +2511,8 @@ function buildMenuModelFromNomenclature(nom){
     byCat.get(cid).items.push(it);
   }
 
-  // Keep only categories that have items
   const itemCategories = [...byCat.values()].filter(c => Array.isArray(c.items) && c.items.length > 0);
-
-  // Stable sort: by name
   itemCategories.sort((a,b)=> String(a.name||"").localeCompare(String(b.name||""), "ru"));
-
   return { itemCategories };
 }
 
@@ -2606,10 +2816,8 @@ async function sendOrder(){
   }
 
   // === EVENTS ===
-  $("workerCF").value = "";
-  $("workerVC").value = "";
-  $("yWorkerCF").value = "";
-  $("yWorkerVC").value = "";
+  $("workerVC").value = $("workerVC").value || WORKER_BASE_DEFAULT;
+  $("yWorkerVC").value = $("yWorkerVC").value || WORKER_BASE_DEFAULT;
   updateWorkerActiveUI();
   state.useApi1Menu = $("useApi1Menu").checked;
   applyMenuSourceUi();
@@ -2688,8 +2896,6 @@ async function sendOrder(){
     catch(e){ logLine("ORG CHANGE ERROR: " + String(e)); setStatus("Ошибка при смене орг", "bad"); }
   });
 
-  $("workerActive").addEventListener("change", updateWorkerActiveUI);
-  $("yWorkerActive").addEventListener("change", updateWorkerActiveUI);
 
   $("btnClearLog").addEventListener("click", ()=>{ logEl.value=""; });
 
@@ -2717,7 +2923,6 @@ async function sendOrder(){
       exportedAt: new Date().toISOString(),
       apiMode: "yandex",
       yWorkerVC: $("yWorkerVC").value,
-      yWorkerCF: $("yWorkerCF").value,
       webhookUrl: $("yWebhookUrl").value,
       yRestaurantId: state.yRestaurantId,
       cart: state.cart,
@@ -2780,6 +2985,36 @@ async function sendOrder(){
     if (!id) return;
     state.cart.push({ productId: id.trim(), name: "Manual productId", amount: 1, price: 0 });
     renderCart();
+  });
+
+
+
+  $("modModalClose")?.addEventListener("click", closeModifierModal);
+  $("modModalOverlay")?.addEventListener("click", (e)=>{
+    if (e.target && e.target.id === "modModalOverlay") closeModifierModal();
+  });
+  $("modModalBack")?.addEventListener("click", ()=>{
+    const b = state.activeModifierBuilder;
+    if (!b) return;
+    b.step = 0;
+    renderModifierModal();
+  });
+  $("modModalNext")?.addEventListener("click", ()=>{
+    const b = state.activeModifierBuilder;
+    if (!b) return;
+    const optionalExists = b.groups.some(g => menuGroupRestrictions(g).minQ <= 0);
+    if (b.step === 0 && optionalExists){
+      if (!requiredGroupsSatisfied()) return;
+      b.step = 1;
+      renderModifierModal();
+      return;
+    }
+    if (!requiredGroupsSatisfied()) return;
+    addConfiguredItemToCart(b.item, b.size, b.mods);
+    closeModifierModal();
+  });
+  document.addEventListener("keydown", (e)=>{
+    if (e.key === "Escape" && state.activeModifierBuilder) closeModifierModal();
   });
 
   // init
