@@ -161,6 +161,7 @@
 .worker-ping-dot.checking{background:#eab308;animation:pulse .6s infinite alternate}
 @keyframes pulse{from{opacity:.4}to{opacity:1}}
 
+.itm-add-btn{
   display:inline-flex; align-items:center; justify-content:center;
   width:26px; height:26px; border-radius:50%; flex-shrink:0;
   background:rgba(56,210,122,.15); border:1.5px solid rgba(56,210,122,.5);
@@ -236,58 +237,135 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 }
 
 
-/* Modifier picker modal */
-.hidden{display:none!important}
-.modalOverlay{
-  position:fixed; inset:0; z-index:9999;
-  background:rgba(2,6,23,.74);
-  display:flex; align-items:center; justify-content:center;
-  padding:18px;
+/* Polished top toolbars for Menu & Order blocks */
+.toolbar-hd{
+  min-height:66px;
+  display:grid !important;
+  grid-template-columns:max-content minmax(0,1fr);
+  align-items:center !important;
+  gap:14px !important;
+  padding:12px 14px !important;
 }
-.modModal{
-  width:min(760px, 96vw); max-height:92vh;
-  display:flex; flex-direction:column;
-  background:rgba(18,27,46,.98);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:18px;
-  box-shadow:0 24px 80px rgba(0,0,0,.55);
-  overflow:hidden;
+.toolbar-hd b{
+  position:relative;
+  display:flex;
+  align-items:center;
+  min-height:38px;
+  padding-left:12px;
+  white-space:nowrap;
+  line-height:1.15;
+  letter-spacing:.01em;
 }
-.modModalHd,.modModalFt{
-  padding:12px 14px;
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  border-bottom:1px solid var(--border);
-  background:linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+.toolbar-hd b::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:7px;
+  bottom:7px;
+  width:3px;
+  border-radius:999px;
+  background:linear-gradient(180deg,var(--accent),rgba(56,210,122,.9));
+  box-shadow:0 0 12px rgba(74,163,255,.35);
 }
-.modModalFt{border-top:1px solid var(--border); border-bottom:none; justify-content:flex-end; background:rgba(15,23,42,.72)}
-.modModalTitle{min-width:0}
-.modModalTitle b{display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.modModalTitle span{display:block; color:var(--muted); font-size:12px; margin-top:2px}
-.modModalBody{padding:12px 14px; overflow:auto; display:flex; flex-direction:column; gap:10px}
-.modStepNote{padding:8px 10px; border-radius:12px; border:1px solid var(--border); background:rgba(15,23,42,.65); color:var(--muted); font-size:12px}
-.modPickGroup{border:1px solid rgba(148,163,184,.18); border-radius:14px; overflow:hidden; background:rgba(15,23,42,.42)}
-.modPickGroupHead{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-bottom:1px solid rgba(148,163,184,.16)}
-.modPickTitle{font-weight:750; font-size:13px}
-.modPickMeta{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
-.modPickList{display:flex; flex-direction:column; gap:6px; padding:8px}
-.modPickRow{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; padding:8px; border:1px solid rgba(148,163,184,.12); border-radius:12px; background:rgba(2,6,23,.22)}
-.modPickName{font-weight:650; font-size:13px; display:flex; align-items:center; gap:7px; min-width:0}
-.modPickName span:last-child{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.modPickSub{font-size:11px; color:var(--muted); margin-top:2px}
-.modPickControls{display:flex; align-items:center; gap:8px}
-.modPickQty{min-width:28px; text-align:center; font-family:var(--mono)}
-.btn.small{padding:5px 8px; font-size:12px; border-radius:9px}
-.btn.ghost{background:rgba(148,163,184,.10); border-color:rgba(148,163,184,.22)}
-.btn:disabled,.itm-add-btn:disabled{opacity:.42; cursor:not-allowed; transform:none!important}
-.cartMods{padding:6px 0 0 18px; display:flex; flex-direction:column; gap:3px}
-.cartModRow{display:flex; justify-content:space-between; gap:8px; font-size:12px}
-.cartItem{border:1px solid var(--border); border-radius:12px; padding:9px 10px; background:rgba(15,23,42,.55)}
-.cartTop,.cartBottom{display:flex; align-items:center; justify-content:space-between; gap:8px}
-.cartTitle{display:flex; align-items:center; gap:7px; min-width:0; font-weight:700}
-.cartTitle span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.cartRight{display:flex; align-items:center; gap:6px; flex-shrink:0}
-.cartBottom{margin-top:6px; font-size:12px}
-.hint{color:var(--muted); font-size:12px; padding:8px 0}
+.toolbar-actions{
+  width:100%;
+  min-width:0;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:nowrap !important;
+}
+.toolbar-actions .btn,
+.toolbar-actions input{
+  height:38px;
+}
+.toolbar-actions .btn{
+  padding:9px 12px;
+  font-size:12px;
+  border-radius:11px;
+}
+.menu-actions input{
+  flex:1 1 auto;
+  min-width:0;
+}
+.menu-actions .btn{
+  flex:0 0 auto;
+}
+.order-actions{
+  justify-content:flex-end;
+}
+.order-actions .btn{
+  flex:0 0 auto;
+}
+.order-actions #btnClearLog,
+.order-actions #btnSendOrder,
+.order-actions #btnCancelOrder{
+  min-width:112px;
+  text-align:center;
+}
+.order-actions #btnCancelOrder:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+}
+.menu-card .bd,
+.order-card .bd{
+  padding-top:12px;
+}
+.menu-card .split:first-child{
+  align-items:center;
+}
+@media (max-width:1450px){
+  .toolbar-hd{grid-template-columns:1fr;gap:10px !important}
+  .toolbar-hd b{min-height:auto}
+  .order-actions{justify-content:flex-start;flex-wrap:wrap !important}
+  .menu-actions{flex-wrap:wrap !important}
+  .menu-actions input{flex-basis:100%}
+}
+
+
+/* API Explorer / Credentials */
+.cred-box{border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:10px;background:rgba(15,23,42,.45);margin-top:10px}
+.cred-fields{display:none;margin-top:8px}
+.cred-fields.visible{display:block}
+.api-explorer-grid{display:grid;grid-template-columns:380px 1fr 1fr;gap:12px}
+.endpoint-list{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:12px;background:rgba(15,23,42,.55)}
+.endpoint-row{padding:9px 10px;border-top:1px solid var(--border);cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.endpoint-row:first-child{border-top:none}
+.endpoint-row:hover,.endpoint-row.active{background:rgba(74,163,255,.12)}
+.endpoint-title{font-size:12px;font-weight:700;word-break:break-all}
+.endpoint-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+.method-badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(74,163,255,.18);color:#93c5fd;border:1px solid rgba(74,163,255,.25)}
+.deprecated-badge{font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(255,77,79,.16);color:#fecaca;border:1px solid rgba(255,77,79,.3)}
+.api-textarea{min-height:360px}
+.endpoint-desc{color:var(--muted);font-size:12px;line-height:1.35;margin-top:8px;white-space:pre-wrap}
+@media (max-width: 1200px){.grid{grid-template-columns:1fr}.api-explorer-grid{grid-template-columns:1fr}.endpoint-list{max-height:260px}}
+
+.order-hd{
+  display:grid !important;
+  grid-template-columns:1fr;
+  gap:10px;
+  align-items:stretch;
+}
+
+.order-hd > b{
+  display:block;
+  white-space:nowrap;
+}
+
+.order-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  width:100%;
+}
+
+.order-actions .btn{
+  width:100%;
+  padding:9px 8px;
+  font-size:12px;
+  text-align:center;
+}
 
 </style>
 </head>
@@ -328,26 +406,43 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         <!-- iiko Cloud fields -->
         <div class="cloud-fields" id="cloudFields">
           <label>Proxy Worker URL</label>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-            <div class="worker-row active" id="workerRowVC">
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+            <div class="worker-row" id="workerRowCF">
+              <span class="worker-badge cf">CF</span>
+              <input id="workerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="pingDotCF" title="—"></span>
+            </div>
+            <div class="worker-row" id="workerRowVC">
               <span class="worker-badge vc">VC</span>
-              <input id="workerVC" placeholder="https://yandex-proxy-seven.vercel.app/api/proxy" value="https://yandex-proxy-seven.vercel.app/api/proxy" style="flex:1;min-width:0" />
+              <input id="workerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
               <span class="worker-ping-dot" id="pingDotVC" title="—"></span>
             </div>
           </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+            <span style="font-size:12px;color:var(--muted)">Активный:</span>
+            <select id="workerActive" style="font-size:12px;flex:1;min-width:0">
+              <option value="cf">Cloudflare</option>
+              <option value="vc" selected>Vercel</option>
+            </select>
+          </div>
 
-          <label>API Key</label>
-          <input id="apiKey" placeholder="API key из iikoWeb → Integrations → API Keys" />
+          <label>API Key / apiKey из iikoWeb</label>
+          <input id="apiKey" placeholder="вставь API key сюда" />
 
-          <div style="height:10px"></div>
-          <div class="split">
-            <div>
-              <label>App ID</label>
-              <input id="appId" placeholder="appId из iiko Developer Portal" />
-            </div>
-            <div>
-              <label>Client Secret</label>
-              <input id="clientSecret" type="password" placeholder="clientSecret из iiko Developer Portal" />
+          <div class="cred-box">
+            <label class="chk"><input type="checkbox" id="useOwnCloudCreds" /> Использовать свои appId / ClientSecret</label>
+            <div class="footerNote" id="defaultCredsNote">По умолчанию используется встроенная связка, зарегистрированная на портале разработчиков iiko как API Console.</div>
+            <div class="cred-fields" id="ownCloudCredFields">
+              <div class="split">
+                <div>
+                  <label>appId</label>
+                  <input id="ownAppId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                </div>
+                <div>
+                  <label>ClientSecret</label>
+                  <input id="ownClientSecret" type="password" placeholder="clientSecret" />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -405,11 +500,23 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           </div>
 
           <label>Proxy Worker URL</label>
-          <div style="display:block;margin-bottom:10px">
-            <div class="worker-row active" id="yWorkerRowVC">
+          <div style="display:block">
+            <div class="worker-row" id="yWorkerRowCF">
+              <span class="worker-badge cf">CF</span>
+              <input id="yWorkerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="yPingDotCF" title="—"></span>
+            </div>
+            <div class="worker-row" id="yWorkerRowVC">
               <span class="worker-badge vc">VC</span>
-              <input id="yWorkerVC" placeholder="https://yandex-proxy-seven.vercel.app/api/proxy" value="https://yandex-proxy-seven.vercel.app/api/proxy" style="flex:1;min-width:0" />
+              <input id="yWorkerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
               <span class="worker-ping-dot" id="yPingDotVC" title="—"></span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+              <span style="font-size:12px;color:var(--muted)">Активный:</span>
+              <select id="yWorkerActive" style="font-size:12px;flex:1;min-width:0">
+                <option value="cf">Cloudflare</option>
+                <option value="vc" selected>Vercel</option>
+              </select>
             </div>
           </div>
 
@@ -460,10 +567,10 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     </div>
 
     <!-- MID: Menu / Search -->
-    <div class="card">
-      <div class="hd">
+    <div class="card menu-card">
+      <div class="hd toolbar-hd">
         <b>Menu & Items</b>
-        <div class="row">
+        <div class="row toolbar-actions menu-actions">
           <input id="search" placeholder="Поиск блюда по названию..." />
           <button class="btn" id="btnAddById">Добавить по productId</button>
         </div>
@@ -489,16 +596,16 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       </div>
     </div>
 
-    <!-- RIGHT: Cart / Order / Logs -->
-    <div class="card">
-      <div class="hd">
-        <b>Order & Logs</b>
-        <div class="row">
-          <button class="btn danger" id="btnClearLog">Очистить логи</button>
-          <button class="btn primary" id="btnSendOrder">Тестовый заказ</button>
-          <button class="btn danger" id="btnCancelOrder" disabled title="Отменить последний отправленный заказ">Отменить заказ</button>
-        </div>
-      </div>
+	<!-- RIGHT: Cart / Order / Logs -->
+	<div class="card">
+	<div class="hd order-hd">
+		<b>Order & Logs</b>
+		<div class="row order-actions">
+		<button class="btn danger" id="btnClearLog">Очистить логи</button>
+		<button class="btn primary" id="btnSendOrder">Тестовый заказ</button>
+		<button class="btn danger" id="btnCancelOrder" disabled title="Отменить последний отправленный заказ">Отменить заказ</button>
+		</div>
+	</div>
       <div class="bd">
         <!-- Last order ID display -->
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap">
@@ -705,34 +812,68 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       </div>
     </div>
   </div>
-</div>
 
-
-<div id="modModalOverlay" class="modalOverlay hidden">
-  <div class="modModal" role="dialog" aria-modal="true" aria-labelledby="modModalName">
-    <div class="modModalHd">
-      <div class="modModalTitle">
-        <b id="modModalName">Модификаторы</b>
-        <span id="modModalSub">—</span>
+    <!-- API Explorer -->
+    <div style="height:14px"></div>
+    <div class="card" id="apiExplorerCard">
+      <div class="hd">
+        <b>API Explorer из docs (2)</b>
+        <div class="row">
+          <span class="pill">Endpoints: <span class="mono" id="apiDocCount">0</span></span>
+          <button class="btn" id="btnApiFillSample">Шаблон body</button>
+          <button class="btn primary" id="btnApiSend">Отправить</button>
+        </div>
       </div>
-      <button class="btn danger small" id="modModalClose" type="button">×</button>
+      <div class="bd">
+        <div class="api-explorer-grid">
+          <div>
+            <div class="split">
+              <div>
+                <label>Тег</label>
+                <select id="apiTagFilter"></select>
+              </div>
+              <div>
+                <label>Поиск</label>
+                <input id="apiSearch" placeholder="deliveries/create, stop_lists..." />
+              </div>
+            </div>
+            <div style="height:8px"></div>
+            <div class="endpoint-list" id="apiEndpointList"></div>
+          </div>
+          <div>
+            <label>Request body JSON</label>
+            <textarea id="apiBody" class="api-textarea" spellcheck="false" placeholder="Выбери метод слева — сюда упадёт шаблон тела запроса"></textarea>
+            <div class="endpoint-desc" id="apiEndpointInfo">—</div>
+          </div>
+          <div>
+            <label>Response</label>
+            <textarea id="apiResponse" class="api-textarea" spellcheck="false" placeholder="Ответ выбранного метода"></textarea>
+            <div class="footerNote">Все запросы идут через выбранный Proxy Worker. Authorization и Timeout подставляются автоматически после Connect.</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="modModalBody" id="modModalBody"></div>
-    <div class="modModalFt">
-      <button class="btn" id="modModalBack" type="button">Назад</button>
-      <button class="btn primary" id="modModalNext" type="button">Далее</button>
-    </div>
-  </div>
+
 </div>
 
 <script>
   // === CONFIG ===
   const WORKER_BASE_DEFAULT = "https://yandex-proxy-seven.vercel.app/api/proxy";
+  const DEFAULT_CLOUD_CREDENTIALS_PACK = {
+  v: 1,
+  alg: "AES-GCM",
+  iv: "HyQuYZdIEgGi3TOg",
+  data: "ABlDrj7O19uRGYf+xrwWc9fzfoB1Nw/F5D4qprhbpBu88zonpchuqJf8MCEUf/NwIYmn/RkDz85W3yxBe78xYv3RtFhHwPtdLIBlWDLZOogaDYbpP4K5qGUx58AfmhczP2r/pUK59JmL1PGNUdr+G57oxJlOTTKxojFCPnxV"
+};
+  const API_DOCS_EMBEDDED = {"title":"iikoCloud API","openapi":"3.0.1","endpointCount":132,"tags":["Addresses","Authorization","Banquets/reserves","Customer categories","Customers","Deliveries: Create and update","Deliveries: Retrieve","Delivery restrictions","Deprecated","Dictionaries","Discounts and promotions","Drafts","Employees","Marketing sources","Menu","Messages","Notifications","Operations","Orders","Organizations","Report","Terminal groups","Webhooks"],"endpoints":[{"method":"POST","path":"/api/1/cities","tag":"Addresses","summary":"Cities.","description":"> Restriction group: `Data: geo`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Address.CitiesRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/regions","tag":"Addresses","summary":"Regions.","description":"> Restriction group: `Data: geo`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Address.RegionsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/streets/by_city","tag":"Addresses","summary":"Streets by city.","description":"> Restriction group: `Data: geo`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Address.StreetsByCityRequest","sample":{"organizationId":"{{orgId}}","cityId":"{{uuid}}"}},{"method":"POST","path":"/api/1/streets/by_id","tag":"Addresses","summary":"Streets by id or by classifierId.","description":"> Restriction group: `Data: geo`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Address.StreetsByIdRequest","sample":{"organizationId":"{{orgId}}","ids":["{{id}}"]}},{"method":"POST","path":"/api/v2/access_token","tag":"Authorization","summary":"Retrieve session key for API access (v2)","description":"Authenticates an application and returns a short-lived JWT token for subsequent API calls.\r\n            \r\n**Getting started:**\r\n1. Register at https://public-api.iikoweb.ru/portal and fill in your company details.\r\n2. Create an application — you will receive an `appId` and a one-time `clientSecret`.\r\n3. In iikoWeb → \"Integrations\" → \"API Keys\", generate an API key.\r\n4. Call this method with all three credentials.\r\n5. Use the returned `token` as a Bearer token in the `Authorization` header of all\r\n   subsequent API requests: `Authorization: Bearer {token}`.\r\n**Token lifetime:** the token is valid for **1 hour**. The exact expiration is encoded\r\nin the JWT `exp` claim. Request a new token before the current one expires — there is\r\nno refresh token flow.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Auth.GetAccessTokenV2Request","sample":{"apiKey":"{{apiKey}}","appId":"{{appId}}","clientSecret":"{{clientSecret}}"}},{"method":"POST","path":"/api/1/access_token","tag":"Authorization","summary":"Retrieve session key for API user.","description":"> Deprecated: use `/api/v2/access_token` instead.","deprecated":true,"requestSchema":"iikoTransport.PublicApi.Contracts.Auth.GetAccessTokenRequest","sample":{"apiLogin":""}},{"method":"POST","path":"/api/1/reserve/add_items","tag":"Banquets/reserves","summary":"Add order items.","description":"Available only for banquets.\n\n > Allowed from version `8.2.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.AddOrderItemsToBanquetRequest","sample":{"reserveId":"{{uuid}}","organizationId":"{{orgId}}","items":[{"type":"","amount":0}]}},{"method":"POST","path":"/api/1/reserve/add_payments","tag":"Banquets/reserves","summary":"Add order payments.","description":"Available only for banquets.\n\n > Allowed from version `8.2.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order payments: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.AddOrderPaymentsToBanquetRequest","sample":{"reserveId":"{{uuid}}","organizationId":"{{orgId}}","payments":[{"paymentTypeKind":"","sum":0,"paymentTypeId":"{{paymentTypeId}}"}]}},{"method":"POST","path":"/api/1/reserve/available_organizations","tag":"Banquets/reserves","summary":"Returns all organizations of current account (determined by Authorization request header) for which banquet/reserve booking are available.","description":"> Allowed from version `7.1.5`.\n\n > Restriction group: `Orders: preparing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Organizations.GetOrganizationsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/reserve/available_restaurant_sections","tag":"Banquets/reserves","summary":"Returns all restaurant sections of specified terminal groups, for which banquet/reserve booking are available.","description":"> Allowed from version `7.1.5`.\n\n > Restriction group: `Orders: preparing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.GetRestaurantSectionsRequest","sample":{"terminalGroupIds":["{{terminalGroupId}}"]}},{"method":"POST","path":"/api/1/reserve/available_terminal_groups","tag":"Banquets/reserves","summary":"Returns all terminal groups of specified organizations, for which banquet/reserve booking are available.","description":"> Allowed from version `7.1.5`.\n\n > Restriction group: `Orders: preparing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Terminals.GetTerminalGroupsByOrganizationsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/reserve/cancel","tag":"Banquets/reserves","summary":"Cancel reservation due to some reason.","description":"Available only for reserves with status 'New'.\n\n > Allowed from version `8.2.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.CancelReserveRequest","sample":{"organizationId":"{{orgId}}","reserveId":"{{uuid}}","cancelReason":""}},{"method":"POST","path":"/api/1/reserve/change_estimated_start_time","tag":"Banquets/reserves","summary":"Change reserve/banquet estimated start time.","description":"> Allowed from version `9.0.5`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.ChangeReserveEstimatedStartTimeRequest","sample":{"organizationId":"{{orgId}}","reserveId":"{{uuid}}","newEstimatedStartTime":"2019-08-24 14:15:22.123"}},{"method":"POST","path":"/api/1/reserve/change_items","tag":"Banquets/reserves","summary":"Change order items.","description":"Available only for banquets.\n\n > Allowed from version `9.0.5`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.ChangeBanquetOrderItemsRequest","sample":{"organizationId":"{{orgId}}","reserveId":"{{uuid}}","items":[{"type":"","amount":0}]}},{"method":"POST","path":"/api/1/reserve/change_tables","tag":"Banquets/reserves","summary":"Change reserve/banquet tables.","description":"> Allowed from version `9.0.5`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.ChangeReserveTablesRequest","sample":{"organizationId":"{{orgId}}","reserveId":"{{uuid}}","tableIds":["{{uuid}}"]}},{"method":"POST","path":"/api/1/reserve/create","tag":"Banquets/reserves","summary":"Create banquet/reserve.","description":"> Allowed from version `7.1.5`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: creating`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.CreateReserveRequest","sample":{"organizationId":"{{orgId}}","customer":"","phone":"","durationInMinutes":0,"shouldRemind":false,"tableIds":["{{uuid}}"],"estimatedStartTime":"2019-08-24 14:15:22.123","terminalGroupId":"{{terminalGroupId}}","id":"{{id}}","order":{"items":[""],"menuId":"{{externalMenuId}}","payments":[""],"orderTypeId":"{{orderTypeId}}"}}},{"method":"POST","path":"/api/1/reserve/restaurant_sections_workload","tag":"Banquets/reserves","summary":"Returns all banquets/reserves for passed restaurant sections.","description":"> Allowed from version `7.1.5`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.GetRestaurantSectionsWorkloadRequest","sample":{"restaurantSectionIds":["{{uuid}}"],"dateFrom":"2019-08-24 14:15:22.123"}},{"method":"POST","path":"/api/1/reserve/status_by_id","tag":"Banquets/reserves","summary":"Retrieve banquets/reserves statuses by IDs.","description":"> Allowed from version `7.1.5`.\n\n > Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Reserves.ReservesByIdRequest","sample":{"organizationId":"{{orgId}}","reserveIds":["{{uuid}}"]}},{"method":"POST","path":"/api/1/loyalty/iiko/customer_category","tag":"Customer categories","summary":"Get customer categories.","description":"Get all organization's customer categories.\n\n > Restriction group: `Loyalty: dictionaries`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.GetCategoriesRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer_category/add","tag":"Customer categories","summary":"Add category for customer.","description":"Add specified category for customer.\n\n > Restriction group: `Guests: changing`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.ChangeCategoryForCustomerRequest","sample":{"customerId":"{{uuid}}","categoryId":"{{uuid}}","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer_category/remove","tag":"Customer categories","summary":"Remove category for customer.","description":"Remove specified category for customer.\n\n > Restriction group: `Guests: changing`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.ChangeCategoryForCustomerRequest","sample":{"customerId":"{{uuid}}","categoryId":"{{uuid}}","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/card/add","tag":"Customers","summary":"Add card.","description":"Add new card for customer.\n\n > Restriction group: `Guests: changing`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.AddMagnetCardRequest","sample":{"customerId":"{{uuid}}","cardTrack":"","cardNumber":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/card/remove","tag":"Customers","summary":"Delete card.","description":"Delete existing card for customer.\n\n > Restriction group: `Guests: changing`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.DeleteMagnetCardRequest","sample":{"customerId":"{{uuid}}","cardTrack":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/create_or_update","tag":"Customers","summary":"Create or update customer.","description":"Create or update customer info by id or phone or card track.\n\n > Restriction group: `Guests: creating`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.CreateOrUpdateCustomerRequest","sample":{"organizationId":"{{orgId}}","id":"{{id}}","phone":""}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/info","tag":"Customers","summary":"Get customer info.","description":"Get customer info by specified criterion.\n\n > Restriction group: `Guests: info`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.GetCustomerInfoRequest","sample":{"type":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/program/add","tag":"Customers","summary":"Add customer to program.","description":"Add new customer for program.\n\n > Restriction group: `Guests: changing`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.AddCustomerToProgramRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/wallet/cancel_hold","tag":"Customers","summary":"Cancel hold money.","description":"Cancel holding transaction that created earlier.\n\n > Restriction group: `Loyalty: wallets`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.CancelHoldMoneyRequest","sample":{"transactionId":"{{uuid}}","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/wallet/chargeoff","tag":"Customers","summary":"Withdraw balance.","description":"Withdraw customer balance.\n\n > Restriction group: `Loyalty: wallets`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.ChangeUserBalanceRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/wallet/hold","tag":"Customers","summary":"Hold money.","description":"Hold customer's money in loyalty program. Payment will be process on POS during processing of an order.\n\n > Restriction group: `Loyalty: wallets`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.HoldMoneyRequest","sample":{"customerId":"{{uuid}}","walletId":"{{uuid}}","sum":0,"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/wallet/topup","tag":"Customers","summary":"Refill balance.","description":"Refill customer balance.\n\n > Restriction group: `Loyalty: wallets`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.ChangeUserBalanceRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/delete_customers","tag":"Customers","summary":"Logical deletion of customers.","description":"Mark customers as deleted.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.DeleteCustomersRequest","sample":{"customerIds":["{{uuid}}"],"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/get_counters","tag":"Customers","summary":"Get counters.","description":"Get customer orders count and sum for different period.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.GetCountersRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/restore_customers","tag":"Customers","summary":"Logical recovery of customers.","description":"Removing deletion flags for customers.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Customer.RestoreCustomersRequest","sample":{"customerIds":["{{uuid}}"],"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/deliveries/add_items","tag":"Deliveries: Create and update","summary":"Add order items.","description":"> Allowed from version `7.4.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.AddOrderItemsRequest","sample":{"orderId":"{{orderId}}","organizationId":"{{orgId}}","items":[{"type":"","amount":0}]}},{"method":"POST","path":"/api/1/deliveries/add_payments","tag":"Deliveries: Create and update","summary":"Add order payments.","description":"> Allowed from version `8.4.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order payments: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Orders.Common.AddOrderPaymentsRequest","sample":{"orderId":"{{orderId}}","organizationId":"{{orgId}}","payments":[{"paymentTypeKind":"","sum":0,"paymentTypeId":"{{paymentTypeId}}"}]}},{"method":"POST","path":"/api/1/deliveries/cancel","tag":"Deliveries: Create and update","summary":"Cancel delivery order.","description":"> Allowed from version `7.5.4`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.CancelOrderRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/cancel_confirmation","tag":"Deliveries: Create and update","summary":"Cancel delivery confirmation.","description":"> Allowed from version `7.6.1`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.CancelDeliveryConfirmationRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/change_comment","tag":"Deliveries: Create and update","summary":"Change delivery comment.","description":"> Allowed from version `7.6.1`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeDeliveryCommentRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","comment":""}},{"method":"POST","path":"/api/1/deliveries/change_complete_before","tag":"Deliveries: Create and update","summary":"Change time when client wants the order to be delivered.","description":"> Allowed from version `7.5.4`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeCompleteBeforeRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","newCompleteBefore":"2019-08-24 14:15:22.123"}},{"method":"POST","path":"/api/1/deliveries/change_delivery_point","tag":"Deliveries: Create and update","summary":"Change order's delivery point information.","description":"> Allowed from version `7.5.4`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeDeliveryPointRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","newDeliveryPoint":{"coordinates":"","address":"","externalCartographyId":"{{uuid}}","comment":""}}},{"method":"POST","path":"/api/1/deliveries/change_driver_info","tag":"Deliveries: Create and update","summary":"Change driver info.","description":"> Allowed from version `8.6.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order driver: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.ChangeDriverInfoRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/change_external_data","tag":"Deliveries: Create and update","summary":"Change delivery external data.","description":"> Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeExternalDataRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","externalData":[{"key":"","value":""}]}},{"method":"POST","path":"/api/1/deliveries/change_operator","tag":"Deliveries: Create and update","summary":"Assign/change the order operator.","description":"> Allowed from version `7.6.1`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeDeliveryOperatorRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","operatorId":"{{uuid}}"}},{"method":"POST","path":"/api/1/deliveries/change_payments","tag":"Deliveries: Create and update","summary":"Change order's payments.","description":"> Method will fail if there are any processed payments in the order.\r\n> If all payments in the order are unprocessed they will be removed and replaced with new ones.\n\n > Allowed from version `7.6.3`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order payments: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangePaymentsRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","payments":[{"paymentTypeKind":"","sum":0,"paymentTypeId":"{{paymentTypeId}}"}]}},{"method":"POST","path":"/api/1/deliveries/change_service_type","tag":"Deliveries: Create and update","summary":"Change order's delivery type.","description":"> Allowed from version `7.5.4`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeServiceTypeRequest","sample":{"newServiceType":"","organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/close","tag":"Deliveries: Create and update","summary":"Close order.","description":"> Before version `8.0.6` it's possible to close deliveries with `DeliveryByClient`\r\norderServiceType only, starting from version `8.0.6` it's also possible to close\r\n`DeliveryByCourier` deiveries in the DeliveryStatus `OnWay` or `Delivered` .\n\n > Allowed from version `7.4.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.CloseDeliveryOrderRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/confirm","tag":"Deliveries: Create and update","summary":"Confirm delivery.","description":"> Allowed from version `7.6.1`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ConfirmDeliveryRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/create","tag":"Deliveries: Create and update","summary":"Create delivery.","description":"> This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: creating`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.CreateOrderRequest","sample":{"organizationId":"{{orgId}}","order":{"phone":"","items":[""],"menuId":"{{externalMenuId}}","id":"{{id}}","completeBefore":"2019-08-24 14:15:22.123","orderTypeId":"{{orderTypeId}}","deliveryPoint":"","customer":"","priceCategoryId":"{{priceCategoryId}}","payments":[""]},"terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/deliveries/print_delivery_bill","tag":"Deliveries: Create and update","summary":"Print delivery bill.","description":"> Allowed from version `7.6.1`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.PrintDeliveryBillRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/update_order_delivery_status","tag":"Deliveries: Create and update","summary":"Update delivery status.","description":"> This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateDeliveryStatusRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","deliveryStatus":""}},{"method":"POST","path":"/api/1/deliveries/update_order_problem","tag":"Deliveries: Create and update","summary":"Update order problem.","description":"> This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrderProblemRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","hasProblem":false,"problem":""}},{"method":"POST","path":"/api/1/deliveries/update_tracking_link","tag":"Deliveries: Create and update","summary":"Update tracking link of an order.","description":"","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateTrackingLinkRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/order/print_bill","tag":"Deliveries: Create and update","summary":"Print bill.","description":"> This method is a command. Use `api/1/commands/status` method to get the progress status.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.PrintBillRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/update_order_courier","tag":"Deliveries: Create and update","summary":"Update order courier.","description":"> Allowed from version `7.1.5`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order driver: changing`.","deprecated":true,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrderCourierRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/deliveries/update_order_payments","tag":"Deliveries: Create and update","summary":"Update order payment details.","description":"> Deprecated, use `api/1/deliveries/change_payments` method instead.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Deprecated`.","deprecated":true,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrderPaymentsRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/by_delivery_date_and_phone","tag":"Deliveries: Retrieve","summary":"Retrieve list of orders by telephone number, dates and revision.","description":"> Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.OrdersByDeliveryDateAndPhoneRequest","sample":{"phone":"","organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/deliveries/by_delivery_date_and_source_key_and_filter","tag":"Deliveries: Retrieve","summary":"Search orders by search text and additional filters (date, problem, statuses and other).","description":"> Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.OrdersByDeliveryDateAndFilterRequest","sample":{"organizationIds":["{{orgId}}"],"terminalGroupIds":["{{terminalGroupId}}"]}},{"method":"POST","path":"/api/1/deliveries/by_delivery_date_and_status","tag":"Deliveries: Retrieve","summary":"Retrieve list of orders by statuses and dates.","description":"> Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.OrdersByDeliveryDateAndStatusRequest","sample":{"organizationIds":["{{orgId}}"],"deliveryDateFrom":"2019-08-24 14:15:22.123"}},{"method":"POST","path":"/api/1/deliveries/by_id","tag":"Deliveries: Retrieve","summary":"Retrieve orders by IDs.","description":"> Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.OrdersByIdRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/deliveries/by_revision","tag":"Deliveries: Retrieve","summary":"Retrieve list of orders changed from the time revision was passed.","description":"> Restriction group: `Orders: receiving by revision`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.OrdersByRevisionRequest","sample":{"startRevision":0,"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/deliveries/history/by_delivery_date_and_phone","tag":"Deliveries: Retrieve","summary":"Retrieve list of history orders by telephone number, dates and revision.","description":"> Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.OrdersHistoryByDeliveryDateAndPhoneRequest","sample":{"phone":"","organizationIds":["{{orgId}}"],"rowsCount":0}},{"method":"POST","path":"/api/1/delivery_restrictions","tag":"Delivery restrictions","summary":"Retrieve list of delivery restrictions.","description":"> Allowed from version `6.4.16`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.DeliveryRestrictions.GetDeliveryRestrictionsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/delivery_restrictions/allowed","tag":"Delivery restrictions","summary":"Get suitable terminal groups for delivery restrictions.","description":"> Allowed from version `6.4.16`.\n\n > Restriction group: `Orders: preparing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.DeliveryRestrictions.AllowedRestrictions.GetAllowedRestrictionsRequest","sample":{"isCourierDelivery":false,"organizationId":"{{orgId}}","organizationIds":["{{orgId}}"]}},{"method":"GET","path":"/api/1/organizations","tag":"Deprecated","summary":"Returns organizations available to api-login user.","description":"> Deprecated, use `POST api/1/organizations`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":true,"requestSchema":"","sample":null},{"method":"POST","path":"/api/1/cancel_causes","tag":"Dictionaries","summary":"Delivery cancel causes.","description":"> Allowed from version `7.7.1`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.CancelCauses.CancelCausesRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/deliveries/order_types","tag":"Dictionaries","summary":"Order types.","description":"> Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.OrderTypes.OrderTypesRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/discounts","tag":"Dictionaries","summary":"Discounts / surcharges.","description":"> Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Discounts.DiscountsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/payment_types","tag":"Dictionaries","summary":"Payment types.","description":"> Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.PaymentTypes.PaymentTypesRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/removal_types","tag":"Dictionaries","summary":"Removal types (reasons for deletion).","description":"> Allowed from version `7.5.3`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.RemovalTypes.RemovalTypesRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/tips_types","tag":"Dictionaries","summary":"Get tips types for api-login`s rms group.","description":"> Allowed from version `7.7.4`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"","sample":null},{"method":"POST","path":"/api/1/loyalty/iiko/calculate","tag":"Discounts and promotions","summary":"Calculate checkin.","description":"Calculate discounts and other loyalty items for an order.\n\n > Restriction group: `Loyalty: order calculate`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.CalculateCheckinRequest","sample":{"order":{"phone":"","items":[""],"id":"{{id}}","completeBefore":"2019-08-24 14:15:22.123","orderTypeId":"{{orderTypeId}}","deliveryPoint":"","customer":"","priceCategoryId":"{{priceCategoryId}}","payments":[""]},"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/coupons/by_series","tag":"Discounts and promotions","summary":"Get non-activated coupons","description":"Get list of non-activated coupons.\n\n > Restriction group: `Loyalty: coupons`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.NotActivatedCouponRequest","sample":{"series":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/coupons/info","tag":"Discounts and promotions","summary":"Get coupon info.","description":"Get information about the specified coupon.\n\n > Restriction group: `Loyalty: coupons`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.CouponInfoRequest","sample":{"number":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/coupons/series","tag":"Discounts and promotions","summary":"Get coupon series with non-activated coupons.","description":"Get a list of coupon series in which there are not deleted and not activated coupons.\n\n > Restriction group: `Loyalty: coupons`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.SeriesWithNotActivatedCouponsRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/manual_condition","tag":"Discounts and promotions","summary":"Get manual conditions.","description":"Get all organization's manual conditions.\n\n > Restriction group: `Loyalty: dictionaries`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Common.GetByOrganizationIdRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/program","tag":"Discounts and promotions","summary":"Get programs.","description":"Get all loyalty programs for organization.\n\n > Restriction group: `Loyalty: dictionaries`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Organization.GetProgramsRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/by_filter","tag":"Drafts","summary":"Retrieve order drafts list by parameters.","description":"> Restriction group: `Drafts: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.FilterDraftsRequest","sample":{"organizationIds":["{{orgId}}"],"phone":"","terminalGroupIds":["{{terminalGroupId}}"]}},{"method":"POST","path":"/api/1/deliveries/drafts/by_id","tag":"Drafts","summary":"Retrieve order draft by ID.","description":"> Restriction group: `Drafts: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.GetDraftRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/commit","tag":"Drafts","summary":"Admit order draft changes and send them to Front.","description":"> Restriction group: `Drafts: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.CommitDraftRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/create","tag":"Drafts","summary":"Create delivery order draft.","description":"> Restriction group: `Drafts: creating`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.CreateDraftRequest","sample":{"organizationId":"{{orgId}}","order":{"menuId":"{{externalMenuId}}","phone":"","items":[""],"id":"{{id}}","completeBefore":"2019-08-24 14:15:22.123","orderTypeId":"{{orderTypeId}}","deliveryPoint":"","customer":"","priceCategoryId":"{{priceCategoryId}}","payments":[""]},"terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/delete","tag":"Drafts","summary":"Delete order draft.","description":"> Restriction group: `Drafts: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.DeleteDraftRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/lock","tag":"Drafts","summary":"Lock order draft.","description":"> Restriction group: `Drafts: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.LockOrUnlockDraftRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/save","tag":"Drafts","summary":"Update existing delivery order draft.","description":"> Restriction group: `Drafts: creating`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.SaveDraftRequest","sample":{"employeeId":"{{uuid}}","organizationId":"{{orgId}}","order":{"menuId":"{{externalMenuId}}","phone":"","items":[""],"id":"{{id}}","completeBefore":"2019-08-24 14:15:22.123","orderTypeId":"{{orderTypeId}}","deliveryPoint":"","customer":"","priceCategoryId":"{{priceCategoryId}}","payments":[""]},"terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/deliveries/drafts/unlock","tag":"Drafts","summary":"Unlock order draft.","description":"> Restriction group: `Drafts: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Drafts.LockOrUnlockDraftRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/employees/couriers","tag":"Employees","summary":"Returns list of all employees which are delivery drivers in specified restaurants.","description":"> Restriction group: `Drivers: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.CouriersRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/employees/couriers/active_location","tag":"Employees","summary":"Returns list of all active (courier session is opened) courier's locations which are delivery drivers \r\nin specified restaurants.","description":"> Restriction group: `Drivers: location`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.CouriersRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/employees/couriers/active_location/by_terminal","tag":"Employees","summary":"Returns list of all active (courier session is opened) courier's locations which are delivery drivers in specified \r\nrestaurant and are clocked in on specified delivery terminal.","description":"> Restriction group: `Drivers: location`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.ActiveCourierLocationsByTerminalGroupRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/employees/couriers/by_role","tag":"Employees","summary":"Returns list of all employees which are delivery drivers in specified restaurants, \r\nand checks whether each employee has passed role.","description":"> Restriction group: `Drivers: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.CouriersAndCheckRoleRequest","sample":{"organizationIds":["{{orgId}}"],"rolesToCheck":[""]}},{"method":"POST","path":"/api/1/employees/couriers/locations/by_time_offset","tag":"Employees","summary":"Method of obtaining drivers' coordinates history.","description":"> Restriction group: `Drivers: location`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.CourierLocationsByTimeOffsetRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/employees/info","tag":"Employees","summary":"Returns employee info.","description":"> Restriction group: `Employees: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.EmployeeInfoRequest","sample":{"organizationId":"{{orgId}}","id":"{{id}}"}},{"method":"POST","path":"/api/1/employees/shift/clockin","tag":"Employees","summary":"Open personal session.","description":"> This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Employees: shifts`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.OpenPersonalSessionRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/employees/shift/clockout","tag":"Employees","summary":"Close personal session.","description":"> This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Employees: shifts`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.ClosePersonalSessionRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/employees/shift/is_open","tag":"Employees","summary":"Check if personal session is open.","description":"> Restriction group: `Employees: shifts`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.GetPersonalSessionInfoRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/employees/shifts/by_courier","tag":"Employees","summary":"Get terminal groups where employee session is opened.","description":"> Restriction group: `Employees: shifts`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Employees.GetTerminalGroupsOfEmployeeRequest","sample":{"employeeId":"{{uuid}}"}},{"method":"POST","path":"/api/1/marketing_sources","tag":"Marketing sources","summary":"Marketing sources.","description":"> Allowed from version `7.2.5`.\n\n > Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.MarketingSources.MarketingSourcesRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/combo","tag":"Menu","summary":"Get combos info","description":"Get all organization's combos.\n\n > Restriction group: `Data: menu`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.GetCombosInfoRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/combo/calculate","tag":"Menu","summary":"Calculate combo price","description":"Make combo price calculation.\n\n > Restriction group: `Loyalty: order calculate`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.LoyaltyResult.CalculateComboPriceRequest","sample":{"items":[{"type":"","amount":0}],"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/nomenclature","tag":"Menu","summary":"Menu.","description":"> Sourced from RMS Data Exchange Export menu.\n\n > Restriction group: `Data: menu`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Nomenclature.NomenclatureRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/stop_lists","tag":"Menu","summary":"Out-of-stock items.","description":"> Restriction group: `Data: stoplists`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.StopLists.StopListsRequest","sample":{"organizationIds":["{{orgId}}"],"terminalGroupsIds":["{{terminalGroupId}}"]}},{"method":"POST","path":"/api/1/stop_lists/add","tag":"Menu","summary":"Add items to out-of-stock list.\r\n(You should have extra rights to use this method).","description":"> Allowed from version `8.6.1`.\n\n > Restriction group: `Data: changing stoplists`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.StopLists.AddProductsToStopListRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","items":[{"productId":"{{productId}}","balance":0}]}},{"method":"POST","path":"/api/1/stop_lists/check","tag":"Menu","summary":"Check items in out-of-stock list.","description":"> Restriction group: `Orders: creating`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.StopLists.CheckStopListRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","items":[{"type":"","amount":0}]}},{"method":"POST","path":"/api/1/stop_lists/clear","tag":"Menu","summary":"Clear out-of-stock list.\r\n(You should have extra rights to use this method).","description":"> Allowed from version `8.6.1`.\n\n > Restriction group: `Data: changing stoplists`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.StopLists.ClearStopListRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}"}},{"method":"POST","path":"/api/1/stop_lists/remove","tag":"Menu","summary":"Remove items from out-of-stock list.\r\n(You should have extra rights to use this method).","description":"> Allowed from version `8.6.1`.\n\n > Restriction group: `Data: changing stoplists`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.StopLists.RemoveProductsFromStopListRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","items":[{"productId":"{{productId}}"}]}},{"method":"POST","path":"/api/2/menu","tag":"Menu","summary":"External menus with price categories.","description":"> Restriction group: `Data: menu`.","deprecated":false,"requestSchema":"","sample":null},{"method":"POST","path":"/api/2/menu/by_id","tag":"Menu","summary":"Retrieve external menu by ID.","description":"> Sourced from Web External menu.\n\n > Restriction group: `Data: menu`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Nomenclature.MenuRequest","sample":{"externalMenuId":"{{externalMenuId}}","organizationIds":["{{orgId}}"],"priceCategoryId":"{{priceCategoryId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/check_sms_sending_possibility","tag":"Messages","summary":"Check sms sending possibility.","description":"Check sms sending possibility before send sms message.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Notification.SmsSendingPossibilityRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/check_sms_status","tag":"Messages","summary":"Check SMS status.","description":"Check the status of sending SMS messages.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Notification.CheckSmsStatusRequest","sample":{"smsIds":["{{uuid}}"],"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/message/send_email","tag":"Messages","summary":"Send email.","description":"Send email message to specified email address. Sending proceed according iikoCard organization's settings.\n\n > Restriction group: `Loyalty: messages`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Notification.SendEmailRequest","sample":{"receiver":"","subject":"","body":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/message/send_sms","tag":"Messages","summary":"Send sms.","description":"Send sms message to specified phone number. Sending proceed according iikoCard organization's settings.\n\n > Restriction group: `Loyalty: messages`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Notification.SendSmsRequest","sample":{"phone":"","text":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/notifications/send","tag":"Notifications","summary":"Send notification to external systems.","description":"> Restriction group: `Notifications`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Notifications.SendNotificationRequest","sample":{"messageType":"","organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/commands/status","tag":"Operations","summary":"Get status of command.","description":"> Response code `410` means that the correlationId value specified in the method is no longer supported.\r\nPlease do not request methods that include such a value.\n\n > Restriction group: `Commands`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Commands.GetCommandStatusRequest","sample":{"organizationId":"{{orgId}}","correlationId":"{{correlationId}}"}},{"method":"POST","path":"/api/1/order/add_customer","tag":"Orders","summary":"Add customer to order.","description":"> Allowed from version `7.7.1`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.AddCustomerToTableOrderRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","customer":{"id":"{{id}}","phone":""}}},{"method":"POST","path":"/api/1/order/add_items","tag":"Orders","summary":"Add order items.","description":"> Allowed from version `7.4.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.AddItemsToTableOrderRequest","sample":{"orderId":"{{orderId}}","organizationId":"{{orgId}}","items":[{"type":"","amount":0}]}},{"method":"POST","path":"/api/1/order/add_payments","tag":"Orders","summary":"Add order payments.","description":"> Allowed from version `8.2.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order payments: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Orders.Common.AddOrderPaymentsRequest","sample":{"orderId":"{{orderId}}","organizationId":"{{orgId}}","payments":[{"paymentTypeKind":"","sum":0,"paymentTypeId":"{{paymentTypeId}}"}]}},{"method":"POST","path":"/api/1/order/by_id","tag":"Orders","summary":"Retrieve orders by IDs.","description":"> Allowed from version `7.4.6`.\n\n > Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.GetTableOrdersByIdRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/order/by_table","tag":"Orders","summary":"Retrieve orders by tables.","description":"> Allowed from version `7.4.6`.\n\n > Restriction group: `Orders: receiving`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.GetTableOrdersByTableRequest","sample":{"organizationIds":["{{orgId}}"],"tableIds":["{{uuid}}"]}},{"method":"POST","path":"/api/1/order/cancel","tag":"Orders","summary":"Cancel the table order.","description":"> Allowed from version `9.0.5`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.CancelTableOrderRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/order/change_external_data","tag":"Orders","summary":"Change table order external_data.","description":"> Restriction group: `Orders: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangeExternalDataRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","externalData":[{"key":"","value":""}]}},{"method":"POST","path":"/api/1/order/change_payments","tag":"Orders","summary":"Change table order's payments.","description":"> Method will fail if there are any processed payments in the order.\r\n> If all payments in the order are unprocessed they will be removed and replaced with new ones.\n\n > Allowed from version `7.7.4`.\n\n > Restriction group: `Order payments: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.UpdateOrder.ChangePaymentsRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}","payments":[{"paymentTypeKind":"","sum":0,"paymentTypeId":"{{paymentTypeId}}"}]}},{"method":"POST","path":"/api/1/order/close","tag":"Orders","summary":"Close order.","description":"> Allowed from version `7.4.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Order status: changing`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Deliveries.Request.CloseTableOrderRequest","sample":{"organizationId":"{{orgId}}","orderId":"{{orderId}}"}},{"method":"POST","path":"/api/1/order/create","tag":"Orders","summary":"Create order.","description":"> Allowed from version `7.4.6`.\n\n > This method is a command. Use `api/1/commands/status` method to get the progress status.\n\n > Restriction group: `Orders: creating`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.CreateTableOrderRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","order":{"items":[""],"id":"{{id}}","customer":"","phone":"","menuId":"{{externalMenuId}}","priceCategoryId":"{{priceCategoryId}}","payments":[""],"orderTypeId":"{{orderTypeId}}"}}},{"method":"POST","path":"/api/1/order/init_by_posOrder","tag":"Orders","summary":"Init orders, created on POS, by POS orders.","description":"> Allowed from version `7.7.1`.\n\n > Restriction group: `Orders: loading data`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.InitTableOrderByPosOrderRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","posOrderIds":["{{uuid}}"]}},{"method":"POST","path":"/api/1/order/init_by_table","tag":"Orders","summary":"Init orders, created on POS, by tables.","description":"> Allowed from version `7.7.1`.\n\n > Restriction group: `Orders: loading data`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.TableOrders.Request.InitTableOrderRequest","sample":{"organizationId":"{{orgId}}","terminalGroupId":"{{terminalGroupId}}","tableIds":["{{uuid}}"]}},{"method":"POST","path":"/api/1/organizations","tag":"Organizations","summary":"Returns organizations available to api-login user.","description":"> Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Organizations.GetOrganizationsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/organizations/settings","tag":"Organizations","summary":"Returns available to api-login user organizations specified settings.","description":"> Restriction group: `Organizations: settings`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Organizations.OrganizationsSettingsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/transactions/by_date","tag":"Report","summary":"Get transaction report by period.","description":"Get transaction report for specified customer by provided date range.\n\n > Restriction group: `Guests: info`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Report.GetTransactionsReportByPeriodRequest","sample":{"customerId":"{{uuid}}","dateFrom":"2019-08-24 14:15:22.123","dateTo":"2019-08-24 14:15:22.123","pageNumber":0,"pageSize":0,"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/loyalty/iiko/customer/transactions/by_revision","tag":"Report","summary":"Get transaction report by revision.","description":"Get transaction report for specified customer by provided revision.\n\n > Restriction group: `Guests: info`.","deprecated":false,"requestSchema":"iikoNet.Service.Contracts.Api.iikoTransport.Report.GetTransactionsReportByRevisionRequest","sample":{"customerId":"{{uuid}}","pageSize":0,"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/terminal_groups","tag":"Terminal groups","summary":"Method that returns information on groups of delivery terminals.","description":"> Restriction group: `Data: dictionaries`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Terminals.TerminalGroupsRequest","sample":{"organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/terminal_groups/awake","tag":"Terminal groups","summary":"Awake terminal groups from sleep mode.","description":"> Restriction group: `Organizations: settings`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Terminals.AwakeTerminalGroupsRequest","sample":{"organizationIds":["{{orgId}}"],"terminalGroupIds":["{{terminalGroupId}}"]}},{"method":"POST","path":"/api/1/terminal_groups/is_alive","tag":"Terminal groups","summary":"Returns information on availability of group of terminals.","description":"> Restriction group: `POS: availability`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.Terminals.TerminalGroupsIsAliveRequest","sample":{"terminalGroupIds":["{{terminalGroupId}}"],"organizationId":"{{orgId}}","organizationIds":["{{orgId}}"]}},{"method":"POST","path":"/api/1/webhooks/settings","tag":"Webhooks","summary":"Get webhooks settings for specified organization and authorized API login.","description":"> Restriction group: `Organizations: settings`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.WebHooks.GetWebHookSettingsRequest","sample":{"organizationId":"{{orgId}}"}},{"method":"POST","path":"/api/1/webhooks/update_settings","tag":"Webhooks","summary":"Update webhooks settings for specified organization and authorized API login.","description":"> Restriction group: `WebHooks: settings`.","deprecated":false,"requestSchema":"iikoTransport.PublicApi.Contracts.WebHooks.UpdateWebHookSettingsRequest","sample":{"organizationId":"{{orgId}}","webHooksUri":""}}]};
+
 
   // CF:  base + /proxy  + /api/1/...
   // VC:  base (уже содержит /api/proxy) + /api/1/...  → prefix = ""
   function proxyPrefix(){
-    return "";
+    const active = $("workerActive")?.value || "vc";
+    if (active === "vc") return "";
+    return "/proxy";
   }
 
   // === API MODE ===
@@ -782,7 +923,6 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     itemsFlat: [],
     cart: [],
     builderSelections: {},
-    activeModifierBuilder: null,
     lastRid: null,
     lastOrderId: null,
     lastYandexEatsId: null,
@@ -829,353 +969,80 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     try { return JSON.stringify(v, null, 2); } catch { return String(v); }
   }
 
-  function menuGetOrgPrice(pricesArr){
-    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return 0;
-    const hit = pricesArr.find(p => p && p.organizationId === state.orgId);
-    const obj = hit || pricesArr[0] || {};
-    const raw = obj.price ?? obj.currentPrice ?? obj.value ?? obj.amount ?? 0;
-    const n = typeof raw === "string" ? Number(raw.replace(",", ".")) : Number(raw);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function menuPickDefaultSize(item){
-    const sizes = Array.isArray(item?.itemSizes) ? item.itemSizes : [];
-    if (sizes.length) return sizes.find(s => s && s.isDefault) || sizes[0] || null;
-    return { isDefault:true, prices: Array.isArray(item?.prices) ? item.prices : [], itemId:item?.itemId || item?.id || null, sizeName:"" };
-  }
-
-  function menuBaseIdOf(item, size){
-    return String((size && (size.itemId || size.id || size.sizeId)) || item?.itemId || item?.id || item?.sku || (String(item?.name||"item") + "::default"));
-  }
-
-  function menuIsHiddenOf(item, size){
-    return Boolean((size && size.isHidden) || item?.isHidden || item?.isDeleted);
-  }
-
-  function menuModIdOf(mi){
-    return String(mi?.itemId || mi?.productId || mi?.modifierId || mi?.id || mi?.sku || mi?.name || "");
-  }
-
-  function menuGroupIdOf(g, idx){
-    return String(g?.id || g?.itemGroupId || g?.modifierGroupId || g?.name || ("group" + idx));
-  }
-
-  function menuGroupRestrictions(g){
-    const r = g?.restrictions || {};
-    let minQ = Number(r.minQuantity ?? r.minAmount ?? g?.minQuantity ?? g?.minAmount ?? 0) || 0;
-    let maxQ = Number(r.maxQuantity ?? r.maxAmount ?? g?.maxQuantity ?? g?.maxAmount ?? 0) || 0;
-    const freeQ = Number(r.freeQuantity ?? r.freeOfChargeAmount ?? g?.freeQuantity ?? g?.freeOfChargeAmount ?? 0) || 0;
-    const byDefault = Number(r.byDefault ?? r.defaultAmount ?? g?.byDefault ?? g?.defaultAmount ?? 0) || 0;
-    if ((g?.required === true || r.required === true) && minQ <= 0) minQ = 1;
-    return { minQ, maxQ, freeQ, byDefault };
-  }
-
-  function menuModifierRestrictions(mi){
-    const minQ = Number(mi?.minQuantity ?? mi?.minAmount ?? 0) || 0;
-    const maxQ = Number(mi?.maxQuantity ?? mi?.maxAmount ?? 0) || 0;
-    const byDefault = Number(mi?.byDefault ?? mi?.defaultAmount ?? 0) || 0;
-    return { minQ, maxQ, byDefault };
-  }
-
-  function menuGetModifierGroups(item, size){
-    const direct = [];
-    if (Array.isArray(size?.itemModifierGroups)) direct.push(...size.itemModifierGroups);
-    if (Array.isArray(item?.itemModifierGroups)) direct.push(...item.itemModifierGroups);
-    if (direct.length) return direct.map((g, idx)=>({ ...g, __idx: idx, items: Array.isArray(g.items) ? g.items : [] }));
-
-    // API v1 /nomenclature fallback: simple modifiers + groupModifiers, already enriched in buildMenuModelFromNomenclature.
-    const groups = [];
-    if (Array.isArray(item?.modifiers)) {
-      for (const m of item.modifiers) {
-        const minQ = Number(m.minAmount ?? 0) || (m.required ? 1 : 0);
-        const maxQ = Number(m.maxAmount ?? 0) || 1;
-        groups.push({
-          id: "simple::" + (m.id || m.itemId || m.name),
-          name: m.name || "Модификатор",
-          restrictions: { minQuantity: minQ, maxQuantity: maxQ, freeQuantity: Number(m.freeOfChargeAmount || 0), byDefault: Number(m.defaultAmount || 0) },
-          items: [{ ...m, itemId: m.itemId || m.id, id: m.id, name: m.name || m.id, prices: m.prices || [] }]
-        });
-      }
+  function redactSensitive(value){
+    const sensitive = /^(clientSecret|client_secret|apiKey|apiLogin|apiLoginId|token|accessToken|access_token|authorization|password|secret)$/i;
+    if (Array.isArray(value)) return value.map(redactSensitive);
+    if (value && typeof value === "object") {
+      const out = {};
+      for (const [k, v] of Object.entries(value)) out[k] = sensitive.test(k) ? "***hidden***" : redactSensitive(v);
+      return out;
     }
-    if (Array.isArray(item?.groupModifiers)) {
-      for (const g of item.groupModifiers) {
-        const children = Array.isArray(g.items) ? g.items : (Array.isArray(g.childModifiers) ? g.childModifiers : []);
-        groups.push({
-          id: g.id,
-          name: g.name || "Группа модификаторов",
-          restrictions: { minQuantity: Number(g.minAmount || 0), maxQuantity: Number(g.maxAmount || 0), freeQuantity: Number(g.freeOfChargeAmount || 0), byDefault: Number(g.defaultAmount || 0) },
-          items: children.map(ch => ({ ...ch, itemId: ch.itemId || ch.id, id: ch.id, name: ch.name || ch.id, prices: ch.prices || [] }))
-        });
-      }
+    return value;
+  }
+
+  function b64ToBytes(s){
+    const bin = atob(s);
+    const out = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  async function decryptDefaultCloudCredentials(){
+    if (state.defaultCloudCreds) return state.defaultCloudCreds;
+    if (!window.crypto || !crypto.subtle) throw new Error("В браузере недоступен WebCrypto. Включи галочку и введи appId/ClientSecret вручную.");
+    const parts = ["iiko",":","public","-","api","::","console","::","v2","::","teogarat","::","2026"];
+    const rawKey = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(parts.join("")));
+    const key = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
+    const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64ToBytes(DEFAULT_CLOUD_CREDENTIALS_PACK.iv)}, key, b64ToBytes(DEFAULT_CLOUD_CREDENTIALS_PACK.data));
+    state.defaultCloudCreds = JSON.parse(new TextDecoder().decode(plain));
+    return state.defaultCloudCreds;
+  }
+
+  async function getCloudAuthPayload(apiKey){
+    const own = !!$("useOwnCloudCreds")?.checked;
+    let appId, clientSecret;
+    if (own) {
+      appId = ($("ownAppId")?.value || "").trim();
+      clientSecret = ($("ownClientSecret")?.value || "").trim();
+      if (!appId || !clientSecret) throw new Error("Заполни appId и ClientSecret или выключи галочку своих данных");
+    } else {
+      const creds = await decryptDefaultCloudCredentials();
+      appId = creds.appId;
+      clientSecret = creds.clientSecret;
     }
-    return groups.map((g, idx)=>({ ...g, __idx: idx }));
+    return { apiKey, appId, clientSecret };
   }
 
-  function menuFindItemByBaseId(baseId){
-    const cats = Array.isArray(state.menu?.itemCategories) ? state.menu.itemCategories : [];
-    for (const c of cats){
-      const items = Array.isArray(c.items) ? c.items : [];
-      for (const item of items){
-        const size = menuPickDefaultSize(item);
-        if (menuBaseIdOf(item, size) === String(baseId)) return { item, size };
-      }
-    }
-    return null;
+  function updateCloudCredentialUi(){
+    const own = !!$("useOwnCloudCreds")?.checked;
+    $("ownCloudCredFields")?.classList.toggle("visible", own);
+    if ($("defaultCredsNote")) $("defaultCredsNote").style.display = own ? "none" : "block";
   }
-
-  function modifierPrice(mi){
-    const fromPrices = menuGetOrgPrice(mi?.prices);
-    if (fromPrices) return fromPrices;
-    const n = Number(mi?.price ?? mi?.currentPrice ?? 0);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function lineUnitPrice(line){
-    const mods = (line.modifiers||[]).reduce((acc,m)=>acc + (Number(m.price)||0) * (Number(m.qty)||0), 0);
-    return (Number(line.basePrice)||0) + mods;
-  }
-
-  function selectionKey(gi, mi){ return `${gi}::${menuModIdOf(mi)}`; }
-
-  function builderGroups(){ return Array.isArray(state.activeModifierBuilder?.groups) ? state.activeModifierBuilder.groups : []; }
-
-  function groupSelectedCount(gi){
-    const b = state.activeModifierBuilder;
-    const g = builderGroups()[gi];
-    if (!b || !g) return 0;
-    return (g.items || []).reduce((acc, mi)=> acc + Number(b.mods[selectionKey(gi, mi)] || 0), 0);
-  }
-
-  function requiredGroupsSatisfied(){
-    const groups = builderGroups();
-    for (let gi=0; gi<groups.length; gi++){
-      const r = menuGroupRestrictions(groups[gi]);
-      if (r.minQ > 0 && groupSelectedCount(gi) < r.minQ) return false;
-    }
-    return true;
-  }
-
-  function buildSelectedModifiers(item, size, modsMap){
-    const groups = menuGetModifierGroups(item, size);
-    const mods = [];
-    for (let gi=0; gi<groups.length; gi++){
-      const g = groups[gi];
-      for (const mi of (g.items || [])){
-        const key = selectionKey(gi, mi);
-        const qty = Number(modsMap[key] || 0);
-        if (qty > 0){
-          mods.push({
-            productId: menuModIdOf(mi),
-            name: mi.name || mi.title || menuModIdOf(mi),
-            qty,
-            price: modifierPrice(mi),
-            groupName: g.name || ""
-          });
-        }
-      }
-    }
-    return mods;
-  }
-
-  function addConfiguredItemToCart(item, size, modsMap){
-    const baseProductId = String((size && (size.itemId || size.id)) || item.itemId || item.id || item.sku || "");
-    if (!baseProductId) throw new Error("Не найден productId блюда");
-
-    const basePrice = menuGetOrgPrice(size?.prices) || menuGetOrgPrice(item?.prices) || Number(item?.price || 0) || 0;
-    const hidden = menuIsHiddenOf(item, size);
-    const mods = buildSelectedModifiers(item, size, modsMap || {});
-    const modsKey = JSON.stringify(mods.map((m, i)=>({g:m.groupName || "", p:m.productId, q:m.qty, i})).sort((a,b)=>String(a.p).localeCompare(String(b.p)) || String(a.g).localeCompare(String(b.g))));
-
-    let line = state.cart.find(x => x.baseProductId === baseProductId && x.modsKey === modsKey);
-    if (!line){
-      line = {
-        baseId: menuBaseIdOf(item, size),
-        baseProductId,
-        name: item.name || item.title || "Item",
-        sizeName: size?.sizeName || size?.sizeCode || "",
-        qty: 0,
-        basePrice,
-        hidden,
-        modifiers: mods,
-        modsKey
-      };
-      state.cart.push(line);
-    }
-    line.qty += 1;
-    renderCart();
-  }
-
-  function closeModifierModal(){
-    state.activeModifierBuilder = null;
-    $("modModalOverlay")?.classList.add("hidden");
-  }
-
-  function openModifierModal(item, size){
-    const groups = menuGetModifierGroups(item, size).filter(g => Array.isArray(g.items) && g.items.length > 0);
-    if (!groups.length){
-      addConfiguredItemToCart(item, size, {});
-      return;
-    }
-    const hasRequired = groups.some(g => menuGroupRestrictions(g).minQ > 0);
-    state.activeModifierBuilder = {
-      item,
-      size,
-      groups,
-      mods: {},
-      step: hasRequired ? 0 : 1
-    };
-    $("modModalOverlay")?.classList.remove("hidden");
-    renderModifierModal();
-  }
-
-  function currentStepGroupIndexes(){
-    const b = state.activeModifierBuilder;
-    if (!b) return [];
-    const required = [];
-    const optional = [];
-    b.groups.forEach((g, idx)=>{
-      if (menuGroupRestrictions(g).minQ > 0) required.push(idx);
-      else optional.push(idx);
-    });
-    return b.step === 0 ? required : optional;
-  }
-
-  function adjustModalModifier(gi, mid, delta){
-    const b = state.activeModifierBuilder;
-    const g = b?.groups?.[gi];
-    if (!b || !g) return;
-    const items = Array.isArray(g.items) ? g.items : [];
-    const mi = items.find(x => menuModIdOf(x) === String(mid));
-    if (!mi) return;
-
-    const key = selectionKey(gi, mi);
-    const current = Number(b.mods[key] || 0);
-    if (delta < 0){
-      const next = Math.max(0, current - 1);
-      if (next) b.mods[key] = next;
-      else delete b.mods[key];
-      renderModifierModal();
-      return;
-    }
-
-    const r = menuGroupRestrictions(g);
-    const mr = menuModifierRestrictions(mi);
-    const groupCount = groupSelectedCount(gi);
-    const maxGroup = r.maxQ > 0 ? r.maxQ : Infinity;
-    const maxItem = mr.maxQ > 0 ? mr.maxQ : Infinity;
-
-    // При max=1 выбор другого модификатора заменяет старый — не заставляем гостя делать лишний клик.
-    if (maxGroup === 1){
-      for (const other of items){
-        delete b.mods[selectionKey(gi, other)];
-      }
-      b.mods[key] = 1;
-      renderModifierModal();
-      return;
-    }
-
-    if (groupCount >= maxGroup || current >= maxItem) return;
-    b.mods[key] = current + 1;
-    renderModifierModal();
-  }
-
-  function renderModifierModal(){
-    const b = state.activeModifierBuilder;
-    if (!b) return;
-    const item = b.item;
-    const size = b.size;
-    const groups = b.groups;
-    const requiredIdx = groups.map((g,i)=>menuGroupRestrictions(g).minQ>0?i:null).filter(i=>i!==null);
-    const optionalIdx = groups.map((g,i)=>menuGroupRestrictions(g).minQ<=0?i:null).filter(i=>i!==null);
-    const stepIndexes = currentStepGroupIndexes();
-    const onRequiredStep = b.step === 0;
-    const hasOptional = optionalIdx.length > 0;
-    const canGoNext = !onRequiredStep || requiredGroupsSatisfied();
-    const finalStep = !onRequiredStep || !hasOptional;
-    const body = $("modModalBody");
-    const nextBtn = $("modModalNext");
-    const backBtn = $("modModalBack");
-
-    $("modModalName").textContent = item.name || "Блюдо";
-    $("modModalSub").textContent = onRequiredStep
-      ? "Сначала обязательные модификаторы"
-      : "Теперь необязательные модификаторы";
-
-    const note = onRequiredStep
-      ? "Выбери обязательные модификаторы. Пока минимум не набран — дальше не пущу. Всё честно."
-      : "Необязательные можно выбрать, изменить или пропустить.";
-
-    const groupsHtml = stepIndexes.length ? stepIndexes.map(gi=>{
-      const g = groups[gi];
-      const r = menuGroupRestrictions(g);
-      const selected = groupSelectedCount(gi);
-      const maxText = r.maxQ > 0 ? ` / максимум ${r.maxQ}` : "";
-      const freeText = r.freeQ > 0 ? ` • бесплатно ${r.freeQ}` : "";
-      const warn = r.minQ > 0 && selected < r.minQ;
-      const items = (g.items || []).filter(mi => mi && (mi.name || menuModIdOf(mi)));
-      return `<div class="modPickGroup">
-        <div class="modPickGroupHead">
-          <div class="modPickTitle">${escapeHtml(g.name || "Модификаторы")}</div>
-          <div class="modPickMeta">
-            <span class="pill ${warn ? 'pill-warn' : ''}">${selected}${r.minQ > 0 ? ` / минимум ${r.minQ}` : ''}${maxText}${freeText}</span>
-          </div>
-        </div>
-        <div class="modPickList">
-          ${items.map(mi=>{
-            const mid = menuModIdOf(mi);
-            const key = selectionKey(gi, mi);
-            const qty = Number(b.mods[key] || 0);
-            const price = modifierPrice(mi);
-            const mr = menuModifierRestrictions(mi);
-            const mHidden = Boolean(mi.isHidden || mi.isDeleted);
-            const mStopped = isInStopList(mid) || (apiMode === "yandex" && state.yStopModifiers.has(String(mid)));
-            const groupMaxReached = r.maxQ > 0 && selected >= r.maxQ;
-            const itemMaxReached = mr.maxQ > 0 && qty >= mr.maxQ;
-            const plusDisabled = mHidden || mStopped || groupMaxReached || itemMaxReached;
-            const dot = mkStatusDot(mHidden, price > 0, mid);
-            const sub = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : (mr.maxQ > 0 ? `лимит на модификатор: ${mr.maxQ}` : ""));
-            return `<div class="modPickRow">
-              <div>
-                <div class="modPickName">${dot}<span>${escapeHtml(mi.name || mid)}</span></div>
-                <div class="modPickSub">${price ? money(price) : "0.00"}${sub ? " • " + escapeHtml(sub) : ""}</div>
-              </div>
-              <div class="modPickControls">
-                <button class="btn ghost small" data-modal-dec="${gi}::${escapeHtml(mid)}" ${qty<=0 ? 'disabled' : ''}>−</button>
-                <span class="modPickQty">${qty}</span>
-                <button class="btn ghost small" data-modal-inc="${gi}::${escapeHtml(mid)}" ${plusDisabled ? 'disabled' : ''}>＋</button>
-              </div>
-            </div>`;
-          }).join("")}
-        </div>
-      </div>`;
-    }).join("") : `<div class="hint">На этом шаге модификаторов нет.</div>`;
-
-    body.innerHTML = `<div class="modStepNote">${note}</div>${groupsHtml}`;
-
-    backBtn.style.display = onRequiredStep ? "none" : "";
-    nextBtn.disabled = !canGoNext;
-    nextBtn.textContent = finalStep ? "Добавить в корзину" : "Далее";
-
-    body.querySelectorAll("[data-modal-inc]").forEach(btn=>btn.addEventListener("click", ()=>{
-      const [gi, mid] = (btn.getAttribute("data-modal-inc") || "").split("::");
-      adjustModalModifier(Number(gi), mid, 1);
-    }));
-    body.querySelectorAll("[data-modal-dec]").forEach(btn=>btn.addEventListener("click", ()=>{
-      const [gi, mid] = (btn.getAttribute("data-modal-dec") || "").split("::");
-      adjustModalModifier(Number(gi), mid, -1);
-    }));
-  }
-
 
   function workerBase(){
-    const inputId = apiMode === "yandex" ? "yWorkerVC" : "workerVC";
-    const v = ($(inputId)?.value || "").trim();
+    if (apiMode === "yandex") {
+      const active = $("yWorkerActive")?.value || "vc";
+      const v = active === "vc"
+        ? ($("yWorkerVC")?.value || "").trim()
+        : ($("yWorkerCF")?.value || "").trim();
+      return v || WORKER_BASE_DEFAULT;
+    }
+    const active = $("workerActive")?.value || "vc";
+    const v = active === "vc"
+      ? ($("workerVC")?.value || "").trim()
+      : ($("workerCF")?.value || "").trim();
     return v || WORKER_BASE_DEFAULT;
   }
 
   function updateWorkerActiveUI(){
-    $("workerRowVC")?.classList.add("active");
-    $("yWorkerRowVC")?.classList.add("active");
+    // Cloud workers
+    const active = $("workerActive")?.value || "vc";
+    $("workerRowCF")?.classList.toggle("active", active === "cf");
+    $("workerRowVC")?.classList.toggle("active", active === "vc");
+    // Yandex workers
+    const yActive = $("yWorkerActive")?.value || "vc";
+    $("yWorkerRowCF")?.classList.toggle("active", yActive === "cf");
+    $("yWorkerRowVC")?.classList.toggle("active", yActive === "vc");
   }
 
   function timeoutSec(){
@@ -1189,32 +1056,40 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     return h;
   }
 
-  async function api(path, body){
+  async function api(path, body, method){
     const base = workerBase();
     if (!base) throw new Error("Worker base URL is empty. Впиши URL воркера.");
     const baseClean = base.replace(/\/+$/,"");
-	const cleanPath = String(path || "").replace(/^\/+/, ""); // "api/..."
+	const cleanPath = String(path || "").replace(/^\/+/, ""); // "api/1/access_token"
 	let url;
 
-	// Vercel proxy: /api/proxy?region=ru&path=...
-	const region = "ru";
-	url = `${baseClean}?region=${encodeURIComponent(region)}&path=${encodeURIComponent(cleanPath)}`;
+	const active = $("workerActive")?.value || "vc";
+	if (active === "vc") {
+		// Vercel proxy: /api/proxy?region=ru&path=...
+		const region = "ru";
+		url = `${baseClean}?region=${encodeURIComponent(region)}&path=${encodeURIComponent(cleanPath)}`;
+	} else {
+		// Cloudflare: base + /proxy + /api/1/...
+		url = baseClean + "/proxy/" + cleanPath;
+	}
 	
 
+    const m = String(method || (body === undefined ? "GET" : "POST")).toUpperCase();
     const headers = {
       "content-type": "application/json",
       ...authHeaders(),
     };
+    if (/\/access_token$/i.test(path)) delete headers.Authorization;
 
-    logLine(`--> ${path}`);
-    if (body !== undefined) logLine(`REQ: ${safeJson(body)}`);
+    logLine(`--> ${m} ${path}`);
+    if (body !== undefined) logLine(`REQ: ${safeJson(redactSensitive(body))}`);
 
     let resp, text, rid;
     try {
       resp = await fetch(url, {
-        method: "POST",
+        method: m,
         headers,
-        body: body === undefined ? null : JSON.stringify(body),
+        body: (m === "GET" || body === undefined) ? undefined : JSON.stringify(body),
       });
     } catch (e) {
       uiRid(null);
@@ -1234,7 +1109,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     let parsed = null;
     try { parsed = JSON.parse(text); } catch { parsed = null; }
 
-    const pretty = parsed ? safeJson(parsed) : text;
+    const pretty = parsed ? safeJson(redactSensitive(parsed)) : text;
     const LIM = 12000; // keep textarea responsive
     logLine(`RESP: ${pretty.slice(0, LIM)}${pretty.length > LIM ? " ...[trim]" : ""}`);
 
@@ -1265,7 +1140,13 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const yHost     = yandexHost();
     const cleanPath = String(path || "").replace(/^\/+/, "");
 
-    const url = `${proxyBase}?target=yandex&path=${encodeURIComponent(cleanPath)}`;
+    const active = $("yWorkerActive")?.value || "vc";
+    let url;
+    if (active === "vc") {
+      url = `${proxyBase}?target=yandex&path=${encodeURIComponent(cleanPath)}`;
+    } else {
+      url = `${proxyBase}/yandex/${cleanPath}`;
+    }
 
     const m = method || (body !== undefined ? "POST" : "GET");
     const headers = {
@@ -1278,7 +1159,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     headers["Timeout"] = String(tSec);
 
     logLine(`--> [Yandex] ${m} /${cleanPath}`);
-    if (body !== undefined) logLine(`REQ: ${safeJson(body)}`);
+    if (body !== undefined) logLine(`REQ: ${safeJson(redactSensitive(body))}`);
 
     let resp, text, rid;
     try {
@@ -1301,7 +1182,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
     let parsed = null;
     try { parsed = JSON.parse(text); } catch { parsed = null; }
-    const pretty = parsed ? safeJson(parsed) : text;
+    const pretty = parsed ? safeJson(redactSensitive(parsed)) : text;
     const LIM = 12000;
     logLine(`RESP: ${pretty.slice(0, LIM)}${pretty.length > LIM ? " ...[trim]" : ""}`);
 
@@ -1326,11 +1207,17 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
     // 1) OAuth — через прокси с X-Yandex-Host
     const proxyBase = workerBase().replace(/\/+$/, "");
-    const authUrl = `${proxyBase}?target=yandex&path=${encodeURIComponent("security/oauth/token")}`;
+    const active    = $("yWorkerActive")?.value || "vc";
+    let authUrl;
+    if (active === "vc") {
+      authUrl = `${proxyBase}?target=yandex&path=${encodeURIComponent("security/oauth/token")}`;
+    } else {
+      authUrl = `${proxyBase}/yandex/security/oauth/token`;
+    }
 
     const formBody = `client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials&scope=${encodeURIComponent("read write")}`;
     logLine(`--> [Yandex] POST ${yHost}/security/oauth/token`);
-    logLine(`REQ body: ${formBody}`);
+    logLine(`REQ body: client_id=${encodeURIComponent(clientId)}&client_secret=***hidden***&grant_type=client_credentials&scope=${encodeURIComponent("read write")}`);
 
     let authResp;
     try {
@@ -1350,7 +1237,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
     const authText = await authResp.text();
     logLine(`<-- [Yandex] /security/oauth/token :: ${authResp.status}`);
-    logLine(`RESP: ${authText.slice(0, 2000)}`);
+    let authLogText = authText;
+    try { authLogText = safeJson(redactSensitive(JSON.parse(authText))); } catch {}
+    logLine(`RESP: ${authLogText.slice(0, 2000)}`);
     if (!authResp.ok) throw new Error(`Auth HTTP ${authResp.status}: ${authText}`);
 
     let authJson;
@@ -1557,7 +1446,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       promos: [],
     }));
 
-    const itemsCostCalc = state.cart.reduce((s, l) => s + (lineUnitPrice(l) * Number(l.qty||1)), 0);
+    const itemsCostCalc = state.cart.reduce((s, l) => s + (Number(l.basePrice||0) * Number(l.qty||1)), 0);
     const itemsCost = Number($("yItemsCost").value) || itemsCostCalc;
 
     let deliveryInfo;
@@ -1723,6 +1612,11 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
   const money = (n)=> (Number(n)||0).toFixed(2);
 
+  const lineUnitPrice = (line)=>{
+    const mods = (line.modifiers||[]).reduce((acc,m)=>acc + (Number(m.price)||0) * (Number(m.qty)||0), 0);
+    return (Number(line.basePrice)||0) + mods;
+  };
+
   let total = 0;
 
   root.innerHTML = state.cart.map((line, idx)=>{
@@ -1781,7 +1675,6 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   }));
   root.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>{
     const i=Number(b.getAttribute("data-del"));
-    if (state.cart[i]) state.cart[i].modifiers = [];
     state.cart.splice(i,1);
     renderCart();
   }));
@@ -1896,139 +1789,361 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   }
 
   function renderItemsList(){
-    const root = $("itemsList");
-    const q = ($("search").value || "").trim().toLowerCase();
+  const root = $("itemsList");
+  const q = ($("search").value || "").trim().toLowerCase();
 
-    if(!state.menu || !Array.isArray(state.menu.itemCategories)){
-      root.innerHTML = '<div class="hint">Сначала подключись и загрузи меню.</div>';
-      return;
+  if(!state.menu || !Array.isArray(state.menu.itemCategories)){
+    root.innerHTML = '<div class="hint">Сначала подключись и загрузи меню.</div>';
+    return;
+  }
+
+  // Build accordion by categories -> items
+  const cats = state.menu.itemCategories
+    .filter(c => c && c.name && Array.isArray(c.items))
+    .map(c => ({
+      id: c.id || c.name,
+      name: c.name,
+      items: c.items || []
+    }));
+
+  // Helper: price for current org
+  const getOrgPrice = (pricesArr) => {
+    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return 0;
+    const hit = pricesArr.find(p => p && p.organizationId === state.orgId);
+    const p = (hit || pricesArr[0] || {}).price;
+    return (typeof p === "number" && isFinite(p)) ? p : 0;
+  };
+
+  const pickDefaultSize = (item) => {
+    const sizes = Array.isArray(item.itemSizes) ? item.itemSizes : [];
+    return sizes.find(s => s && s.isDefault) || sizes[0] || null;
+  };
+
+  const baseIdOf = (item, size) => (size && (size.itemId || size.id)) || item.itemId || item.id || item.sku || (item.name + "::" + (size ? size.sizeCode : ""));
+  const isHiddenOf = (item, size) => Boolean((size && size.isHidden) || item.isHidden);
+
+  const ensureBuilder = (item, size) => {
+    const baseId = baseIdOf(item, size);
+    if(state.builderSelections[baseId]) return state.builderSelections[baseId];
+
+    const sel = {
+      baseId,
+      item,
+      size,
+      // map: modifierId -> qty
+      mods: {}
+    };
+
+    // auto-pick required modifiers (minQuantity / byDefault)
+    const mgs = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+    for(const g of mgs){
+      const r = g && g.restrictions ? g.restrictions : {};
+      const minQ = Number(r.minQuantity || 0);
+      const byDef = Number(r.byDefault || 0);
+      const need = Math.max(minQ, byDef);
+      if(need <= 0) continue;
+
+      const available = (g.items || []).filter(mi => mi && !mi.isHidden);
+      for(let i=0;i<Math.min(need, available.length);i++){
+        const mid = available[i].itemId || available[i].id || available[i].sku || (available[i].name + "::" + i);
+        sel.mods[mid] = (sel.mods[mid] || 0) + 1;
+      }
     }
 
-    const cats = state.menu.itemCategories
-      .filter(c => c && c.name && Array.isArray(c.items))
-      .map(c => ({ id: c.id || c.name, name: c.name, items: c.items || [] }));
+    state.builderSelections[baseId] = sel;
+    return sel;
+  };
 
-    const esc = escapeHtml;
-    let html = "";
+  const computeModsCharge = (size, selModsMap) => {
+    const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+    let total = 0;
 
-    for(const c of cats){
-      const items = c.items.filter(it => {
-        if(!it || !it.name) return false;
-        if(!q) return true;
-        return (it.name || "").toLowerCase().includes(q) || (it.sku || it.code || "").toLowerCase().includes(q);
-      });
+    for(const g of groups){
+      const r = g && g.restrictions ? g.restrictions : {};
+      const freeQ = Number(r.freeQuantity || 0);
+      const items = (g.items || []).filter(mi => mi);
+      // collect selected in this group
+      const selected = [];
+      for(const mi of items){
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        const qty = Number(selModsMap[mid] || 0);
+        if(qty > 0){
+          const price = getOrgPrice(mi.prices);
+          selected.push({ price, qty, mid, mi });
+        }
+      }
+      // raw sum
+      let groupSum = 0;
+      for(const s of selected) groupSum += s.price * s.qty;
 
-      if(items.length === 0 && q) continue;
+      // apply freeQuantity by removing cheapest units
+      if(freeQ > 0 && selected.length > 0){
+        const units = [];
+        for(const s of selected){
+          for(let i=0;i<s.qty;i++) units.push(s.price);
+        }
+        units.sort((a,b)=>a-b);
+        let free = 0;
+        for(let i=0;i<Math.min(freeQ, units.length);i++) free += units[i];
+        groupSum -= free;
+      }
 
-      const catId = String(c.id || c.name);
-      const isOpen = state.uiOpenCats.has(catId);
-      html += `<details class="cat"${isOpen ? " open" : ""} data-cat-id="${esc(catId)}">
-        <summary class="catHead">
-          <div class="catTitle">${esc(c.name)}</div>
-          <div class="catMeta">${items.length ? items.length + " поз." : ""}</div>
-        </summary>
-        <div class="catBody">`;
+      total += groupSum;
+    }
+    return total;
+  };
 
-      for(const item of items){
-        const size = menuPickDefaultSize(item);
-        const baseId = menuBaseIdOf(item, size);
-        const hidden = menuIsHiddenOf(item, size);
-        const basePrice = menuGetOrgPrice(size?.prices) || menuGetOrgPrice(item?.prices) || Number(item.price || 0) || 0;
-        const itemProductId = (size && (size.itemId || size.id)) || item.itemId || item.id || null;
-        const groups = menuGetModifierGroups(item, size);
-        const hasPrice = basePrice > 0;
-        const reqSummary = groups.map(g=>{
-          const r = menuGroupRestrictions(g);
-          if(r.minQ <= 0) return null;
-          return { name:g.name||"Модификаторы", minQ:r.minQ, maxQ:r.maxQ };
-        }).filter(Boolean);
+  const computeBuiltPrice = (item, size, selModsMap) => {
+    const base = size ? getOrgPrice(size.prices) : 0;
+    const mods = computeModsCharge(size, selModsMap);
+    return base + mods;
+  };
 
-        html += `<details class="itm">
+  const ensureRequiredSatisfied = (size, selModsMap) => {
+    const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+    for(const g of groups){
+      const r = g && g.restrictions ? g.restrictions : {};
+      const minQ = Number(r.minQuantity || 0);
+      if(minQ <= 0) continue;
+
+      const items = (g.items || []).filter(mi => mi && !mi.isHidden);
+      const countSelected = () => items.reduce((acc, mi) => {
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        return acc + Number(selModsMap[mid] || 0);
+      }, 0);
+
+      let cur = countSelected();
+      let idx = 0;
+      while(cur < minQ && idx < items.length){
+        const mi = items[idx++];
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        selModsMap[mid] = (selModsMap[mid] || 0) + 1;
+        cur++;
+      }
+    }
+  };
+
+  const toggleMod = (baseId, modId) => {
+    const sel = state.builderSelections[baseId];
+    if(!sel) return;
+    sel.mods[modId] = (sel.mods[modId] || 0) + 1;
+    // quick toggle behavior: if already 1 then set to 0 when shift-click
+  };
+
+  const addBuiltToCart = (item, size, sel) => {
+    if(!size){
+      log("No item size found for item: " + (item && item.name));
+      return;
+    }
+    // enforce required groups before final add
+    ensureRequiredSatisfied(size, sel.mods);
+
+    const baseId = sel.baseId;
+    const baseProductId = size.itemId || item.itemId || item.id || item.sku;
+    const basePrice = getOrgPrice(size.prices);
+    const hidden = isHiddenOf(item, size);
+
+    // build modifiers array
+    const mods = [];
+    const groups = Array.isArray(size.itemModifierGroups) ? size.itemModifierGroups : [];
+    for(const g of groups){
+      for(const mi of (g.items || [])){
+        const mid = mi.itemId || mi.id || mi.sku || mi.name;
+        const qty = Number(sel.mods[mid] || 0);
+        if(qty > 0){
+          mods.push({
+            productId: mi.itemId || mi.id || mi.sku,
+            name: mi.name || mi.sku || "Modifier",
+            qty,
+            price: getOrgPrice(mi.prices),
+            groupName: g.name || ""
+          });
+        }
+      }
+    }
+
+    // merge with existing identical line (same base + same mods set)
+    const modsKey = JSON.stringify(mods.map(m=>({p:m.productId,q:m.qty})).sort((a,b)=>String(a.p).localeCompare(String(b.p))));
+    let line = state.cart.find(x => x.baseProductId === baseProductId && x.modsKey === modsKey);
+    if(!line){
+      line = {
+        baseId,
+        baseProductId,
+        name: item.name || "Item",
+        sizeName: size.sizeName || size.sizeCode || "",
+        qty: 0,
+        basePrice,
+        hidden,
+        modifiers: mods,
+        modsKey
+      };
+      state.cart.push(line);
+    }
+    line.qty += 1;
+
+    renderCart();
+  };
+
+  // esc — локальный хелпер для HTML-шаблонов
+  const esc = (s) => (""+s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  let html = "";
+  for(const c of cats){
+    // filter by search
+    const items = c.items.filter(it => {
+      if(!it || !it.name) return false;
+      if(!q) return true;
+      return (it.name || "").toLowerCase().includes(q) || (it.sku || "").toLowerCase().includes(q);
+    });
+
+    if(items.length === 0 && q) continue;
+
+    const catId = String(c.id || c.name);
+    const isOpen = state.uiOpenCats.has(catId);
+    const openAttr = isOpen ? " open" : "";
+    html += `<details class="cat"${openAttr} data-cat-id="${esc(catId)}">
+      <summary class="catHead">
+        <div class="catTitle">${esc(c.name)}</div>
+        <div class="catMeta">${items.length ? items.length + " поз." : ""}</div>
+      </summary>
+      <div class="catBody">`;
+
+    for(const item of items){
+      const size = pickDefaultSize(item);
+      const sel = ensureBuilder(item, size);
+      const hidden = isHiddenOf(item, size);
+      const basePrice = size ? getOrgPrice(size.prices) : 0;
+      const builtPrice = computeBuiltPrice(item, size, sel.mods);
+      const hasPrice = (typeof basePrice === "number" && basePrice > 0) || builtPrice > 0;
+
+      // count required status
+      const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
+      const reqSummary = groups.map(g=>{
+        const r=g && g.restrictions ? g.restrictions : {};
+        const minQ=Number(r.minQuantity||0);
+        if(minQ<=0) return null;
+        const cnt=(g.items||[]).reduce((acc,mi)=>acc+Number(sel.mods[(mi.itemId||mi.id||mi.sku||mi.name)]||0),0);
+        return {name:g.name||"Модификаторы", minQ, cnt};
+      }).filter(Boolean);
+
+      const baseId = sel.baseId;
+      const itemProductId = (size && (size.itemId || size.id)) || item.itemId || item.id || null;
+
+      html += `<details class="itm">
           <summary class="itmRow">
             <div class="itmLeft">
               ${mkStatusDot(hidden, hasPrice, itemProductId)}
               <div class="itmName">${esc(item.name || "")}</div>
-              <div class="itmSku">${esc(item.sku || item.code || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
+              <div class="itmSku">${esc(item.sku || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
             </div>
             <div class="itmRight">
-              <div class="itmPrice">${money(basePrice)}</div>
-              <button class="itm-add-btn" data-add-item="${esc(baseId)}" title="Выбрать модификаторы и добавить">＋</button>
+              <div class="itmPrice">${builtPrice ? builtPrice.toFixed(2) : "0.00"}</div>
+              <button class="itm-add-btn" data-add-item="${esc(baseId)}" title="Добавить в корзину">＋</button>
             </div>
           </summary>
           <div class="itmBody">
             ${item.description ? `<div class="itmDesc">${esc(item.description)}</div>` : ""}
-            <div class="itmReq">
-              <span class="pill">${groups.length ? `модификаторов: ${groups.length} гр.` : "модификаторов нет"}</span>
-              ${reqSummary.map(r=>`<span class="pill pill-req">${esc(r.name)}: обязат. ${r.minQ}${r.maxQ ? ` / макс. ${r.maxQ}` : ""}</span>`).join("")}
-            </div>
-            ${groups.length ? `<div class="mods">
-              ${groups.map((g, gi)=>{
-                const r = menuGroupRestrictions(g);
-                const label = r.minQ>0 ? `<span class="pill pill-req">обязат. ${r.minQ}${r.maxQ?` • макс ${r.maxQ}`:""}${r.freeQ?` • бесплатно ${r.freeQ}`:""}</span>` : `<span class="pill">необяз.${r.maxQ?` • макс ${r.maxQ}`:""}</span>`;
-                const mods = (g.items || []).filter(mi=>mi && (mi.name || menuModIdOf(mi)));
-                if(!mods.length) return "";
-                return `<div class="modGroup">
-                  <div class="modHead">
-                    <div class="modTitle">${esc(g.name || "Модификаторы")}</div>
-                    <div class="modMeta">${label}</div>
-                  </div>
-                  <div class="modList">
-                    ${mods.map(mi=>{
-                      const mid = menuModIdOf(mi);
-                      const price = modifierPrice(mi);
-                      const mHidden = Boolean(mi.isHidden || mi.isDeleted);
-                      const mStopped = isInStopList(mid) || (apiMode === "yandex" && state.yStopModifiers.has(String(mid)));
-                      const dot = mkStatusDot(mHidden, price>0, mid);
-                      const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : "");
-                      return `<div class="modRow">
-                        <div class="modLeft">
-                          ${dot}
-                          <div class="modName">${esc(mi.name || mid)}</div>
-                          <div class="modHint">${esc(hintText)}</div>
-                        </div>
-                        <div class="modRight">
-                          <div class="modPrice">${money(price)}</div>
-                        </div>
-                      </div>`;
-                    }).join("")}
-                  </div>
-                </div>`;
-              }).join("")}
-            </div>` : `<div class="hint">У этого блюда нет модификаторов.</div>`}
-          </div>
+          ${reqSummary.length ? `<div class="itmReq">
+            ${reqSummary.map(r=>`<span class="pill ${r.cnt<r.minQ?'pill-warn':''}">${esc(r.name)}: ${r.cnt}/${r.minQ}</span>`).join("")}
+          </div>` : ""}
+          ${groups.length ? `<div class="mods">
+            ${groups.map(g=>{
+              const r=g && g.restrictions ? g.restrictions : {};
+              const minQ=Number(r.minQuantity||0);
+              const maxQ=Number(r.maxQuantity||0);
+              const freeQ=Number(r.freeQuantity||0);
+              const label = minQ>0 ? `<span class="pill pill-req">обязат. ${minQ}${freeQ?` • бесплатно ${freeQ}`:""}</span>` : `<span class="pill">необяз.</span>`;
+              const items=(g.items||[]).filter(mi=>mi && mi.name);
+              if(items.length===0) return "";
+              return `<div class="modGroup">
+                <div class="modHead">
+                  <div class="modTitle">${esc(g.name||"Модификаторы")}</div>
+                  <div class="modMeta">${label}</div>
+                </div>
+                <div class="modList">
+                  ${items.map(mi=>{
+                    const mid = mi.itemId || mi.id || mi.sku || mi.name;
+                    const qty = Number(sel.mods[mid] || 0);
+                    const price = getOrgPrice(mi.prices);
+                    const mHidden = Boolean(mi.isHidden);
+                    const mProductId = mi.itemId || mi.id || null;
+                    const mStopped = isInStopList(mProductId);
+                    const dot = mkStatusDot(mHidden, price>0, mProductId);
+                    const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : "");
+                    return `<div class="modRow">
+                      <div class="modLeft">
+                        ${dot}
+                        <div class="modName">${esc(mi.name)}</div>
+                        <div class="modHint">${esc(hintText)}</div>
+                      </div>
+                      <div class="modRight">
+                        <div class="modPrice">${price ? price.toFixed(2) : "0.00"}</div>
+                        <div class="modQty">${qty ? "×"+qty : ""}</div>
+                        <button class="btn ghost small" data-add-mod="${esc(baseId)}::${esc(mid)}">＋</button>
+                      </div>
+                    </div>`;
+                  }).join("")}
+                </div>
+              </div>`;
+            }).join("")}
+          </div>` : `<div class="hint">У этого блюда нет модификаторов.</div>`}
+        </div>
         </details>`;
-      }
-
-      html += `</div></details>`;
     }
 
-    if(!html){
-      root.innerHTML = '<div class="hint">Ничего не нашёл по запросу.</div>';
-      return;
-    }
+    html += `</div></details>`;
+  }
 
-    root.innerHTML = html;
+  if(!html){
+    root.innerHTML = '<div class="hint">Ничего не нашёл по запросу.</div>';
+    return;
+  }
 
-    root.querySelectorAll('details.cat[data-cat-id]').forEach(d => {
+  root.innerHTML = html;
+  root.querySelectorAll('details.cat[data-cat-id]').forEach(d => {
       const id = d.getAttribute("data-cat-id");
       d.addEventListener("toggle", () => {
         if (d.open) state.uiOpenCats.add(id);
         else state.uiOpenCats.delete(id);
-      });
     });
+  });
 
-    root.querySelectorAll("[data-add-item]").forEach(btn=>{
-      btn.addEventListener("pointerdown", (e)=>{ e.stopPropagation(); });
-      btn.addEventListener("click", (e)=>{
-        e.preventDefault(); e.stopPropagation();
-        const baseId = btn.getAttribute("data-add-item");
-        const found = menuFindItemByBaseId(baseId);
-        if(!found) return;
-        openModifierModal(found.item, found.size);
-      });
+  // Wire buttons (event delegation)
+  root.querySelectorAll("[data-add-item]").forEach(btn=>{
+    // pointerdown предотвращает toggle details ДО того как браузер его обработает
+    btn.addEventListener("pointerdown", (e)=>{ e.stopPropagation(); });
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const baseId = btn.getAttribute("data-add-item");
+      const sel = state.builderSelections[baseId];
+      if(!sel) return;
+      addBuiltToCart(sel.item, sel.size, sel);
+      // Анимация кнопки
+      btn.textContent = "✓";
+      setTimeout(() => { btn.textContent = "＋"; }, 600);
+      // Обновляем только корзину, не перерисовываем всё меню
+      renderCart();
     });
-  }
+  });
 
+  root.querySelectorAll("[data-add-mod]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const v = btn.getAttribute("data-add-mod") || "";
+      const [baseId, modId] = v.split("::");
+      const sel = state.builderSelections[baseId];
+      if(!sel) return;
+      // toggle style: click adds 1, shift-click removes 1
+      if(e.shiftKey){
+        sel.mods[modId] = Math.max(0, Number(sel.mods[modId] || 0) - 1);
+        if(sel.mods[modId] === 0) delete sel.mods[modId];
+      }else{
+        sel.mods[modId] = Number(sel.mods[modId] || 0) + 1;
+      }
+      renderItemsList();
+    });
+  });
+}
 
   function updateTgInfo(){
     const id = $("tgSelect").value || "";
@@ -2074,26 +2189,12 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     logLine("=== CONNECT ===");
 
     const apiKey = $("apiKey").value.trim();
-    const appId = $("appId").value.trim();
-    const clientSecret = $("clientSecret").value.trim();
-
     if (!apiKey) throw new Error("API Key пустой");
-    if (!appId) throw new Error("App ID пустой");
-    if (!clientSecret) throw new Error("Client Secret пустой");
 
-    // 1) access token
-    // Новые API keys авторизуются через /api/v2/access_token: apiKey + appId + clientSecret.
-    state.token = "";
-    $("accessToken").value = "";
-
-    const tokenResp = await api("/api/v2/access_token", {
-      apiKey,
-      appId,
-      clientSecret,
-    });
+    // 1) access token v2: apiKey + appId + clientSecret
+    const authBody = await getCloudAuthPayload(apiKey);
+    const tokenResp = await api("/api/v2/access_token", authBody);
     const token = tokenResp?.token || tokenResp?.accessToken || tokenResp;
-    if (!token || typeof token !== "string") throw new Error("Токен не получен. Ответ: " + safeJson(tokenResp));
-
     state.token = token;
     $("accessToken").value = token;
 
@@ -2382,71 +2483,6 @@ function buildMenuModelFromNomenclature(nom){
   // Normalize /api/1/nomenclature response to shape used by renderer: { itemCategories:[{id,name,items:[]}] }
   const categories = Array.isArray(nom?.productCategories) ? nom.productCategories : [];
   const products = Array.isArray(nom?.products) ? nom.products : [];
-  const productsById = new Map(products.filter(p => p && p.id).map(p => [String(p.id), p]));
-
-  const priceFromProduct = (p) => {
-    const sp = Array.isArray(p?.sizePrices) ? p.sizePrices[0] : null;
-    return Number(sp?.price?.currentPrice || p?.price || 0) || 0;
-  };
-
-  const enrichModifier = (m) => {
-    const id = String(m?.id || m?.itemId || "");
-    const src = productsById.get(id) || {};
-    return {
-      ...m,
-      id,
-      itemId: id,
-      name: src.name || m.name || id,
-      isHidden: src.isHidden || src.isDeleted || false,
-      prices: [{ organizationId: state.orgId, price: priceFromProduct(src) }],
-      minAmount: Number(m?.minAmount || 0),
-      maxAmount: Number(m?.maxAmount || 0),
-      defaultAmount: Number(m?.defaultAmount || 0),
-      freeOfChargeAmount: Number(m?.freeOfChargeAmount || 0),
-    };
-  };
-
-  const normalizeGroups = (p) => {
-    const groups = [];
-
-    if (Array.isArray(p.modifiers)) {
-      for (const m of p.modifiers) {
-        const em = enrichModifier(m);
-        const minQ = Number(m.minAmount || 0) || (m.required ? 1 : 0);
-        const maxQ = Number(m.maxAmount || 0) || 1;
-        groups.push({
-          id: "simple::" + em.id,
-          name: em.name,
-          restrictions: {
-            minQuantity: minQ,
-            maxQuantity: maxQ,
-            freeQuantity: Number(m.freeOfChargeAmount || 0),
-            byDefault: Number(m.defaultAmount || 0)
-          },
-          items: [em]
-        });
-      }
-    }
-
-    if (Array.isArray(p.groupModifiers)) {
-      for (const g of p.groupModifiers) {
-        const children = Array.isArray(g.childModifiers) ? g.childModifiers.map(enrichModifier) : [];
-        groups.push({
-          id: g.id,
-          name: g.name || g.modifierSchemaName || "Группа модификаторов",
-          restrictions: {
-            minQuantity: Number(g.minAmount || 0),
-            maxQuantity: Number(g.maxAmount || 0),
-            freeQuantity: Number(g.freeOfChargeAmount || 0),
-            byDefault: Number(g.defaultAmount || 0)
-          },
-          items: children
-        });
-      }
-    }
-
-    return groups;
-  };
 
   // Only real sellable items (dish/good) – exclude modifiers
   const isSellable = (p) => {
@@ -2455,6 +2491,7 @@ function buildMenuModelFromNomenclature(nom){
     const t = String(p.type || "").toLowerCase();
     if (t === "modifier") return false;
     const oit = String(p.orderItemType || "").toLowerCase();
+    // orderItemType can be missing for some integrations, so keep dish/good anyway
     if (oit && oit !== "product" && oit !== "compound") return false;
     return !!(p.id && p.name);
   };
@@ -2465,32 +2502,33 @@ function buildMenuModelFromNomenclature(nom){
     const sizePrices = Array.isArray(p.sizePrices) ? p.sizePrices : [];
     const first = sizePrices[0];
     const firstPrice = first?.price?.currentPrice ?? 0;
-    const modifierGroups = normalizeGroups(p);
 
-    const itemSizes = (sizePrices.length ? sizePrices : [{ sizeId:null, price:{ currentPrice:firstPrice } }]).map((sp, idx) => ({
+    // map sizePrices -> itemSizes (what renderer expects)
+    const itemSizes = sizePrices.map((sp, idx) => ({
       sizeId: sp.sizeId || null,
       isDefault: idx === 0,
-      itemId: p.id,
+      // renderer expects prices: [{ organizationId, price }]
       prices: [{ organizationId: orgId, price: Number(sp?.price?.currentPrice || 0) }],
+      // keep raw as well
       price: Number(sp?.price?.currentPrice || 0),
-      itemModifierGroups: modifierGroups
     }));
 
     return {
       id: p.id,
-      itemId: p.id,
       name: p.name,
       code: p.code || "",
-      sku: p.code || "",
       orderItemType: p.orderItemType || "Product",
       type: p.type || "dish",
       productCategoryId: p.productCategoryId || null,
       description: p.description || "",
       isDeleted: p.isDeleted || false,
+      // fallback flat price
       prices: [{ organizationId: orgId, price: Number(firstPrice || 0) }],
       itemSizes,
-      modifiers: [],
-      groupModifiers: [],
+      // modifiers
+      modifiers: Array.isArray(p.modifiers) ? p.modifiers : [],
+      groupModifiers: Array.isArray(p.groupModifiers) ? p.groupModifiers : [],
+      // images
       buttonImageUrl: (Array.isArray(p.imageLinks) && p.imageLinks[0]) ? p.imageLinks[0] : (p.buttonImageUrl || null),
       raw: p,
     };
@@ -2498,10 +2536,12 @@ function buildMenuModelFromNomenclature(nom){
 
   const sellable = products.filter(isSellable).map(normalizeItem);
 
+  // Make a category map
   const byCat = new Map();
   for (const c of categories){
     byCat.set(String(c.id), { id: c.id, name: c.name, items: [] });
   }
+  // Unknown category bucket (если у блюда нет категории)
   const uncId = "__uncat__";
   byCat.set(uncId, { id: uncId, name: "Без категории", items: [] });
 
@@ -2511,8 +2551,12 @@ function buildMenuModelFromNomenclature(nom){
     byCat.get(cid).items.push(it);
   }
 
+  // Keep only categories that have items
   const itemCategories = [...byCat.values()].filter(c => Array.isArray(c.items) && c.items.length > 0);
+
+  // Stable sort: by name
   itemCategories.sort((a,b)=> String(a.name||"").localeCompare(String(b.name||""), "ru"));
+
   return { itemCategories };
 }
 
@@ -2795,6 +2839,96 @@ async function sendOrder(){
     renderCart();
   }
 
+
+
+  // === API EXPLORER FROM docs (2) ===
+  let selectedApiEndpointIndex = -1;
+
+  function hydrateTemplate(value){
+    const ctx = {
+      orgId: state.orgId || "",
+      terminalGroupId: state.terminalGroupId || "",
+      externalMenuId: state.externalMenuId || ($("menuSelect")?.value || ""),
+      priceCategoryId: state.priceCategoryId || ($("priceCatSelect")?.value || ""),
+      orderId: ($("lastOrderIdDisplay")?.value || state.lastOrderId || ""),
+      apiKey: ($("apiKey")?.value || ""),
+      appId: "",
+      clientSecret: "",
+      paymentTypeId: ($("paymentTypeSelect")?.value || ""),
+      orderTypeId: ($("orderTypeSelect")?.value || ""),
+      productId: state.cart?.[0]?.productId || state.cart?.[0]?.baseProductId || "",
+      id: "",
+      uuid: "00000000-0000-0000-0000-000000000000",
+      correlationId: "00000000-0000-0000-0000-000000000000",
+    };
+    if (typeof value === "string") return value.replace(/\{\{(\w+)\}\}/g, (_, k) => ctx[k] ?? "");
+    if (Array.isArray(value)) return value.map(hydrateTemplate);
+    if (value && typeof value === "object") {
+      const out = {};
+      for (const [k,v] of Object.entries(value)) out[k] = hydrateTemplate(v);
+      return out;
+    }
+    return value;
+  }
+
+  function getFilteredApiEndpoints(){
+    const tag = $("apiTagFilter")?.value || "";
+    const q = ($("apiSearch")?.value || "").trim().toLowerCase();
+    return API_DOCS_EMBEDDED.endpoints
+      .map((e, i) => ({...e, i}))
+      .filter(e => (!tag || e.tag === tag) && (!q || `${e.path} ${e.summary} ${e.tag}`.toLowerCase().includes(q)));
+  }
+
+  function renderApiExplorer(){
+    if (!$("apiEndpointList")) return;
+    $("apiDocCount").textContent = String(API_DOCS_EMBEDDED.endpointCount || API_DOCS_EMBEDDED.endpoints.length);
+    const tagSel = $("apiTagFilter");
+    if (tagSel && !tagSel.dataset.ready) {
+      tagSel.innerHTML = '<option value="">Все теги</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+      tagSel.dataset.ready = "1";
+    }
+    const list = getFilteredApiEndpoints();
+    $("apiEndpointList").innerHTML = list.map(e => `
+      <div class="endpoint-row ${e.i === selectedApiEndpointIndex ? "active" : ""}" data-api-index="${e.i}">
+        <div class="endpoint-title"><span class="method-badge">${escapeHtml(e.method)}</span> ${escapeHtml(e.path)}</div>
+        <div class="endpoint-meta"><span>${escapeHtml(e.tag)}</span>${e.deprecated ? '<span class="deprecated-badge">deprecated</span>' : ''}<span>${escapeHtml(e.summary || '')}</span></div>
+      </div>`).join("") || '<div class="endpoint-row"><div class="endpoint-title">Ничего не найдено</div></div>';
+    $("apiEndpointList").querySelectorAll("[data-api-index]").forEach(row => {
+      row.addEventListener("click", () => selectApiEndpoint(Number(row.dataset.apiIndex)));
+    });
+    if (selectedApiEndpointIndex < 0 && list.length) selectApiEndpoint(list[0].i);
+  }
+
+  function selectApiEndpoint(index){
+    selectedApiEndpointIndex = index;
+    const e = API_DOCS_EMBEDDED.endpoints[index];
+    if (!e) return;
+    const sample = e.sample === null ? {} : hydrateTemplate(e.sample);
+    $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
+    $("apiEndpointInfo").textContent = `${e.method} ${e.path}\n${e.summary || ""}${e.requestSchema ? "\nSchema: " + e.requestSchema : ""}${e.deprecated ? "\n⚠ Deprecated" : ""}${e.description ? "\n\n" + e.description : ""}`;
+    renderApiExplorer();
+  }
+
+  function refillApiSample(){
+    if (selectedApiEndpointIndex < 0) return;
+    const e = API_DOCS_EMBEDDED.endpoints[selectedApiEndpointIndex];
+    const sample = e.sample === null ? {} : hydrateTemplate(e.sample);
+    $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
+  }
+
+  async function sendApiExplorerRequest(){
+    const e = API_DOCS_EMBEDDED.endpoints[selectedApiEndpointIndex];
+    if (!e) throw new Error("Не выбран метод API");
+    let body;
+    const raw = ($("apiBody")?.value || "").trim();
+    if (raw) {
+      try { body = JSON.parse(raw); }
+      catch(err) { throw new Error("Request body невалидный JSON: " + err.message); }
+    }
+    const resp = await api(e.path, e.method === "GET" ? undefined : body, e.method);
+    $("apiResponse").value = safeJson(redactSensitive(resp));
+  }
+
   function exportAll(){
     const blob = new Blob([JSON.stringify({
       exportedAt: new Date().toISOString(),
@@ -2816,11 +2950,29 @@ async function sendOrder(){
   }
 
   // === EVENTS ===
-  $("workerVC").value = $("workerVC").value || WORKER_BASE_DEFAULT;
-  $("yWorkerVC").value = $("yWorkerVC").value || WORKER_BASE_DEFAULT;
+  $("workerCF").value = "";
+  $("workerVC").value = WORKER_BASE_DEFAULT;
+  $("yWorkerCF").value = "";
+  $("yWorkerVC").value = WORKER_BASE_DEFAULT;
   updateWorkerActiveUI();
+  updateCloudCredentialUi();
   state.useApi1Menu = $("useApi1Menu").checked;
   applyMenuSourceUi();
+
+  $("useOwnCloudCreds")?.addEventListener("change", updateCloudCredentialUi);
+  ["ownAppId","ownClientSecret"].forEach(id => {
+    const el = $(id);
+    if (!el) return;
+    el.value = localStorage.getItem("iiko_console_" + id) || "";
+    el.addEventListener("input", () => localStorage.setItem("iiko_console_" + id, el.value));
+  });
+  $("apiTagFilter")?.addEventListener("change", renderApiExplorer);
+  $("apiSearch")?.addEventListener("input", renderApiExplorer);
+  $("btnApiFillSample")?.addEventListener("click", refillApiSample);
+  $("btnApiSend")?.addEventListener("click", async ()=>{
+    try { await sendApiExplorerRequest(); }
+    catch(e){ logLine("API EXPLORER ERROR: " + String(e)); setStatus("Ошибка API Explorer", "bad"); }
+  });
 
   $("btnConnect").addEventListener("click", async ()=>{
     try {
@@ -2896,6 +3048,8 @@ async function sendOrder(){
     catch(e){ logLine("ORG CHANGE ERROR: " + String(e)); setStatus("Ошибка при смене орг", "bad"); }
   });
 
+  $("workerActive").addEventListener("change", updateWorkerActiveUI);
+  $("yWorkerActive").addEventListener("change", updateWorkerActiveUI);
 
   $("btnClearLog").addEventListener("click", ()=>{ logEl.value=""; });
 
@@ -2923,6 +3077,7 @@ async function sendOrder(){
       exportedAt: new Date().toISOString(),
       apiMode: "yandex",
       yWorkerVC: $("yWorkerVC").value,
+      yWorkerCF: $("yWorkerCF").value,
       webhookUrl: $("yWebhookUrl").value,
       yRestaurantId: state.yRestaurantId,
       cart: state.cart,
@@ -2939,6 +3094,7 @@ async function sendOrder(){
 
   // init
   updateApiModeUI();
+  renderApiExplorer();
 
   $("btnLoadCancelCauses").addEventListener("click", async ()=>{
     try { await loadCancelCauses(); }
@@ -2985,36 +3141,6 @@ async function sendOrder(){
     if (!id) return;
     state.cart.push({ productId: id.trim(), name: "Manual productId", amount: 1, price: 0 });
     renderCart();
-  });
-
-
-
-  $("modModalClose")?.addEventListener("click", closeModifierModal);
-  $("modModalOverlay")?.addEventListener("click", (e)=>{
-    if (e.target && e.target.id === "modModalOverlay") closeModifierModal();
-  });
-  $("modModalBack")?.addEventListener("click", ()=>{
-    const b = state.activeModifierBuilder;
-    if (!b) return;
-    b.step = 0;
-    renderModifierModal();
-  });
-  $("modModalNext")?.addEventListener("click", ()=>{
-    const b = state.activeModifierBuilder;
-    if (!b) return;
-    const optionalExists = b.groups.some(g => menuGroupRestrictions(g).minQ <= 0);
-    if (b.step === 0 && optionalExists){
-      if (!requiredGroupsSatisfied()) return;
-      b.step = 1;
-      renderModifierModal();
-      return;
-    }
-    if (!requiredGroupsSatisfied()) return;
-    addConfiguredItemToCart(b.item, b.size, b.mods);
-    closeModifierModal();
-  });
-  document.addEventListener("keydown", (e)=>{
-    if (e.key === "Escape" && state.activeModifierBuilder) closeModifierModal();
   });
 
   // init
