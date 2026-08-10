@@ -2910,12 +2910,25 @@ async function sendOrder(){
   // === API EXPLORER FROM docs (2) ===
   let selectedApiEndpointIndex = -1;
 
+  function getApiExplorerLiveContext(){
+    // Explorer должен брать ТЕКУЩИЕ значения из основной панели, а не устаревший state.
+    // Особенно важно для External Menu: пустая ценовая категория означает null, а не "".
+    const orgId = $("orgSelect") ? ($("orgSelect").value || "") : (state.orgId || "");
+    const terminalGroupId = $("tgSelect") ? ($("tgSelect").value || "") : (state.terminalGroupId || "");
+    const externalMenuId = $("menuSelect") ? ($("menuSelect").value || "") : (state.externalMenuId || "");
+    const priceCategoryId = $("priceCatSelect") ? ($("priceCatSelect").value || null) : (state.priceCategoryId || null);
+    return { orgId, terminalGroupId, externalMenuId, priceCategoryId };
+  }
+
   function hydrateTemplate(value){
+    const live = getApiExplorerLiveContext();
     const ctx = {
-      orgId: state.orgId || "",
-      terminalGroupId: state.terminalGroupId || "",
-      externalMenuId: state.externalMenuId || ($("menuSelect")?.value || ""),
-      priceCategoryId: state.priceCategoryId || ($("priceCatSelect")?.value || ""),
+      orgId: live.orgId,
+      terminalGroupId: live.terminalGroupId,
+      externalMenuId: live.externalMenuId,
+      // Для обычных строковых шаблонов оставляем пустую строку; для /api/2/menu/by_id
+      // значение нормализуется отдельным builder'ом в настоящий JSON null.
+      priceCategoryId: live.priceCategoryId ?? "",
       orderId: ($("lastOrderIdDisplay")?.value || state.lastOrderId || ""),
       apiKey: ($("apiKey")?.value || ""),
       appId: "",
@@ -2935,6 +2948,28 @@ async function sendOrder(){
       return out;
     }
     return value;
+  }
+
+  function buildApiExplorerSample(e){
+    if (!e) return {};
+    const live = getApiExplorerLiveContext();
+
+    // Ровно та же логика, что используется рабочей основной панелью.
+    if (e.path === "/api/2/menu") {
+      return {
+        organizationIds: live.orgId ? [live.orgId] : []
+      };
+    }
+
+    if (e.path === "/api/2/menu/by_id") {
+      return {
+        externalMenuId: live.externalMenuId,
+        organizationIds: live.orgId ? [live.orgId] : [],
+        priceCategoryId: live.priceCategoryId || null
+      };
+    }
+
+    return e.sample === null ? {} : hydrateTemplate(e.sample);
   }
 
   // === Понятные названия API для 1 линии ===
@@ -3042,8 +3077,8 @@ async function sendOrder(){
   "/api/1/stop_lists/check": "Проверить позиции в стоп-листе",
   "/api/1/stop_lists/clear": "Очистить стоп-лист",
   "/api/1/stop_lists/remove": "Удалить позиции из стоп-листа",
-  "/api/2/menu": "Получить внешние меню и ценовые категории",
-  "/api/2/menu/by_id": "Получить номенклатуру из External Menu — API v2",
+  "/api/2/menu": "Получить список внешних меню и ценовых категорий — API v2",
+  "/api/2/menu/by_id": "Получить номенклатуру из внешнего меню — API v2",
   "/api/1/loyalty/iiko/check_sms_sending_possibility": "Проверить возможность отправки SMS",
   "/api/1/loyalty/iiko/check_sms_status": "Проверить статус отправки SMS",
   "/api/1/loyalty/iiko/message/send_email": "Отправить Email",
@@ -3124,8 +3159,8 @@ async function sendOrder(){
 
   const API_L1_QUICK_LABELS = {
     "/api/1/organizations": "Организации и их ID",
-    "/api/1/nomenclature": "Номенклатура — API v1",
-    "/api/2/menu": "Внешние меню и их ID — API v2",
+    "/api/1/nomenclature": "Номенклатура — API v1 / блюда и productId",
+    "/api/2/menu": "Внешние меню и ценовые категории — API v2",
     "/api/2/menu/by_id": "Номенклатура из внешнего меню — API v2",
     "/api/1/stop_lists": "Стоп-листы",
     "/api/1/terminal_groups": "Терминальные группы и их ID",
@@ -3206,7 +3241,7 @@ async function sendOrder(){
     selectedApiEndpointIndex = index;
     const e = API_DOCS_EMBEDDED.endpoints[index];
     if (!e) return;
-    const sample = e.sample === null ? {} : hydrateTemplate(e.sample);
+    const sample = buildApiExplorerSample(e);
     $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
 
     const lines = [
@@ -3215,15 +3250,9 @@ async function sendOrder(){
       `Раздел: ${apiTagName(e.tag)}`,
     ];
     if (isApiL1Quick(e)) lines.push("⭐ Быстрый запрос 1 линии — удобно для просмотра справочных ID и диагностики.");
-    if (e.path === "/api/1/nomenclature") {
-      lines.push("Вариант номенклатуры: API v1 — выгрузка /api/1/nomenclature из RMS Data Exchange.");
-    }
-    if (e.path === "/api/2/menu") {
-      lines.push("Подготовительный запрос API v2: получи externalMenuId и ценовые категории, затем используй /api/2/menu/by_id для выгрузки номенклатуры External Menu.");
-    }
-    if (e.path === "/api/2/menu/by_id") {
-      lines.push("Вариант номенклатуры: API v2 — выгрузка выбранного External Menu. externalMenuId и priceCategoryId подставляются из основной панели, если они выбраны.");
-    }
+    if (e.path === "/api/1/nomenclature") lines.push("API v1: номенклатура организации напрямую через /api/1/nomenclature.");
+    if (e.path === "/api/2/menu") lines.push("API v2, шаг 1: получить externalMenuId и доступные ценовые категории.");
+    if (e.path === "/api/2/menu/by_id") lines.push("API v2, шаг 2: получить номенклатуру выбранного External Menu. Если ценовая категория не выбрана, priceCategoryId должен быть null.");
     if (e.requestSchema) lines.push(`Техническая схема: ${e.requestSchema}`);
     if (e.deprecated) lines.push("⚠ Устаревший метод — по возможности используй актуальный аналог.");
     if (e.summary) lines.push("", `Оригинальное описание iiko: ${e.summary}`);
@@ -3236,7 +3265,7 @@ async function sendOrder(){
   function refillApiSample(){
     if (selectedApiEndpointIndex < 0) return;
     const e = API_DOCS_EMBEDDED.endpoints[selectedApiEndpointIndex];
-    const sample = e.sample === null ? {} : hydrateTemplate(e.sample);
+    const sample = buildApiExplorerSample(e);
     $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
   }
 
@@ -3341,6 +3370,30 @@ async function sendOrder(){
       try { body = JSON.parse(raw); }
       catch(err) { throw new Error("Request body невалидный JSON: " + err.message); }
     }
+
+    // Защита от типичной ошибки External Menu: пустая строка priceCategoryId невалидна.
+    // Основная панель отправляет null — Explorer должен вести себя так же.
+    if (e.path === "/api/2/menu/by_id") {
+      const live = getApiExplorerLiveContext();
+      body = (body && typeof body === "object") ? body : {};
+      if (!body.externalMenuId) body.externalMenuId = live.externalMenuId;
+      if (!Array.isArray(body.organizationIds) || !body.organizationIds.filter(Boolean).length) {
+        body.organizationIds = live.orgId ? [live.orgId] : [];
+      }
+      if (body.priceCategoryId === "" || body.priceCategoryId === undefined) {
+        body.priceCategoryId = live.priceCategoryId || null;
+      }
+      // Отражаем фактически отправляемое тело в поле, чтобы 1 линия видела правду.
+      $("apiBody").value = safeJson(body);
+    } else if (e.path === "/api/2/menu") {
+      const live = getApiExplorerLiveContext();
+      body = (body && typeof body === "object") ? body : {};
+      if (!Array.isArray(body.organizationIds) || !body.organizationIds.filter(Boolean).length) {
+        body.organizationIds = live.orgId ? [live.orgId] : [];
+      }
+      $("apiBody").value = safeJson(body);
+    }
+
     const resp = await api(e.path, e.method === "GET" ? undefined : body, e.method);
     $("apiResponse").value = safeJson(redactSensitive(resp));
     refreshApiResponseSearch(true);
