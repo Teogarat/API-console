@@ -3501,15 +3501,13 @@ async function sendOrder(){
   $("apiTagFilter")?.addEventListener("change", renderApiExplorer);
   $("apiSearch")?.addEventListener("input", renderApiExplorer);
   $("apiResponseSearch")?.addEventListener("input", () => refreshApiResponseSearch(true));
-  $("apiResponse")?.addEventListener("keydown", (e) => {
+  $("apiResponseSearch")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-
+      if (!apiResponseSearchState.matches.length) refreshApiResponseSearch(false);
       if (apiResponseSearchState.matches.length) {
-        selectApiResponseMatch(apiResponseSearchState.index + (e.shiftKey ? -1 : 1),false);
+        selectApiResponseMatch(apiResponseSearchState.index + (e.shiftKey ? -1 : 1), true);
       }
-    }
-  });
     } else if (e.key === "Escape") {
       e.preventDefault();
       clearApiResponseSearch();
