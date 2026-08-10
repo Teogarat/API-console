@@ -866,7 +866,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
               <span class="search-count" id="apiResponseSearchCount">-</span>
               <button class="btn" id="btnApiRespClear" type="button" title="Очистить поиск">×</button>
             </div>
-            <textarea id="apiResponse" class="api-textarea" spellcheck="false" wrap="off" placeholder="Здесь появится ответ API"></textarea>
+            <textarea id="apiResponse" class="api-textarea" spellcheck="false" wrap="off" readonly placeholder="Здесь появится ответ API"></textarea>
             <div class="footerNote">Поиск работает по всему ответу без учёта регистра. Enter - следующее совпадение, Shift+Enter - предыдущее. Ctrl+F в поле ответа переводит курсор в этот поиск.</div>
             <div class="footerNote">Запрос отправляется через выбранный Proxy Worker. Авторизация и Timeout подставляются автоматически после Connect.</div>
           </div>
@@ -3269,7 +3269,7 @@ async function sendOrder(){
     $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
   }
 
-  const apiResponseSearchState = { matches: [], index: -1 };
+  const apiResponseSearchState = { matches: [], index: -1, enterStarted: false };
 
   function collectApiResponseMatches(){
     const ta = $("apiResponse");
@@ -3409,6 +3409,8 @@ async function sendOrder(){
       refreshApiResponseSearch(false);
       if (!apiResponseSearchState.matches.length) return;
     }
+    // После ручной навигации Enter продолжает с текущего совпадения.
+    apiResponseSearchState.enterStarted = true;
     selectApiResponseMatch(apiResponseSearchState.index + delta, false);
   }
 
@@ -3418,6 +3420,7 @@ async function sendOrder(){
     if (inp) inp.value = "";
     apiResponseSearchState.matches = [];
     apiResponseSearchState.index = -1;
+    apiResponseSearchState.enterStarted = false;
     if (ta) ta.setSelectionRange(0, 0);
     renderApiResponseSearchCounter();
     inp?.focus();
@@ -3458,6 +3461,8 @@ async function sendOrder(){
 
     const resp = await api(e.path, e.method === "GET" ? undefined : body, e.method);
     $("apiResponse").value = safeJson(redactSensitive(resp));
+    // Новый ответ = новая навигация: первый Enter снова открывает первое совпадение.
+    apiResponseSearchState.enterStarted = false;
     refreshApiResponseSearch(true);
   }
 
@@ -3500,13 +3505,32 @@ async function sendOrder(){
   });
   $("apiTagFilter")?.addEventListener("change", renderApiExplorer);
   $("apiSearch")?.addEventListener("input", renderApiExplorer);
-  $("apiResponseSearch")?.addEventListener("input", () => refreshApiResponseSearch(true));
+  $("apiResponseSearch")?.addEventListener("input", () => {
+    // При каждом изменении запроса начинаем Enter-навигацию заново.
+    // Первое совпадение по-прежнему сразу центрируется при вводе.
+    apiResponseSearchState.enterStarted = false;
+    refreshApiResponseSearch(true);
+  });
   $("apiResponseSearch")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       if (!apiResponseSearchState.matches.length) refreshApiResponseSearch(false);
       if (apiResponseSearchState.matches.length) {
-        selectApiResponseMatch(apiResponseSearchState.index + (e.shiftKey ? -1 : 1), false);
+        if (!apiResponseSearchState.enterStarted) {
+          // Первый Enter после ввода: НЕ перескакиваем на второе,
+          // а фокусируем и визуально выделяем первое совпадение.
+          apiResponseSearchState.enterStarted = true;
+          selectApiResponseMatch(
+            e.shiftKey ? apiResponseSearchState.matches.length - 1 : 0,
+            false
+          );
+        } else {
+          // Последующие Enter / Shift+Enter идут дальше / назад.
+          selectApiResponseMatch(
+            apiResponseSearchState.index + (e.shiftKey ? -1 : 1),
+            false
+          );
+        }
       }
     } else if (e.key === "Escape") {
       e.preventDefault();
@@ -3522,6 +3546,18 @@ async function sendOrder(){
       e.preventDefault();
       $("apiResponseSearch")?.focus();
       $("apiResponseSearch")?.select();
+      return;
+    }
+
+    // После первого Enter фокус находится в readonly Response.
+    // Поэтому следующие Enter продолжают навигацию, а не делают ничего.
+    if (e.key === "Enter" && apiResponseSearchState.matches.length) {
+      e.preventDefault();
+      apiResponseSearchState.enterStarted = true;
+      selectApiResponseMatch(
+        apiResponseSearchState.index + (e.shiftKey ? -1 : 1),
+        false
+      );
     }
   });
   $("btnApiFillSample")?.addEventListener("click", refillApiSample);
