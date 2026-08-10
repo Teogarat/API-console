@@ -829,7 +829,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     <div style="height:14px"></div>
     <div class="card" id="apiExplorerCard">
       <div class="hd">
-        <b>Запросы iiko API — шпаргалка 1 линии</b>
+        <b>Запросы iiko API</b>
         <div class="row">
           <span class="pill">Endpoints: <span class="mono" id="apiDocCount">0</span></span>
           <button class="btn" id="btnApiFillSample">Заполнить пример</button>
@@ -3178,7 +3178,7 @@ async function sendOrder(){
     $("apiDocCount").textContent = String(API_DOCS_EMBEDDED.endpointCount || API_DOCS_EMBEDDED.endpoints.length);
     const tagSel = $("apiTagFilter");
     if (tagSel && !tagSel.dataset.ready) {
-      tagSel.innerHTML = '<option value="">Все разделы</option><option value="__l1quick__">⭐ Основные запросы 1 линии</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
+      tagSel.innerHTML = '<option value="">Все разделы</option><option value="__l1quick__">⭐ Основные запросы</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
       tagSel.dataset.ready = "1";
     }
     const list = getFilteredApiEndpoints();
