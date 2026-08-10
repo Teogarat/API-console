@@ -3036,14 +3036,14 @@ async function sendOrder(){
   "/api/1/marketing_sources": "Получить рекламные источники",
   "/api/1/combo": "Получить информацию о комбо",
   "/api/1/combo/calculate": "Рассчитать цену комбо",
-  "/api/1/nomenclature": "Получить номенклатуру / меню API v1",
+  "/api/1/nomenclature": "Получить номенклатуру — API v1",
   "/api/1/stop_lists": "Получить стоп-листы",
   "/api/1/stop_lists/add": "Добавить позиции в стоп-лист",
   "/api/1/stop_lists/check": "Проверить позиции в стоп-листе",
   "/api/1/stop_lists/clear": "Очистить стоп-лист",
   "/api/1/stop_lists/remove": "Удалить позиции из стоп-листа",
   "/api/2/menu": "Получить внешние меню и ценовые категории",
-  "/api/2/menu/by_id": "Получить внешнее меню по ID",
+  "/api/2/menu/by_id": "Получить номенклатуру из External Menu — API v2",
   "/api/1/loyalty/iiko/check_sms_sending_possibility": "Проверить возможность отправки SMS",
   "/api/1/loyalty/iiko/check_sms_status": "Проверить статус отправки SMS",
   "/api/1/loyalty/iiko/message/send_email": "Отправить Email",
@@ -3104,6 +3104,7 @@ async function sendOrder(){
     "/api/1/organizations",
     "/api/1/nomenclature",
     "/api/2/menu",
+    "/api/2/menu/by_id",
     "/api/1/stop_lists",
     "/api/1/terminal_groups",
     "/api/1/terminal_groups/is_alive",
@@ -3123,8 +3124,9 @@ async function sendOrder(){
 
   const API_L1_QUICK_LABELS = {
     "/api/1/organizations": "Организации и их ID",
-    "/api/1/nomenclature": "Номенклатура / блюда и productId",
-    "/api/2/menu": "Внешние меню и их ID",
+    "/api/1/nomenclature": "Номенклатура — API v1",
+    "/api/2/menu": "Внешние меню и их ID — API v2",
+    "/api/2/menu/by_id": "Номенклатура из внешнего меню — API v2",
     "/api/1/stop_lists": "Стоп-листы",
     "/api/1/terminal_groups": "Терминальные группы и их ID",
     "/api/1/terminal_groups/is_alive": "Проверить доступность терминала",
@@ -3190,7 +3192,7 @@ async function sendOrder(){
         </div>
         <div class="endpoint-meta">
           <span>${escapeHtml(apiTagName(e.tag))}</span>
-          ${isApiL1Quick(e) ? '<span class="quick-badge">1 линия</span>' : ''}
+          ${isApiL1Quick(e) ? '<span class="quick-badge">Актуальный запрос</span>' : ''}
           ${e.deprecated ? '<span class="deprecated-badge">устарел</span>' : ''}
         </div>
       </div>`).join("") || '<div class="endpoint-row"><div class="endpoint-title"><span class="endpoint-friendly">Ничего не найдено</span></div></div>';
@@ -3213,6 +3215,15 @@ async function sendOrder(){
       `Раздел: ${apiTagName(e.tag)}`,
     ];
     if (isApiL1Quick(e)) lines.push("⭐ Быстрый запрос 1 линии — удобно для просмотра справочных ID и диагностики.");
+    if (e.path === "/api/1/nomenclature") {
+      lines.push("Вариант номенклатуры: API v1 — выгрузка /api/1/nomenclature из RMS Data Exchange.");
+    }
+    if (e.path === "/api/2/menu") {
+      lines.push("Подготовительный запрос API v2: получи externalMenuId и ценовые категории, затем используй /api/2/menu/by_id для выгрузки номенклатуры External Menu.");
+    }
+    if (e.path === "/api/2/menu/by_id") {
+      lines.push("Вариант номенклатуры: API v2 — выгрузка выбранного External Menu. externalMenuId и priceCategoryId подставляются из основной панели, если они выбраны.");
+    }
     if (e.requestSchema) lines.push(`Техническая схема: ${e.requestSchema}`);
     if (e.deprecated) lines.push("⚠ Устаревший метод — по возможности используй актуальный аналог.");
     if (e.summary) lines.push("", `Оригинальное описание iiko: ${e.summary}`);
