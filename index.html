@@ -329,12 +329,16 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 .cred-box{border:1px solid rgba(148,163,184,.18);border-radius:12px;padding:10px;background:rgba(15,23,42,.45);margin-top:10px}
 .cred-fields{display:none;margin-top:8px}
 .cred-fields.visible{display:block}
-.api-explorer-grid{display:grid;grid-template-columns:380px 1fr 1fr;gap:12px}
+.api-explorer-grid{display:grid;grid-template-columns:460px 1fr 1fr;gap:12px}
 .endpoint-list{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:12px;background:rgba(15,23,42,.55)}
 .endpoint-row{padding:9px 10px;border-top:1px solid var(--border);cursor:pointer;display:flex;flex-direction:column;gap:3px}
 .endpoint-row:first-child{border-top:none}
 .endpoint-row:hover,.endpoint-row.active{background:rgba(74,163,255,.12)}
-.endpoint-title{font-size:12px;font-weight:700;word-break:break-all}
+.endpoint-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:12px;word-break:normal}
+.endpoint-friendly{font-weight:750;line-height:1.3;min-width:0}
+.endpoint-request{font-family:var(--mono);font-size:10.5px;color:#93c5fd;text-align:right;line-height:1.35;max-width:58%;word-break:break-all;flex:0 1 auto}
+.endpoint-request .method-badge{margin-right:4px}
+.endpoint-meta{margin-top:4px}
 .endpoint-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:11px}
 .method-badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(74,163,255,.18);color:#93c5fd;border:1px solid rgba(74,163,255,.25)}
 .deprecated-badge{font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(255,77,79,.16);color:#fecaca;border:1px solid rgba(255,77,79,.3)}
@@ -818,10 +822,10 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     <div style="height:14px"></div>
     <div class="card" id="apiExplorerCard">
       <div class="hd">
-        <b>API Explorer из docs (2)</b>
+        <b>Запросы iiko API — шпаргалка 1 линии</b>
         <div class="row">
           <span class="pill">Endpoints: <span class="mono" id="apiDocCount">0</span></span>
-          <button class="btn" id="btnApiFillSample">Шаблон body</button>
+          <button class="btn" id="btnApiFillSample">Заполнить пример</button>
           <button class="btn primary" id="btnApiSend">Отправить</button>
         </div>
       </div>
@@ -830,26 +834,26 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           <div>
             <div class="split">
               <div>
-                <label>Тег</label>
+                <label>Раздел</label>
                 <select id="apiTagFilter"></select>
               </div>
               <div>
-                <label>Поиск</label>
-                <input id="apiSearch" placeholder="deliveries/create, stop_lists..." />
+                <label>Поиск по названию или API-запросу</label>
+                <input id="apiSearch" placeholder="меню, стоп-лист, заказ, /api/1/..." />
               </div>
             </div>
             <div style="height:8px"></div>
             <div class="endpoint-list" id="apiEndpointList"></div>
           </div>
           <div>
-            <label>Request body JSON</label>
+            <label>Тело запроса (JSON)</label>
             <textarea id="apiBody" class="api-textarea" spellcheck="false" placeholder="Выбери метод слева — сюда упадёт шаблон тела запроса"></textarea>
             <div class="endpoint-desc" id="apiEndpointInfo">—</div>
           </div>
           <div>
-            <label>Response</label>
-            <textarea id="apiResponse" class="api-textarea" spellcheck="false" placeholder="Ответ выбранного метода"></textarea>
-            <div class="footerNote">Все запросы идут через выбранный Proxy Worker. Authorization и Timeout подставляются автоматически после Connect.</div>
+            <label>Ответ API</label>
+            <textarea id="apiResponse" class="api-textarea" spellcheck="false" placeholder="Здесь появится ответ API"></textarea>
+            <div class="footerNote">Запрос отправляется через выбранный Proxy Worker. Авторизация и Timeout подставляются автоматически после Connect.</div>
           </div>
         </div>
       </div>
@@ -2918,12 +2922,184 @@ async function sendOrder(){
     return value;
   }
 
+  // === Понятные названия API для 1 линии ===
+  const API_FRIENDLY_NAMES = {
+  "/api/1/cities": "Получить список городов",
+  "/api/1/regions": "Получить список регионов",
+  "/api/1/streets/by_city": "Получить улицы выбранного города",
+  "/api/1/streets/by_id": "Получить улицы по ID / classifierId",
+  "/api/v2/access_token": "Получить токен доступа API (v2)",
+  "/api/1/access_token": "Получить токен доступа API (старый метод)",
+  "/api/1/reserve/add_items": "Добавить блюда в банкет",
+  "/api/1/reserve/add_payments": "Добавить оплаты в банкет",
+  "/api/1/reserve/available_organizations": "Получить организации, где доступны банкеты",
+  "/api/1/reserve/available_restaurant_sections": "Получить залы, доступные для банкетов",
+  "/api/1/reserve/available_terminal_groups": "Получить терминальные группы для банкетов",
+  "/api/1/reserve/cancel": "Отменить банкет / резерв",
+  "/api/1/reserve/change_estimated_start_time": "Изменить время начала банкета / резерва",
+  "/api/1/reserve/change_items": "Изменить блюда в банкете",
+  "/api/1/reserve/change_tables": "Изменить столы банкета / резерва",
+  "/api/1/reserve/create": "Создать банкет / резерв",
+  "/api/1/reserve/restaurant_sections_workload": "Получить загрузку залов банкетами / резервами",
+  "/api/1/reserve/status_by_id": "Получить статус банкета / резерва по ID",
+  "/api/1/loyalty/iiko/customer_category": "Получить категории гостей",
+  "/api/1/loyalty/iiko/customer_category/add": "Добавить категорию гостю",
+  "/api/1/loyalty/iiko/customer_category/remove": "Удалить категорию у гостя",
+  "/api/1/loyalty/iiko/customer/card/add": "Привязать карту к гостю",
+  "/api/1/loyalty/iiko/customer/card/remove": "Отвязать карту от гостя",
+  "/api/1/loyalty/iiko/customer/create_or_update": "Создать или изменить гостя",
+  "/api/1/loyalty/iiko/customer/info": "Получить информацию о госте",
+  "/api/1/loyalty/iiko/customer/program/add": "Добавить гостя в программу лояльности",
+  "/api/1/loyalty/iiko/customer/wallet/cancel_hold": "Отменить удержание средств на кошельке",
+  "/api/1/loyalty/iiko/customer/wallet/chargeoff": "Списать средства с кошелька гостя",
+  "/api/1/loyalty/iiko/customer/wallet/hold": "Зарезервировать средства на кошельке гостя",
+  "/api/1/loyalty/iiko/customer/wallet/topup": "Пополнить кошелёк гостя",
+  "/api/1/loyalty/iiko/delete_customers": "Пометить гостей удалёнными",
+  "/api/1/loyalty/iiko/get_counters": "Получить счётчики гостя: заказы и суммы",
+  "/api/1/loyalty/iiko/restore_customers": "Восстановить удалённых гостей",
+  "/api/1/deliveries/add_items": "Добавить блюда в доставку",
+  "/api/1/deliveries/add_payments": "Добавить оплаты в доставку",
+  "/api/1/deliveries/cancel": "Отменить доставку",
+  "/api/1/deliveries/cancel_confirmation": "Отменить подтверждение доставки",
+  "/api/1/deliveries/change_comment": "Изменить комментарий доставки",
+  "/api/1/deliveries/change_complete_before": "Изменить время доставки",
+  "/api/1/deliveries/change_delivery_point": "Изменить адрес доставки",
+  "/api/1/deliveries/change_driver_info": "Изменить данные водителя / курьера",
+  "/api/1/deliveries/change_external_data": "Изменить externalData доставки",
+  "/api/1/deliveries/change_operator": "Назначить или сменить оператора заказа",
+  "/api/1/deliveries/change_payments": "Заменить оплаты доставки",
+  "/api/1/deliveries/change_service_type": "Изменить тип доставки / самовывоза",
+  "/api/1/deliveries/close": "Закрыть доставку",
+  "/api/1/deliveries/confirm": "Подтвердить доставку",
+  "/api/1/deliveries/create": "Создать заказ доставки",
+  "/api/1/deliveries/print_delivery_bill": "Напечатать доставочный счёт",
+  "/api/1/deliveries/update_order_delivery_status": "Изменить статус доставки",
+  "/api/1/deliveries/update_order_problem": "Установить / изменить проблему заказа",
+  "/api/1/deliveries/update_tracking_link": "Изменить ссылку отслеживания доставки",
+  "/api/1/order/print_bill": "Напечатать пречек по заказу",
+  "/api/1/deliveries/update_order_courier": "Назначить / изменить курьера",
+  "/api/1/deliveries/update_order_payments": "Обновить данные оплат доставки",
+  "/api/1/deliveries/by_delivery_date_and_phone": "Найти доставки по телефону и дате",
+  "/api/1/deliveries/by_delivery_date_and_source_key_and_filter": "Найти доставки по фильтрам и строке поиска",
+  "/api/1/deliveries/by_delivery_date_and_status": "Получить доставки по датам и статусам",
+  "/api/1/deliveries/by_id": "Получить доставки по ID",
+  "/api/1/deliveries/by_revision": "Получить изменённые доставки после revision",
+  "/api/1/deliveries/history/by_delivery_date_and_phone": "Получить историю доставок по телефону и дате",
+  "/api/1/delivery_restrictions": "Получить ограничения доставки",
+  "/api/1/delivery_restrictions/allowed": "Получить доступные терминальные группы для доставки",
+  "/api/1/organizations": "Получить список организаций",
+  "/api/1/cancel_causes": "Получить причины отмены доставки",
+  "/api/1/deliveries/order_types": "Получить типы заказов",
+  "/api/1/discounts": "Получить скидки и надбавки",
+  "/api/1/payment_types": "Получить типы оплат",
+  "/api/1/removal_types": "Получить причины удаления позиций",
+  "/api/1/tips_types": "Получить типы чаевых",
+  "/api/1/loyalty/iiko/calculate": "Рассчитать скидки, бонусы и лояльность",
+  "/api/1/loyalty/iiko/coupons/by_series": "Получить неактивированные купоны серии",
+  "/api/1/loyalty/iiko/coupons/info": "Получить информацию о купоне",
+  "/api/1/loyalty/iiko/coupons/series": "Получить серии купонов",
+  "/api/1/loyalty/iiko/manual_condition": "Получить ручные условия акций",
+  "/api/1/loyalty/iiko/program": "Получить программы лояльности",
+  "/api/1/deliveries/drafts/by_filter": "Найти черновики доставок по фильтрам",
+  "/api/1/deliveries/drafts/by_id": "Получить черновик доставки по ID",
+  "/api/1/deliveries/drafts/commit": "Подтвердить черновик и отправить во Front",
+  "/api/1/deliveries/drafts/create": "Создать черновик доставки",
+  "/api/1/deliveries/drafts/delete": "Удалить черновик доставки",
+  "/api/1/deliveries/drafts/lock": "Заблокировать черновик для редактирования",
+  "/api/1/deliveries/drafts/save": "Сохранить изменения черновика доставки",
+  "/api/1/deliveries/drafts/unlock": "Разблокировать черновик",
+  "/api/1/employees/couriers": "Получить список курьеров",
+  "/api/1/employees/couriers/active_location": "Получить текущие координаты активных курьеров",
+  "/api/1/employees/couriers/active_location/by_terminal": "Получить активных курьеров конкретного терминала",
+  "/api/1/employees/couriers/by_role": "Получить курьеров и проверить роль",
+  "/api/1/employees/couriers/locations/by_time_offset": "Получить историю координат курьеров",
+  "/api/1/employees/info": "Получить информацию о сотрудниках",
+  "/api/1/employees/shift/clockin": "Открыть личную смену сотрудника",
+  "/api/1/employees/shift/clockout": "Закрыть личную смену сотрудника",
+  "/api/1/employees/shift/is_open": "Проверить, открыта ли личная смена",
+  "/api/1/employees/shifts/by_courier": "Получить терминалы с открытой сменой курьера",
+  "/api/1/marketing_sources": "Получить рекламные источники",
+  "/api/1/combo": "Получить информацию о комбо",
+  "/api/1/combo/calculate": "Рассчитать цену комбо",
+  "/api/1/nomenclature": "Получить номенклатуру / меню API v1",
+  "/api/1/stop_lists": "Получить стоп-листы",
+  "/api/1/stop_lists/add": "Добавить позиции в стоп-лист",
+  "/api/1/stop_lists/check": "Проверить позиции в стоп-листе",
+  "/api/1/stop_lists/clear": "Очистить стоп-лист",
+  "/api/1/stop_lists/remove": "Удалить позиции из стоп-листа",
+  "/api/2/menu": "Получить внешние меню и ценовые категории",
+  "/api/2/menu/by_id": "Получить внешнее меню по ID",
+  "/api/1/loyalty/iiko/check_sms_sending_possibility": "Проверить возможность отправки SMS",
+  "/api/1/loyalty/iiko/check_sms_status": "Проверить статус отправки SMS",
+  "/api/1/loyalty/iiko/message/send_email": "Отправить Email",
+  "/api/1/loyalty/iiko/message/send_sms": "Отправить SMS",
+  "/api/1/notifications/send": "Отправить уведомление во внешнюю систему",
+  "/api/1/commands/status": "Получить статус выполнения команды",
+  "/api/1/order/add_customer": "Добавить гостя в заказ",
+  "/api/1/order/add_items": "Добавить блюда в заказ",
+  "/api/1/order/add_payments": "Добавить оплаты в заказ",
+  "/api/1/order/by_id": "Получить заказы по ID",
+  "/api/1/order/by_table": "Получить заказы по столам",
+  "/api/1/order/cancel": "Отменить заказ на столе",
+  "/api/1/order/change_external_data": "Изменить externalData заказа",
+  "/api/1/order/change_payments": "Заменить оплаты заказа",
+  "/api/1/order/close": "Закрыть заказ",
+  "/api/1/order/create": "Создать заказ на столе",
+  "/api/1/order/init_by_posOrder": "Подтянуть заказы из Front по POS Order ID",
+  "/api/1/order/init_by_table": "Подтянуть заказы из Front по столам",
+  "/api/1/organizations/settings": "Получить настройки организаций",
+  "/api/1/loyalty/iiko/customer/transactions/by_date": "Получить операции гостя за период",
+  "/api/1/loyalty/iiko/customer/transactions/by_revision": "Получить операции гостя после revision",
+  "/api/1/terminal_groups": "Получить терминальные группы",
+  "/api/1/terminal_groups/awake": "Разбудить терминальные группы",
+  "/api/1/terminal_groups/is_alive": "Проверить доступность терминальных групп",
+  "/api/1/webhooks/settings": "Получить настройки Webhooks",
+  "/api/1/webhooks/update_settings": "Изменить настройки Webhooks"
+};
+
+  const API_TAG_RU = {
+  "Addresses": "Адреса",
+  "Authorization": "Авторизация",
+  "Banquets/reserves": "Банкеты и резервы",
+  "Customer categories": "Категории гостей",
+  "Customers": "Гости и лояльность",
+  "Deliveries: Create and update": "Доставка — создание и изменение",
+  "Deliveries: Retrieve": "Доставка — получение заказов",
+  "Delivery restrictions": "Ограничения доставки",
+  "Deprecated": "Устаревшие методы",
+  "Dictionaries": "Справочники",
+  "Discounts and promotions": "Скидки и акции",
+  "Drafts": "Черновики доставок",
+  "Employees": "Сотрудники и курьеры",
+  "Marketing sources": "Рекламные источники",
+  "Menu": "Меню и стоп-листы",
+  "Messages": "SMS и Email",
+  "Notifications": "Уведомления",
+  "Operations": "Команды",
+  "Orders": "Заказы на столах",
+  "Organizations": "Организации",
+  "Report": "Отчёты",
+  "Terminal groups": "Терминальные группы",
+  "Webhooks": "Webhooks"
+};
+
+  function apiFriendlyName(e){
+    return API_FRIENDLY_NAMES[e?.path] || e?.summary || e?.path || "Метод API";
+  }
+
+  function apiTagName(tag){
+    return API_TAG_RU[tag] || tag || "Прочее";
+  }
+
   function getFilteredApiEndpoints(){
     const tag = $("apiTagFilter")?.value || "";
     const q = ($("apiSearch")?.value || "").trim().toLowerCase();
     return API_DOCS_EMBEDDED.endpoints
       .map((e, i) => ({...e, i}))
-      .filter(e => (!tag || e.tag === tag) && (!q || `${e.path} ${e.summary} ${e.tag}`.toLowerCase().includes(q)));
+      .filter(e => {
+        const haystack = `${e.path} ${e.summary || ""} ${e.tag || ""} ${apiFriendlyName(e)} ${apiTagName(e.tag)}`.toLowerCase();
+        return (!tag || e.tag === tag) && (!q || haystack.includes(q));
+      });
   }
 
   function renderApiExplorer(){
@@ -2931,15 +3107,21 @@ async function sendOrder(){
     $("apiDocCount").textContent = String(API_DOCS_EMBEDDED.endpointCount || API_DOCS_EMBEDDED.endpoints.length);
     const tagSel = $("apiTagFilter");
     if (tagSel && !tagSel.dataset.ready) {
-      tagSel.innerHTML = '<option value="">Все теги</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+      tagSel.innerHTML = '<option value="">Все разделы</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
       tagSel.dataset.ready = "1";
     }
     const list = getFilteredApiEndpoints();
     $("apiEndpointList").innerHTML = list.map(e => `
-      <div class="endpoint-row ${e.i === selectedApiEndpointIndex ? "active" : ""}" data-api-index="${e.i}">
-        <div class="endpoint-title"><span class="method-badge">${escapeHtml(e.method)}</span> ${escapeHtml(e.path)}</div>
-        <div class="endpoint-meta"><span>${escapeHtml(e.tag)}</span>${e.deprecated ? '<span class="deprecated-badge">deprecated</span>' : ''}<span>${escapeHtml(e.summary || '')}</span></div>
-      </div>`).join("") || '<div class="endpoint-row"><div class="endpoint-title">Ничего не найдено</div></div>';
+      <div class="endpoint-row ${e.i === selectedApiEndpointIndex ? "active" : ""}" data-api-index="${e.i}" title="${escapeHtml(apiFriendlyName(e))} — ${escapeHtml(e.method)} ${escapeHtml(e.path)}">
+        <div class="endpoint-title">
+          <span class="endpoint-friendly">${escapeHtml(apiFriendlyName(e))}</span>
+          <span class="endpoint-request"><span class="method-badge">${escapeHtml(e.method)}</span>${escapeHtml(e.path)}</span>
+        </div>
+        <div class="endpoint-meta">
+          <span>${escapeHtml(apiTagName(e.tag))}</span>
+          ${e.deprecated ? '<span class="deprecated-badge">устарел</span>' : ''}
+        </div>
+      </div>`).join("") || '<div class="endpoint-row"><div class="endpoint-title"><span class="endpoint-friendly">Ничего не найдено</span></div></div>';
     $("apiEndpointList").querySelectorAll("[data-api-index]").forEach(row => {
       row.addEventListener("click", () => selectApiEndpoint(Number(row.dataset.apiIndex)));
     });
@@ -2952,7 +3134,18 @@ async function sendOrder(){
     if (!e) return;
     const sample = e.sample === null ? {} : hydrateTemplate(e.sample);
     $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
-    $("apiEndpointInfo").textContent = `${e.method} ${e.path}\n${e.summary || ""}${e.requestSchema ? "\nSchema: " + e.requestSchema : ""}${e.deprecated ? "\n⚠ Deprecated" : ""}${e.description ? "\n\n" + e.description : ""}`;
+
+    const lines = [
+      `Что делает: ${apiFriendlyName(e)}`,
+      `Запрос: ${e.method} ${e.path}`,
+      `Раздел: ${apiTagName(e.tag)}`,
+    ];
+    if (e.requestSchema) lines.push(`Техническая схема: ${e.requestSchema}`);
+    if (e.deprecated) lines.push("⚠ Устаревший метод — по возможности используй актуальный аналог.");
+    if (e.summary) lines.push("", `Оригинальное описание iiko: ${e.summary}`);
+    if (e.description) lines.push("", e.description);
+
+    $("apiEndpointInfo").textContent = lines.join("\n");
     renderApiExplorer();
   }
 
