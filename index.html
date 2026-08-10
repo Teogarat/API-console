@@ -866,7 +866,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
               <span class="search-count" id="apiResponseSearchCount">—</span>
               <button class="btn" id="btnApiRespClear" type="button" title="Очистить поиск">×</button>
             </div>
-            <textarea id="apiResponse" class="api-textarea" spellcheck="false" placeholder="Здесь появится ответ API"></textarea>
+            <textarea id="apiResponse" class="api-textarea" spellcheck="false" wrap="off" placeholder="Здесь появится ответ API"></textarea>
             <div class="footerNote">Поиск работает по всему ответу без учёта регистра. Enter — следующее совпадение, Shift+Enter — предыдущее. Ctrl+F в поле ответа переводит курсор в этот поиск.</div>
             <div class="footerNote">Запрос отправляется через выбранный Proxy Worker. Авторизация и Timeout подставляются автоматически после Connect.</div>
           </div>
@@ -3315,6 +3315,49 @@ async function sendOrder(){
     if (next) next.disabled = count === 0;
   }
 
+  function scrollApiResponseToMatch(ta, start){
+    if (!ta) return;
+
+    // textarea не гарантирует автопрокрутку к setSelectionRange во всех браузерах.
+    // Response выводится pretty-printed JSON + wrap=off, поэтому позицию можно
+    // надёжно вычислить по строке и колонке найденного фрагмента.
+    const before = ta.value.slice(0, Math.max(0, start));
+    const lastNl = before.lastIndexOf("\n");
+    const lineIndex = (before.match(/\n/g) || []).length;
+    const columnIndex = start - (lastNl + 1);
+
+    const cs = getComputedStyle(ta);
+    const fontSize = parseFloat(cs.fontSize) || 12;
+    let lineHeight = parseFloat(cs.lineHeight);
+    if (!Number.isFinite(lineHeight)) lineHeight = fontSize * 1.35;
+
+    const padTop = parseFloat(cs.paddingTop) || 0;
+    const padLeft = parseFloat(cs.paddingLeft) || 0;
+    const targetY = padTop + lineIndex * lineHeight;
+
+    // Держим совпадение примерно в верхней трети окна Response, а не у самой кромки.
+    ta.scrollTop = Math.max(0, targetY - ta.clientHeight * 0.32);
+
+    // Для длинных строк прокручиваем ещё и по горизонтали.
+    try {
+      const canvas = scrollApiResponseToMatch._canvas || (scrollApiResponseToMatch._canvas = document.createElement("canvas"));
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.font = cs.font;
+        const charWidth = ctx.measureText("0").width || fontSize * 0.6;
+        const targetX = padLeft + columnIndex * charWidth;
+        const leftEdge = ta.scrollLeft;
+        const rightEdge = leftEdge + ta.clientWidth;
+        if (targetX < leftEdge + 20 || targetX > rightEdge - 60) {
+          ta.scrollLeft = Math.max(0, targetX - ta.clientWidth * 0.22);
+        }
+      }
+    } catch (_) {}
+
+    // Если сам Explorer частично ушёл за экран страницы — подтягиваем Response в видимую область.
+    ta.scrollIntoView({block:"nearest", inline:"nearest"});
+  }
+
   function selectApiResponseMatch(index, returnFocusToSearch = false){
     const ta = $("apiResponse");
     const inp = $("apiResponseSearch");
@@ -3327,9 +3370,13 @@ async function sendOrder(){
     const normalized = ((index % matches.length) + matches.length) % matches.length;
     apiResponseSearchState.index = normalized;
     const m = matches[normalized];
+
     ta.focus({preventScroll:true});
     ta.setSelectionRange(m.start, m.end);
-    // setSelectionRange прокручивает textarea к найденному фрагменту.
+    scrollApiResponseToMatch(ta, m.start);
+
+    // При поиске с клавиатуры оставляем фокус в строке поиска,
+    // чтобы Enter / Shift+Enter можно было нажимать подряд.
     if (returnFocusToSearch && inp) inp.focus({preventScroll:true});
     renderApiResponseSearchCounter();
   }
@@ -3442,7 +3489,10 @@ async function sendOrder(){
   $("apiResponseSearch")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      moveApiResponseSearch(e.shiftKey ? -1 : 1);
+      if (!apiResponseSearchState.matches.length) refreshApiResponseSearch(false);
+      if (apiResponseSearchState.matches.length) {
+        selectApiResponseMatch(apiResponseSearchState.index + (e.shiftKey ? -1 : 1), true);
+      }
     } else if (e.key === "Escape") {
       e.preventDefault();
       clearApiResponseSearch();
