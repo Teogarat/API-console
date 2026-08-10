@@ -208,6 +208,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 .dot-off{background:#ff4d4f}
 .dot-stop{background:#a855f7}
 .dot-zero{background:#ffcc00}
+.dot-null{background:#f97316}
 
 /* API Mode Toggle */
 .api-mode-bar{
@@ -1322,7 +1323,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     state.itemsFlat = yItems.map(it => ({
       productId: String(it.id),
       name: it.name || "Блюдо",
-      price: Number(it.price || 0),
+      price: it.price == null ? null : Number(it.price),
     }));
     state.uiOpenCats.clear();
 
@@ -1335,7 +1336,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 
   function yandexItemToIiko(it) {
     // Map Yandex menu item to iiko-like shape for the existing renderer
-    const price = Number(it.price || 0);
+    const price = it.price == null ? null : Number(it.price);
     return {
       id: String(it.id),
       itemId: String(it.id),
@@ -1371,7 +1372,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         id: String(m.id || ""),
         name: m.name || "Опция",
         isHidden: false,
-        prices: [{ organizationId: "yandex", price: Number(m.price || 0) }],
+        prices: [{ organizationId: "yandex", price: m.price == null ? null : Number(m.price) }],
       })) : [],
     }));
   }
@@ -1432,16 +1433,24 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     }
     const rfcDate = toRfc3339Micro(deliveryDate);
 
+    const missingPriceLines = state.cart.filter(line =>
+      line.basePrice == null || (line.modifiers || []).some(m => m.price == null)
+    );
+    if (missingPriceLines.length) {
+      const names = missingPriceLines.map(line => line.name || line.baseProductId || "позиция").join(", ");
+      throw new Error(`Нельзя отправить заказ: цена не получена (null) у позиций: ${names}`);
+    }
+
     const items = state.cart.map(line => ({
       id: String(line.baseProductId),
       name: line.name,
       quantity: Number(line.qty || 1),
-      price: Number(line.basePrice || 0),
+      price: Number(line.basePrice),
       modifications: (line.modifiers || []).map(m => ({
         id: String(m.productId || ""),
         name: m.name || "",
         quantity: Number(m.qty || 1),
-        price: Number(m.price || 0),
+        price: Number(m.price),
       })),
       promos: [],
     }));
@@ -1593,13 +1602,15 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     return false;
   }
 
-  // 4 состояния: зелёный = в продаже, красный = не в продаже, фиолетовый = стоп-лист, жёлтый = цена 0
-  function mkStatusDot(hidden, hasPrice, productId){
+  // 5 состояний: зелёный = в продаже, красный = не в продаже, фиолетовый = стоп-лист,
+  // жёлтый = явная цена 0, оранжевый = цена отсутствует/null
+  function mkStatusDot(hidden, hasPrice, productId, priceMissing=false){
     const stopped = isInStopList(productId);
-    if (stopped)   return `<span class="dot dot-stop"  title="В стоп-листе"></span>`;
-    if (hidden)    return `<span class="dot dot-off"   title="Не в продаже"></span>`;
-    if (!hasPrice) return `<span class="dot dot-zero"  title="Цена не задана (0)"></span>`;
-    return               `<span class="dot dot-on"    title="В продаже"></span>`;
+    if (stopped)      return `<span class="dot dot-stop" title="В стоп-листе"></span>`;
+    if (hidden)       return `<span class="dot dot-off"  title="Не в продаже"></span>`;
+    if (priceMissing) return `<span class="dot dot-null" title="Цена не получена (null)"></span>`;
+    if (!hasPrice)    return `<span class="dot dot-zero" title="Цена задана: 0"></span>`;
+    return                  `<span class="dot dot-on"   title="В продаже"></span>`;
   }
 
   function renderCart(){
@@ -1610,19 +1621,27 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     return;
   }
 
-  const money = (n)=> (Number(n)||0).toFixed(2);
+  const money = (n)=> Number(n).toFixed(2);
+  const priceText = (n)=> n == null ? "НЕТ ЦЕНЫ" : money(n);
 
   const lineUnitPrice = (line)=>{
-    const mods = (line.modifiers||[]).reduce((acc,m)=>acc + (Number(m.price)||0) * (Number(m.qty)||0), 0);
-    return (Number(line.basePrice)||0) + mods;
+    if (line.basePrice == null) return null;
+    let mods = 0;
+    for (const m of (line.modifiers||[])) {
+      if (m.price == null) return null;
+      mods += Number(m.price) * (Number(m.qty)||0);
+    }
+    return Number(line.basePrice) + mods;
   };
 
   let total = 0;
+  let hasMissingPrice = false;
 
   root.innerHTML = state.cart.map((line, idx)=>{
     const unit = lineUnitPrice(line);
-    const lineTotal = unit * (Number(line.qty)||0);
-    total += lineTotal;
+    const lineTotal = unit == null ? null : unit * (Number(line.qty)||0);
+    if (lineTotal == null) hasMissingPrice = true;
+    else total += lineTotal;
 
     const modsHtml = (line.modifiers && line.modifiers.length)
       ? `<div class="cartMods">${
@@ -1630,7 +1649,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
             const q = Number(m.qty)||0;
             return `<div class="cartModRow">
               <span class="muted">↳ ${escapeHtml(m.name||"Модификатор")} ${q?("×"+q):""}</span>
-              <span class="mono muted">${money((Number(m.price)||0) * q)}</span>
+              <span class="mono muted">${m.price == null ? "НЕТ ЦЕНЫ" : money(Number(m.price) * q)}</span>
             </div>`;
           }).join("")
         }</div>`
@@ -1640,7 +1659,11 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       ? '<span class="dot dot-stop" title="В стоп-листе"></span>'
       : line.hidden
         ? '<span class="dot dot-off" title="Не в продаже"></span>'
-        : '<span class="dot dot-on" title="В продаже"></span>';
+        : unit == null
+          ? '<span class="dot dot-null" title="Цена не получена (null)"></span>'
+          : unit === 0
+            ? '<span class="dot dot-zero" title="Цена задана: 0"></span>'
+            : '<span class="dot dot-on" title="В продаже"></span>';
 
     return `<div class="cartItem">
       <div class="cartTop">
@@ -1654,13 +1677,13 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       </div>
       ${modsHtml}
       <div class="cartBottom">
-        <span class="muted mono">${money(unit)} / шт</span>
-        <span class="mono">${money(lineTotal)}</span>
+        <span class="muted mono">${priceText(unit)} / шт</span>
+        <span class="mono">${priceText(lineTotal)}</span>
       </div>
     </div>`;
   }).join("");
 
-  $("totalSum").textContent = money(total);
+  $("totalSum").textContent = hasMissingPrice ? "НЕТ ЦЕНЫ" : money(total);
 
   // actions
   root.querySelectorAll("[data-inc]").forEach(b=>b.addEventListener("click", ()=>{
@@ -1806,12 +1829,14 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       items: c.items || []
     }));
 
-  // Helper: price for current org
+  // Helper: price for current org. Важно: null/отсутствующая цена != 0.
   const getOrgPrice = (pricesArr) => {
-    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return 0;
+    if(!Array.isArray(pricesArr) || pricesArr.length === 0) return null;
     const hit = pricesArr.find(p => p && p.organizationId === state.orgId);
-    const p = (hit || pricesArr[0] || {}).price;
-    return (typeof p === "number" && isFinite(p)) ? p : 0;
+    const raw = (hit || pricesArr[0] || {}).price;
+    if (raw === null || raw === undefined || raw === "") return null;
+    const p = Number(raw);
+    return Number.isFinite(p) ? p : null;
   };
 
   const pickDefaultSize = (item) => {
@@ -1872,7 +1897,8 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           selected.push({ price, qty, mid, mi });
         }
       }
-      // raw sum
+      // raw sum. Если у выбранного модификатора нет цены, итоговая цена неизвестна.
+      if (selected.some(s => s.price == null)) return null;
       let groupSum = 0;
       for(const s of selected) groupSum += s.price * s.qty;
 
@@ -1894,8 +1920,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   };
 
   const computeBuiltPrice = (item, size, selModsMap) => {
-    const base = size ? getOrgPrice(size.prices) : 0;
+    const base = size ? getOrgPrice(size.prices) : null;
     const mods = computeModsCharge(size, selModsMap);
+    if (base == null || mods == null) return null;
     return base + mods;
   };
 
@@ -2012,9 +2039,10 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       const size = pickDefaultSize(item);
       const sel = ensureBuilder(item, size);
       const hidden = isHiddenOf(item, size);
-      const basePrice = size ? getOrgPrice(size.prices) : 0;
+      const basePrice = size ? getOrgPrice(size.prices) : null;
       const builtPrice = computeBuiltPrice(item, size, sel.mods);
-      const hasPrice = (typeof basePrice === "number" && basePrice > 0) || builtPrice > 0;
+      const priceMissing = builtPrice == null;
+      const hasPrice = !priceMissing && builtPrice > 0;
 
       // count required status
       const groups = (size && Array.isArray(size.itemModifierGroups)) ? size.itemModifierGroups : [];
@@ -2032,12 +2060,12 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       html += `<details class="itm">
           <summary class="itmRow">
             <div class="itmLeft">
-              ${mkStatusDot(hidden, hasPrice, itemProductId)}
+              ${mkStatusDot(hidden, hasPrice, itemProductId, priceMissing)}
               <div class="itmName">${esc(item.name || "")}</div>
               <div class="itmSku">${esc(item.sku || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
             </div>
             <div class="itmRight">
-              <div class="itmPrice">${builtPrice ? builtPrice.toFixed(2) : "0.00"}</div>
+              <div class="itmPrice"${priceMissing ? ' title="Базовая цена или цена выбранного модификатора не получена"' : ''}>${priceMissing ? "НЕТ ЦЕНЫ" : builtPrice.toFixed(2)}</div>
               <button class="itm-add-btn" data-add-item="${esc(baseId)}" title="Добавить в корзину">＋</button>
             </div>
           </summary>
@@ -2068,8 +2096,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
                     const mHidden = Boolean(mi.isHidden);
                     const mProductId = mi.itemId || mi.id || null;
                     const mStopped = isInStopList(mProductId);
-                    const dot = mkStatusDot(mHidden, price>0, mProductId);
-                    const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : "");
+                    const modPriceMissing = price == null;
+                    const dot = mkStatusDot(mHidden, !modPriceMissing && price>0, mProductId, modPriceMissing);
+                    const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : (modPriceMissing ? "цена не получена" : ""));
                     return `<div class="modRow">
                       <div class="modLeft">
                         ${dot}
@@ -2077,7 +2106,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
                         <div class="modHint">${esc(hintText)}</div>
                       </div>
                       <div class="modRight">
-                        <div class="modPrice">${price ? price.toFixed(2) : "0.00"}</div>
+                        <div class="modPrice">${price == null ? "НЕТ ЦЕНЫ" : price.toFixed(2)}</div>
                         <div class="modQty">${qty ? "×"+qty : ""}</div>
                         <button class="btn ghost small" data-add-mod="${esc(baseId)}::${esc(mid)}">＋</button>
                       </div>
@@ -2501,17 +2530,25 @@ function buildMenuModelFromNomenclature(nom){
   const normalizeItem = (p) => {
     const sizePrices = Array.isArray(p.sizePrices) ? p.sizePrices : [];
     const first = sizePrices[0];
-    const firstPrice = first?.price?.currentPrice ?? 0;
+    const normalizeNullablePrice = (v) => {
+      if (v === null || v === undefined || v === "") return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    };
+    const firstPrice = normalizeNullablePrice(first?.price?.currentPrice);
 
-    // map sizePrices -> itemSizes (what renderer expects)
-    const itemSizes = sizePrices.map((sp, idx) => ({
-      sizeId: sp.sizeId || null,
-      isDefault: idx === 0,
-      // renderer expects prices: [{ organizationId, price }]
-      prices: [{ organizationId: orgId, price: Number(sp?.price?.currentPrice || 0) }],
-      // keep raw as well
-      price: Number(sp?.price?.currentPrice || 0),
-    }));
+    // map sizePrices -> itemSizes (what renderer expects), сохраняя null как null
+    const itemSizes = sizePrices.map((sp, idx) => {
+      const currentPrice = normalizeNullablePrice(sp?.price?.currentPrice);
+      return {
+        sizeId: sp.sizeId || null,
+        isDefault: idx === 0,
+        // renderer expects prices: [{ organizationId, price }]
+        prices: [{ organizationId: orgId, price: currentPrice }],
+        // keep raw as well
+        price: currentPrice,
+      };
+    });
 
     return {
       id: p.id,
@@ -2522,8 +2559,8 @@ function buildMenuModelFromNomenclature(nom){
       productCategoryId: p.productCategoryId || null,
       description: p.description || "",
       isDeleted: p.isDeleted || false,
-      // fallback flat price
-      prices: [{ organizationId: orgId, price: Number(firstPrice || 0) }],
+      // fallback flat price; null не превращаем в 0
+      prices: [{ organizationId: orgId, price: firstPrice }],
       itemSizes,
       // modifiers
       modifiers: Array.isArray(p.modifiers) ? p.modifiers : [],
@@ -2633,10 +2670,20 @@ async function sendOrder(){
 
     if (!paymentTypeId) throw new Error("Не выбран тип оплаты");
 
+    const missingPriceLines = state.cart.filter(line =>
+      line.basePrice == null || (line.modifiers || []).some(m => m.price == null)
+    );
+    if (missingPriceLines.length) {
+      const names = missingPriceLines.map(line => line.name || line.baseProductId || "позиция").join(", ");
+      throw new Error(`Нельзя отправить заказ: цена не получена (null) у позиций: ${names}`);
+    }
+
     const phone = $("phone").value.trim();
     if (!phone) throw new Error("Phone пустой");
 
-    const sum = Number($("totalSum").textContent || 0);
+    const sumText = $("totalSum").textContent;
+    if (sumText === "НЕТ ЦЕНЫ") throw new Error("Нельзя отправить заказ: итоговая сумма не определена");
+    const sum = Number(sumText || 0);
 
     // completeBefore — по выбору пользователя
     const cbMode = $("completeBeforeMode").value;
@@ -2662,11 +2709,11 @@ async function sendOrder(){
       type: "Product",
       productId: line.baseProductId,
       amount: Number(line.qty || 1),
-      price: Number(line.basePrice || 0),
+      price: Number(line.basePrice),
       modifiers: (line.modifiers || []).map(m => ({
         productId: m.productId,
         amount: Number(m.qty || 1),
-        price: Number(m.price || 0)
+        price: Number(m.price)
       }))
     }));
 
