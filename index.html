@@ -344,6 +344,12 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 .deprecated-badge{font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(255,77,79,.16);color:#fecaca;border:1px solid rgba(255,77,79,.3)}
 .quick-badge{font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(56,210,122,.14);color:#86efac;border:1px solid rgba(56,210,122,.28)}
 .api-textarea{min-height:360px}
+.api-response-search{display:flex;align-items:center;gap:6px;margin:0 0 8px;flex-wrap:wrap}
+.api-response-search input{flex:1 1 190px;min-width:150px;height:34px;padding:7px 9px;font-family:var(--mono);font-size:12px}
+.api-response-search .btn{height:34px;min-width:36px;padding:6px 9px;font-size:12px}
+.api-response-search .search-count{min-width:76px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.api-response-search .search-count.found{color:var(--good)}
+.api-response-search .search-count.missing{color:var(--bad)}
 .endpoint-desc{color:var(--muted);font-size:12px;line-height:1.35;margin-top:8px;white-space:pre-wrap}
 @media (max-width: 1200px){.grid{grid-template-columns:1fr}.api-explorer-grid{grid-template-columns:1fr}.endpoint-list{max-height:260px}}
 
@@ -823,7 +829,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     <div style="height:14px"></div>
     <div class="card" id="apiExplorerCard">
       <div class="hd">
-        <b>Запросы iiko API</b>
+        <b>Запросы iiko API — шпаргалка 1 линии</b>
         <div class="row">
           <span class="pill">Endpoints: <span class="mono" id="apiDocCount">0</span></span>
           <button class="btn" id="btnApiFillSample">Заполнить пример</button>
@@ -853,7 +859,15 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           </div>
           <div>
             <label>Ответ API</label>
+            <div class="api-response-search">
+              <input id="apiResponseSearch" type="search" placeholder="Поиск в ответе: ID, название, поле..." autocomplete="off" />
+              <button class="btn" id="btnApiRespPrev" type="button" title="Предыдущее совпадение (Shift+Enter)">↑</button>
+              <button class="btn" id="btnApiRespNext" type="button" title="Следующее совпадение (Enter)">↓</button>
+              <span class="search-count" id="apiResponseSearchCount">—</span>
+              <button class="btn" id="btnApiRespClear" type="button" title="Очистить поиск">×</button>
+            </div>
             <textarea id="apiResponse" class="api-textarea" spellcheck="false" placeholder="Здесь появится ответ API"></textarea>
+            <div class="footerNote">Поиск работает по всему ответу без учёта регистра. Enter — следующее совпадение, Shift+Enter — предыдущее. Ctrl+F в поле ответа переводит курсор в этот поиск.</div>
             <div class="footerNote">Запрос отправляется через выбранный Proxy Worker. Авторизация и Timeout подставляются автоматически после Connect.</div>
           </div>
         </div>
@@ -3164,7 +3178,7 @@ async function sendOrder(){
     $("apiDocCount").textContent = String(API_DOCS_EMBEDDED.endpointCount || API_DOCS_EMBEDDED.endpoints.length);
     const tagSel = $("apiTagFilter");
     if (tagSel && !tagSel.dataset.ready) {
-      tagSel.innerHTML = '<option value="">Все разделы</option><option value="__l1quick__">⭐ Основные запросы</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
+      tagSel.innerHTML = '<option value="">Все разделы</option><option value="__l1quick__">⭐ Основные запросы 1 линии</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
       tagSel.dataset.ready = "1";
     }
     const list = getFilteredApiEndpoints();
@@ -3215,6 +3229,98 @@ async function sendOrder(){
     $("apiBody").value = e.method === "GET" && Object.keys(sample || {}).length === 0 ? "" : safeJson(sample);
   }
 
+  const apiResponseSearchState = { matches: [], index: -1 };
+
+  function collectApiResponseMatches(){
+    const ta = $("apiResponse");
+    const inp = $("apiResponseSearch");
+    const query = (inp?.value || "").trim();
+    apiResponseSearchState.matches = [];
+    apiResponseSearchState.index = -1;
+    if (!ta || !query) return;
+
+    const haystack = String(ta.value || "").toLocaleLowerCase("ru");
+    const needle = query.toLocaleLowerCase("ru");
+    let from = 0;
+    while (from <= haystack.length - needle.length) {
+      const pos = haystack.indexOf(needle, from);
+      if (pos < 0) break;
+      apiResponseSearchState.matches.push({ start: pos, end: pos + query.length });
+      from = pos + Math.max(needle.length, 1);
+      // Защита интерфейса от безумно большого ответа/односимвольного поиска.
+      if (apiResponseSearchState.matches.length >= 10000) break;
+    }
+    if (apiResponseSearchState.matches.length) apiResponseSearchState.index = 0;
+  }
+
+  function renderApiResponseSearchCounter(){
+    const counter = $("apiResponseSearchCount");
+    const prev = $("btnApiRespPrev");
+    const next = $("btnApiRespNext");
+    const query = ($("apiResponseSearch")?.value || "").trim();
+    const count = apiResponseSearchState.matches.length;
+    if (!counter) return;
+
+    counter.classList.remove("found", "missing");
+    if (!query) {
+      counter.textContent = "—";
+    } else if (!count) {
+      counter.textContent = "0 найдено";
+      counter.classList.add("missing");
+    } else {
+      counter.textContent = `${apiResponseSearchState.index + 1} / ${count}${count >= 10000 ? "+" : ""}`;
+      counter.classList.add("found");
+    }
+    if (prev) prev.disabled = count === 0;
+    if (next) next.disabled = count === 0;
+  }
+
+  function selectApiResponseMatch(index, returnFocusToSearch = false){
+    const ta = $("apiResponse");
+    const inp = $("apiResponseSearch");
+    const matches = apiResponseSearchState.matches;
+    if (!ta || !matches.length) {
+      renderApiResponseSearchCounter();
+      return;
+    }
+
+    const normalized = ((index % matches.length) + matches.length) % matches.length;
+    apiResponseSearchState.index = normalized;
+    const m = matches[normalized];
+    ta.focus({preventScroll:true});
+    ta.setSelectionRange(m.start, m.end);
+    // setSelectionRange прокручивает textarea к найденному фрагменту.
+    if (returnFocusToSearch && inp) inp.focus({preventScroll:true});
+    renderApiResponseSearchCounter();
+  }
+
+  function refreshApiResponseSearch(selectFirst = true){
+    collectApiResponseMatches();
+    renderApiResponseSearchCounter();
+    if (selectFirst && apiResponseSearchState.matches.length) {
+      selectApiResponseMatch(0, true);
+    }
+  }
+
+  function moveApiResponseSearch(delta){
+    if (!apiResponseSearchState.matches.length) {
+      refreshApiResponseSearch(false);
+      if (!apiResponseSearchState.matches.length) return;
+    }
+    selectApiResponseMatch(apiResponseSearchState.index + delta, false);
+  }
+
+  function clearApiResponseSearch(){
+    const inp = $("apiResponseSearch");
+    const ta = $("apiResponse");
+    if (inp) inp.value = "";
+    apiResponseSearchState.matches = [];
+    apiResponseSearchState.index = -1;
+    if (ta) ta.setSelectionRange(0, 0);
+    renderApiResponseSearchCounter();
+    inp?.focus();
+  }
+
   async function sendApiExplorerRequest(){
     const e = API_DOCS_EMBEDDED.endpoints[selectedApiEndpointIndex];
     if (!e) throw new Error("Не выбран метод API");
@@ -3226,6 +3332,7 @@ async function sendOrder(){
     }
     const resp = await api(e.path, e.method === "GET" ? undefined : body, e.method);
     $("apiResponse").value = safeJson(redactSensitive(resp));
+    refreshApiResponseSearch(true);
   }
 
   function exportAll(){
@@ -3267,6 +3374,27 @@ async function sendOrder(){
   });
   $("apiTagFilter")?.addEventListener("change", renderApiExplorer);
   $("apiSearch")?.addEventListener("input", renderApiExplorer);
+  $("apiResponseSearch")?.addEventListener("input", () => refreshApiResponseSearch(true));
+  $("apiResponseSearch")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      moveApiResponseSearch(e.shiftKey ? -1 : 1);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      clearApiResponseSearch();
+    }
+  });
+  $("btnApiRespPrev")?.addEventListener("click", () => moveApiResponseSearch(-1));
+  $("btnApiRespNext")?.addEventListener("click", () => moveApiResponseSearch(1));
+  $("btnApiRespClear")?.addEventListener("click", clearApiResponseSearch);
+  $("apiResponse")?.addEventListener("input", () => refreshApiResponseSearch(false));
+  $("apiResponse")?.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "f") {
+      e.preventDefault();
+      $("apiResponseSearch")?.focus();
+      $("apiResponseSearch")?.select();
+    }
+  });
   $("btnApiFillSample")?.addEventListener("click", refillApiSample);
   $("btnApiSend")?.addEventListener("click", async ()=>{
     try { await sendApiExplorerRequest(); }
@@ -3394,6 +3522,7 @@ async function sendOrder(){
   // init
   updateApiModeUI();
   renderApiExplorer();
+  renderApiResponseSearchCounter();
 
   $("btnLoadCancelCauses").addEventListener("click", async ()=>{
     try { await loadCancelCauses(); }
