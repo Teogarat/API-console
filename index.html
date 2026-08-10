@@ -342,6 +342,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 .endpoint-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:11px}
 .method-badge{font-family:var(--mono);font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(74,163,255,.18);color:#93c5fd;border:1px solid rgba(74,163,255,.25)}
 .deprecated-badge{font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(255,77,79,.16);color:#fecaca;border:1px solid rgba(255,77,79,.3)}
+.quick-badge{font-size:10px;font-weight:800;padding:2px 5px;border-radius:5px;background:rgba(56,210,122,.14);color:#86efac;border:1px solid rgba(56,210,122,.28)}
 .api-textarea{min-height:360px}
 .endpoint-desc{color:var(--muted);font-size:12px;line-height:1.35;margin-top:8px;white-space:pre-wrap}
 @media (max-width: 1200px){.grid{grid-template-columns:1fr}.api-explorer-grid{grid-template-columns:1fr}.endpoint-list{max-height:260px}}
@@ -3083,8 +3084,56 @@ async function sendOrder(){
   "Webhooks": "Webhooks"
 };
 
+  // Быстрый набор методов, которые чаще всего нужны 1 линии отдельно от основной панели.
+  // Они уже есть в общем API Explorer, но этот фильтр собирает их в одном месте.
+  const API_L1_QUICK_PATHS = new Set([
+    "/api/1/organizations",
+    "/api/1/nomenclature",
+    "/api/2/menu",
+    "/api/1/stop_lists",
+    "/api/1/terminal_groups",
+    "/api/1/terminal_groups/is_alive",
+    "/api/1/payment_types",
+    "/api/1/discounts",
+    "/api/1/marketing_sources",
+    "/api/1/cancel_causes",
+    "/api/1/deliveries/order_types",
+    "/api/1/removal_types",
+    "/api/1/tips_types",
+    "/api/1/combo",
+    "/api/1/regions",
+    "/api/1/cities",
+    "/api/1/deliveries/create",
+    "/api/1/deliveries/by_id"
+  ]);
+
+  const API_L1_QUICK_LABELS = {
+    "/api/1/organizations": "Организации и их ID",
+    "/api/1/nomenclature": "Номенклатура / блюда и productId",
+    "/api/2/menu": "Внешние меню и их ID",
+    "/api/1/stop_lists": "Стоп-листы",
+    "/api/1/terminal_groups": "Терминальные группы и их ID",
+    "/api/1/terminal_groups/is_alive": "Проверить доступность терминала",
+    "/api/1/payment_types": "Типы оплат и их ID",
+    "/api/1/discounts": "Скидки / надбавки и их ID",
+    "/api/1/marketing_sources": "Источники рекламы и их ID",
+    "/api/1/cancel_causes": "Причины отмены и их ID",
+    "/api/1/deliveries/order_types": "Типы заказов и их ID",
+    "/api/1/removal_types": "Причины удаления и их ID",
+    "/api/1/tips_types": "Типы чаевых и их ID",
+    "/api/1/combo": "Комбо и их ID",
+    "/api/1/regions": "Регионы и их ID",
+    "/api/1/cities": "Города и их ID",
+    "/api/1/deliveries/create": "Создать тестовую доставку",
+    "/api/1/deliveries/by_id": "Получить доставку и её текущий статус"
+  };
+
+  function isApiL1Quick(e){
+    return !!e && API_L1_QUICK_PATHS.has(e.path);
+  }
+
   function apiFriendlyName(e){
-    return API_FRIENDLY_NAMES[e?.path] || e?.summary || e?.path || "Метод API";
+    return API_L1_QUICK_LABELS[e?.path] || API_FRIENDLY_NAMES[e?.path] || e?.summary || e?.path || "Метод API";
   }
 
   function apiTagName(tag){
@@ -3098,7 +3147,15 @@ async function sendOrder(){
       .map((e, i) => ({...e, i}))
       .filter(e => {
         const haystack = `${e.path} ${e.summary || ""} ${e.tag || ""} ${apiFriendlyName(e)} ${apiTagName(e.tag)}`.toLowerCase();
-        return (!tag || e.tag === tag) && (!q || haystack.includes(q));
+        const tagOk = !tag || (tag === "__l1quick__" ? isApiL1Quick(e) : e.tag === tag);
+        return tagOk && (!q || haystack.includes(q));
+      })
+      .sort((a,b) => {
+        if (tag === "__l1quick__") {
+          const order = [...API_L1_QUICK_PATHS];
+          return order.indexOf(a.path) - order.indexOf(b.path);
+        }
+        return a.i - b.i;
       });
   }
 
@@ -3107,7 +3164,7 @@ async function sendOrder(){
     $("apiDocCount").textContent = String(API_DOCS_EMBEDDED.endpointCount || API_DOCS_EMBEDDED.endpoints.length);
     const tagSel = $("apiTagFilter");
     if (tagSel && !tagSel.dataset.ready) {
-      tagSel.innerHTML = '<option value="">Все разделы</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
+      tagSel.innerHTML = '<option value="">Все разделы</option><option value="__l1quick__">⭐ Основные запросы 1 линии</option>' + API_DOCS_EMBEDDED.tags.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(apiTagName(t))}</option>`).join("");
       tagSel.dataset.ready = "1";
     }
     const list = getFilteredApiEndpoints();
@@ -3119,6 +3176,7 @@ async function sendOrder(){
         </div>
         <div class="endpoint-meta">
           <span>${escapeHtml(apiTagName(e.tag))}</span>
+          ${isApiL1Quick(e) ? '<span class="quick-badge">1 линия</span>' : ''}
           ${e.deprecated ? '<span class="deprecated-badge">устарел</span>' : ''}
         </div>
       </div>`).join("") || '<div class="endpoint-row"><div class="endpoint-title"><span class="endpoint-friendly">Ничего не найдено</span></div></div>';
@@ -3140,6 +3198,7 @@ async function sendOrder(){
       `Запрос: ${e.method} ${e.path}`,
       `Раздел: ${apiTagName(e.tag)}`,
     ];
+    if (isApiL1Quick(e)) lines.push("⭐ Быстрый запрос 1 линии — удобно для просмотра справочных ID и диагностики.");
     if (e.requestSchema) lines.push(`Техническая схема: ${e.requestSchema}`);
     if (e.deprecated) lines.push("⚠ Устаревший метод — по возможности используй актуальный аналог.");
     if (e.summary) lines.push("", `Оригинальное описание iiko: ${e.summary}`);
