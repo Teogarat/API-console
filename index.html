@@ -3506,7 +3506,7 @@ async function sendOrder(){
       e.preventDefault();
       if (!apiResponseSearchState.matches.length) refreshApiResponseSearch(false);
       if (apiResponseSearchState.matches.length) {
-        selectApiResponseMatch(apiResponseSearchState.index + (e.shiftKey ? -1 : 1), true);
+        selectApiResponseMatch(apiResponseSearchState.index + (e.shiftKey ? -1 : 1), false);
       }
     } else if (e.key === "Escape") {
       e.preventDefault();
