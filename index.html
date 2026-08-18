@@ -182,6 +182,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 .itmLeft{min-width:0; display:flex; flex-direction:column; gap:2px}
 .itmLeft .itmName{font-weight:650; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .itmLeft .itmSku{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.itmLeft .itmId{font-size:10px; color:var(--muted); font-family:var(--mono); white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere; word-break:break-word; line-height:1.25}
 .itmRight{display:flex; align-items:center; gap:10px}
 .itmPrice{font-variant-numeric:tabular-nums; min-width:80px; text-align:right; color:var(--text)}
 .itmBody{padding:10px 12px 12px; border-top:1px solid var(--border); background:rgba(2,6,23,.25)}
@@ -583,7 +584,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       <div class="hd toolbar-hd">
         <b>Menu & Items</b>
         <div class="row toolbar-actions menu-actions">
-          <input id="search" placeholder="Поиск блюда по названию..." />
+          <input id="search" placeholder="Поиск по названию / SKU / ID..." />
           <button class="btn" id="btnAddById">Добавить по productId</button>
         </div>
       </div>
@@ -2039,7 +2040,21 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const items = c.items.filter(it => {
       if(!it || !it.name) return false;
       if(!q) return true;
-      return (it.name || "").toLowerCase().includes(q) || (it.sku || "").toLowerCase().includes(q);
+
+      // Ищем по названию, SKU и productId/ID. Поддерживается и частичное совпадение.
+      const sizes = Array.isArray(it.itemSizes) ? it.itemSizes : [];
+      const searchableValues = [
+        it.name,
+        it.sku,
+        it.itemId,
+        it.id,
+        it.productId,
+        ...sizes.flatMap(s => s ? [s.sku, s.itemId, s.id, s.productId] : [])
+      ];
+
+      return searchableValues.some(v =>
+        v !== null && v !== undefined && String(v).toLowerCase().includes(q)
+      );
     });
 
     if(items.length === 0 && q) continue;
@@ -2082,6 +2097,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
               ${mkStatusDot(hidden, hasPrice, itemProductId, priceMissing)}
               <div class="itmName">${esc(item.name || "")}</div>
               <div class="itmSku">${esc(item.sku || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
+              <div class="itmId">ID: ${esc(itemProductId || "-")}</div>
             </div>
             <div class="itmRight">
               <div class="itmPrice"${priceMissing ? ' title="Базовая цена или цена выбранного модификатора не получена"' : ''}>${priceMissing ? "НЕТ ЦЕНЫ" : builtPrice.toFixed(2)}</div>
