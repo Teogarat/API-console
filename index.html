@@ -224,19 +224,27 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
 }
 .api-mode-btn.active-cloud{background:linear-gradient(135deg,rgba(74,163,255,.35),rgba(74,163,255,.15));color:#4aa3ff;border-right:1px solid var(--border);}
 .api-mode-btn.active-yandex{background:linear-gradient(135deg,rgba(255,204,0,.35),rgba(255,204,0,.15));color:#ffcc00;}
-.api-mode-btn:not(.active-cloud):not(.active-yandex):hover{background:rgba(255,255,255,.06)}
+.api-mode-btn.active-magnit{background:linear-gradient(135deg,rgba(239,68,68,.38),rgba(239,68,68,.14));color:#f87171;}
+.api-mode-btn:not(.active-cloud):not(.active-yandex):not(.active-magnit):hover{background:rgba(255,255,255,.06)}
 
-.yandex-fields{display:none}
-.yandex-fields.visible{display:block}
+.yandex-fields,.magnit-fields{display:none}
+.yandex-fields.visible,.magnit-fields.visible{display:block}
 .cloud-fields{display:block}
 .cloud-fields.hidden{display:none}
 
-.badge-yandex{
+.badge-yandex,.badge-magnit{
   display:inline-flex;align-items:center;gap:5px;
   font-size:11px;font-weight:800;letter-spacing:.05em;
   padding:2px 7px;border-radius:5px;
-  background:rgba(255,204,0,.18);color:#ffcc00;border:1px solid rgba(255,204,0,.3);
 }
+.badge-yandex{background:rgba(255,204,0,.18);color:#ffcc00;border:1px solid rgba(255,204,0,.3);}
+.badge-magnit{background:rgba(239,68,68,.16);color:#fca5a5;border:1px solid rgba(239,68,68,.32);}
+
+.entity-meta{font-size:10px;color:var(--muted);font-family:var(--mono);line-height:1.3;overflow-wrap:anywhere;word-break:break-word}
+.catLeft{min-width:0;display:flex;flex-direction:column;gap:2px}
+.catId{font-size:10px;color:var(--muted);font-family:var(--mono);overflow-wrap:anywhere;word-break:break-word}
+.modEntityMeta{font-size:10px;color:var(--muted);font-family:var(--mono);line-height:1.25;overflow-wrap:anywhere;word-break:break-word;margin-top:2px}
+.modGroupIdentity{font-size:10px;color:var(--muted);font-family:var(--mono);line-height:1.25;margin-top:2px;overflow-wrap:anywhere;word-break:break-word}
 
 
 /* Polished top toolbars for Menu & Order blocks */
@@ -414,6 +422,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         <div class="api-mode-bar">
           <button class="api-mode-btn active-cloud" id="modeBtnCloud" onclick="setApiMode('cloud')">☁️ iiko Cloud API</button>
           <button class="api-mode-btn" id="modeBtnYandex" onclick="setApiMode('yandex')">🍕 Yandex Eda API</button>
+          <button class="api-mode-btn" id="modeBtnMagnit" onclick="setApiMode('magnit')">🧲 Magnit API</button>
         </div>
 
         <!-- iiko Cloud fields -->
@@ -573,6 +582,67 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
           </div>
         </div>
 
+        <!-- Magnit fields -->
+        <div class="magnit-fields" id="magnitFields">
+          <div style="margin-bottom:8px">
+            <span class="badge-magnit">Magnit Vendor API</span>
+          </div>
+
+          <label>Proxy Worker URL</label>
+          <div style="display:block">
+            <div class="worker-row" id="mWorkerRowCF">
+              <span class="worker-badge cf">CF</span>
+              <input id="mWorkerCF" placeholder="https://xxxx.workers.dev" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="mPingDotCF" title="-"></span>
+            </div>
+            <div class="worker-row" id="mWorkerRowVC">
+              <span class="worker-badge vc">VC</span>
+              <input id="mWorkerVC" placeholder="https://iiko-proxy.vercel.app/api/proxy" value="" style="flex:1;min-width:0" />
+              <span class="worker-ping-dot" id="mPingDotVC" title="-"></span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+              <span style="font-size:12px;color:var(--muted)">Активный:</span>
+              <select id="mWorkerActive" style="font-size:12px;flex:1;min-width:0">
+                <option value="cf">Cloudflare</option>
+                <option value="vc" selected>Vercel</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Magnit URL <span style="font-size:11px;color:var(--muted)">(корень интеграции)</span></label>
+          <input id="mWebhookUrl" placeholder="https://pl-magnit.oi.iikoweb.ru/api/integrations/magnit" />
+
+          <div style="height:8px"></div>
+          <label>Client ID</label>
+          <input id="mClientId" placeholder="client_id" />
+
+          <div style="height:8px"></div>
+          <label>Client Secret</label>
+          <input id="mClientSecret" placeholder="client_secret" type="password" />
+
+          <div style="height:8px"></div>
+          <div class="split">
+            <div>
+              <label>Timeout (сек)</label>
+              <input id="mTimeout" type="number" value="15" min="1" max="120"/>
+            </div>
+            <div>
+              <label>Ресторан</label>
+              <select id="mRestaurantSelect"><option value="">- подключись -</option></select>
+            </div>
+          </div>
+
+          <div style="height:8px"></div>
+          <div class="row">
+            <button class="btn" id="btnMLoadMenu">Загрузить меню</button>
+            <button class="btn" id="btnMLoadStop">Стоп-листы</button>
+            <button class="btn good" id="btnExportM">Export</button>
+          </div>
+
+          <div style="height:6px"></div>
+          <div class="footerNote">OAuth: client_credentials / scope read write. Токен обновляется при каждом Connect.</div>
+        </div>
+
         <div class="footerNote cloud-fields" id="cloudNote">
           Если где-то 401/400 - смотри <b>Logs</b> справа: там будет статус, тело ошибки и <b>RID</b> из Worker.
         </div>
@@ -584,7 +654,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       <div class="hd toolbar-hd">
         <b>Menu & Items</b>
         <div class="row toolbar-actions menu-actions">
-          <input id="search" placeholder="Поиск по названию / SKU / ID..." />
+          <input id="search" placeholder="Поиск по названию / SKU / ID — блюда, категории, группы, модификаторы..." />
           <button class="btn" id="btnAddById">Добавить по productId</button>
         </div>
       </div>
@@ -604,7 +674,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         <div class="list" id="itemsList"></div>
 
         <div class="footerNote">
-          “товары” из external menu.
+          Поиск проходит по блюдам, категориям, размерам, группам модификаторов и модификаторам — по названию, SKU/коду и ID.
         </div>
       </div>
     </div>
@@ -706,6 +776,52 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
             <div id="yCompleteBeforeCustomWrap" style="display:none">
               <label>Дата/время Yandex (local)</label>
               <input id="yCompleteBeforeCustom" type="datetime-local" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Magnit order options -->
+        <div id="magnitOrderFields" style="display:none">
+          <div style="height:8px"></div>
+          <div class="split">
+            <div>
+              <label>Expedition type</label>
+              <select id="mExpeditionType">
+                <option value="pickup" selected>pickup</option>
+                <option value="delivery">delivery</option>
+              </select>
+            </div>
+            <div>
+              <label>Pickup taker</label>
+              <select id="mPickupTaker">
+                <option value="courier" selected>courier</option>
+                <option value="customer">customer</option>
+              </select>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div class="split">
+            <div>
+              <label>Expected time</label>
+              <select id="mExpectedMinutes">
+                <option value="30" selected>+30 мин</option>
+                <option value="60">+60 мин</option>
+                <option value="120">+120 мин</option>
+              </select>
+            </div>
+            <div>
+              <label>Call center phone</label>
+              <input id="mCallCenterPhone" value="+78002009002" />
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <label>originalOrderId <span style="font-size:11px;color:var(--muted)">(пусто = сгенерировать UUID)</span></label>
+          <input id="mOriginalOrderId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+          <div id="magnitCoordinates" style="display:none">
+            <div style="height:8px"></div>
+            <div class="split">
+              <div><label>Latitude</label><input id="mLatitude" placeholder="55.751244" /></div>
+              <div><label>Longitude</label><input id="mLongitude" placeholder="37.618423" /></div>
             </div>
           </div>
         </div>
@@ -898,35 +1014,42 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   }
 
   // === API MODE ===
-  let apiMode = "cloud"; // "cloud" | "yandex"
+  let apiMode = "cloud"; // "cloud" | "yandex" | "magnit"
 
   function setApiMode(mode) {
-    // Save current inputs before switching
     if (apiMode !== mode) {
       apiMode = mode;
       updateApiModeUI();
-      logLine(`Переключено на: ${mode === "cloud" ? "iiko Cloud API" : "Yandex Eda API"}`);
+      const labels = {cloud:"iiko Cloud API", yandex:"Yandex Eda API", magnit:"Magnit API"};
+      logLine(`Переключено на: ${labels[mode] || mode}`);
       setStatus("Не подключено", "warn");
     }
   }
 
   function updateApiModeUI() {
+    const isCloud = apiMode === "cloud";
     const isYandex = apiMode === "yandex";
-    $("modeBtnCloud").className = "api-mode-btn" + (!isYandex ? " active-cloud" : "");
+    const isMagnit = apiMode === "magnit";
+    $("modeBtnCloud").className = "api-mode-btn" + (isCloud ? " active-cloud" : "");
     $("modeBtnYandex").className = "api-mode-btn" + (isYandex ? " active-yandex" : "");
-    $("cloudFields").className = "cloud-fields" + (isYandex ? " hidden" : "");
-    $("cloudNote").className = "footerNote cloud-fields" + (isYandex ? " hidden" : "");
+    $("modeBtnMagnit").className = "api-mode-btn" + (isMagnit ? " active-magnit" : "");
+    $("cloudFields").className = "cloud-fields" + (!isCloud ? " hidden" : "");
+    $("cloudNote").className = "footerNote cloud-fields" + (!isCloud ? " hidden" : "");
     $("yandexFields").className = "yandex-fields" + (isYandex ? " visible" : "");
+    $("magnitFields").className = "magnit-fields" + (isMagnit ? " visible" : "");
     $("yandexOrderFields").style.display = isYandex ? "block" : "none";
-    // Hide iiko-only order rows when Yandex
-    const iikoOrderRows = ["orderTypeSelect", "paymentTypeSelect", "serviceType", "payKind"];
+    $("magnitOrderFields").style.display = isMagnit ? "block" : "none";
+
+    // iiko-only controls are not used in vendor modes.
     const iikoOrderWrap = document.querySelector("#serviceType")?.closest(".split");
     const orderTypeWrap = document.querySelector("#orderTypeSelect")?.closest(".split");
-    if (iikoOrderWrap) iikoOrderWrap.style.display = isYandex ? "none" : "";
-    if (orderTypeWrap) orderTypeWrap.style.display = isYandex ? "none" : "";
-    // Cancel causes row
+    if (iikoOrderWrap) iikoOrderWrap.style.display = isCloud ? "" : "none";
+    if (orderTypeWrap) orderTypeWrap.style.display = isCloud ? "" : "none";
     const causeRow = $("cancelCauseSelect")?.closest("div[style]");
-    if (causeRow) causeRow.style.display = isYandex ? "none" : "";
+    if (causeRow) causeRow.style.display = isCloud ? "" : "none";
+
+    if (isMagnit) toggleMagnitDeliveryUi();
+    else if (isCloud) toggleDeliveryFields($("serviceType").value);
   }
 
   // === STATE ===
@@ -960,6 +1083,14 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     yMenu: null,
     yStopItems: new Set(),
     yStopModifiers: new Set(),
+    // Magnit state
+    mToken: "",
+    mRestaurants: [],
+    mRestaurantId: "",
+    mMenu: null,
+    mStopItems: new Set(),
+    mStopModifiers: new Set(),
+    mStopCategories: new Set(),
   };
 
   // === DOM ===
@@ -1048,6 +1179,13 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
         : ($("yWorkerCF")?.value || "").trim();
       return v || WORKER_BASE_DEFAULT;
     }
+    if (apiMode === "magnit") {
+      const active = $("mWorkerActive")?.value || "vc";
+      const v = active === "vc"
+        ? ($("mWorkerVC")?.value || "").trim()
+        : ($("mWorkerCF")?.value || "").trim();
+      return v || WORKER_BASE_DEFAULT;
+    }
     const active = $("workerActive")?.value || "vc";
     const v = active === "vc"
       ? ($("workerVC")?.value || "").trim()
@@ -1064,6 +1202,10 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     const yActive = $("yWorkerActive")?.value || "vc";
     $("yWorkerRowCF")?.classList.toggle("active", yActive === "cf");
     $("yWorkerRowVC")?.classList.toggle("active", yActive === "vc");
+    // Magnit workers
+    const mActive = $("mWorkerActive")?.value || "vc";
+    $("mWorkerRowCF")?.classList.toggle("active", mActive === "cf");
+    $("mWorkerRowVC")?.classList.toggle("active", mActive === "vc");
   }
 
   function timeoutSec(){
@@ -1346,6 +1488,7 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       price: it.price == null ? null : Number(it.price),
     }));
     state.uiOpenCats.clear();
+    state.builderSelections = {};
 
     $("catCount").textContent = String(itemCategories.length);
     $("itemCount").textContent = String(yItems.length);
@@ -1360,6 +1503,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     return {
       id: String(it.id),
       itemId: String(it.id),
+      productId: String(it.id),
+      sku: it.sku || it.code || it.article || "",
+      code: it.code || it.sku || it.article || "",
       name: it.name || "Блюдо",
       description: it.description || "",
       orderItemType: "Product",
@@ -1369,6 +1515,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       itemSizes: [{
         isDefault: true,
         itemId: String(it.id),
+        id: String(it.id),
+        sku: it.sku || it.code || it.article || "",
+        code: it.code || it.sku || it.article || "",
         sizeName: "",
         prices: [{ organizationId: "yandex", price }],
         price,
@@ -1381,6 +1530,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     if (!Array.isArray(groups)) return [];
     return groups.map(g => ({
       id: String(g.id || g.group_id || ""),
+      groupId: String(g.id || g.group_id || ""),
+      sku: g.sku || g.code || "",
+      code: g.code || g.sku || "",
       name: g.name || "Модификаторы",
       restrictions: {
         minQuantity: Number(g.minSelectedModifiers ?? g.min_selected_modifiers ?? 0),
@@ -1390,6 +1542,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       items: Array.isArray(g.modifiers || g.items) ? (g.modifiers || g.items).map(m => ({
         itemId: String(m.id || ""),
         id: String(m.id || ""),
+        productId: String(m.id || ""),
+        sku: m.sku || m.code || m.article || "",
+        code: m.code || m.sku || m.article || "",
         name: m.name || "Опция",
         isHidden: false,
         prices: [{ organizationId: "yandex", price: m.price == null ? null : Number(m.price) }],
@@ -1582,6 +1737,348 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     $("lastOrderIdDisplay").value = "";
   }
 
+
+  // === MAGNIT API ===
+  // Используем тот же proxy transport, что и Yandex: upstream host передаётся в X-Yandex-Host.
+  // Это имя заголовка историческое; для Magnit в нём лежит Magnit URL.
+  function magnitHost(){
+    const v = ($("mWebhookUrl")?.value || "").trim().replace(/\/+$/, "");
+    if (!v) throw new Error("Заполни Magnit URL");
+    return v;
+  }
+
+  function magnitProxyUrl(cleanPath){
+    const proxyBase = workerBase().replace(/\/+$/, "");
+    const active = $("mWorkerActive")?.value || "vc";
+    if (active === "vc") return `${proxyBase}?target=yandex&path=${encodeURIComponent(cleanPath)}`;
+    return `${proxyBase}/yandex/${cleanPath}`;
+  }
+
+  async function magnitApi(path, body, method="GET", contentType="application/json"){
+    const cleanPath = String(path || "").replace(/^\/+/, "");
+    const mHost = magnitHost();
+    const url = magnitProxyUrl(cleanPath);
+    const m = String(method || "GET").toUpperCase();
+    const headers = {
+      "Accept": "application/json",
+      "X-Yandex-Host": mHost,
+      "Timeout": String(Math.max(1, Math.min(120, Number($("mTimeout")?.value || 15)))),
+    };
+    if (contentType) headers["Content-Type"] = contentType;
+    if (state.mToken && cleanPath !== "security/oauth/token") headers["Authorization"] = "Bearer " + state.mToken;
+
+    logLine(`--> [Magnit] ${m} /${cleanPath}`);
+    if (body !== undefined) {
+      if (typeof body === "string") logLine(`REQ: ${body.replace(/client_secret=[^&]*/i, "client_secret=***hidden***")}`);
+      else logLine(`REQ: ${safeJson(redactSensitive(body))}`);
+    }
+
+    let resp;
+    try {
+      resp = await fetch(url, {
+        method: m,
+        headers,
+        body: (m === "GET" || body === undefined) ? undefined : (typeof body === "string" ? body : JSON.stringify(body)),
+      });
+    } catch(e) {
+      logLine(`!! [Magnit] fetch crashed: ${String(e)}`);
+      setStatus("Fetch error Magnit", "bad");
+      throw e;
+    }
+
+    const rid = resp.headers.get("x-proxy-request-id") || resp.headers.get("x-request-id") || null;
+    uiRid(rid);
+    const textResp = await resp.text();
+    logLine(`<-- [Magnit] /${cleanPath} :: ${resp.status}`);
+    if (rid) logLine(`RID: ${rid}`);
+
+    let parsed = null;
+    try { parsed = JSON.parse(textResp); } catch {}
+    const pretty = parsed ? safeJson(redactSensitive(parsed)) : textResp;
+    logLine(`RESP: ${pretty.slice(0,12000)}${pretty.length > 12000 ? " ...[trim]" : ""}`);
+
+    if (!resp.ok) {
+      setStatus(`Magnit: ошибка ${resp.status}`, "bad");
+      const msg = parsed?.message || parsed?.detail || parsed?.title || parsed?.error || textResp;
+      throw new Error(`HTTP ${resp.status}: ${msg}`);
+    }
+    setStatus("Magnit подключено", "good");
+    return parsed ?? textResp;
+  }
+
+  function normalizeMagnitRestaurants(resp){
+    const arr = resp?.places || resp?.restaurants || resp?.items || resp?.stores || resp;
+    if (!Array.isArray(arr)) return [];
+    return arr.map((r, idx) => {
+      if (typeof r === "string" || typeof r === "number") return {id:String(r), name:`Ресторан ${r}`};
+      const id = r?.id ?? r?.restaurantId ?? r?.storeId ?? r?.externalId ?? "";
+      return {...r, id:String(id), name:r?.title || r?.name || r?.restaurantName || r?.storeName || `Ресторан ${idx+1}`};
+    }).filter(r => r.id);
+  }
+
+  async function magnitConnect(){
+    setStatus("Подключаюсь к Magnit…", "warn");
+    logLine("=== MAGNIT CONNECT ===");
+    const clientId = ($("mClientId")?.value || "").trim();
+    const clientSecret = ($("mClientSecret")?.value || "").trim();
+    if (!clientId || !clientSecret) throw new Error("Заполни Client ID и Client Secret");
+    const formBody = `client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials&scope=${encodeURIComponent("read write")}`;
+    const auth = await magnitApi("security/oauth/token", formBody, "POST", "application/x-www-form-urlencoded");
+    state.mToken = auth?.access_token || auth?.accessToken || auth?.token || "";
+    if (!state.mToken) throw new Error("Magnit access_token не получен");
+    logLine(`Magnit token получен; expires_in=${auth?.expires_in ?? "?"}`);
+
+    const restResp = await magnitApi("restaurants", undefined, "GET", null);
+    state.mRestaurants = normalizeMagnitRestaurants(restResp);
+    if (!state.mRestaurants.length) throw new Error("Список ресторанов пустой или формат ответа не распознан");
+    fillSelect($("mRestaurantSelect"), state.mRestaurants,
+      r => `${r.name || "Ресторан"} - ${r.id}`,
+      r => r.id
+    );
+    state.mRestaurantId = $("mRestaurantSelect").value || "";
+    setStatus("Magnit подключено", "good");
+    logLine(`Ресторанов Magnit: ${state.mRestaurants.length}`);
+    logLine("=== MAGNIT CONNECT DONE ===");
+  }
+
+  function magnitIngredientToIiko(mi){
+    const id = String(mi?.id ?? mi?.ingredientId ?? "");
+    const price = mi?.price === null || mi?.price === undefined || mi?.price === "" ? null : Number(mi.price);
+    return {
+      id,
+      itemId:id,
+      productId:id,
+      sku:mi?.sku || mi?.code || mi?.article || "",
+      code:mi?.code || mi?.sku || mi?.article || "",
+      name:mi?.name || "Ингредиент",
+      isHidden:false,
+      prices:[{organizationId:"magnit", price:Number.isFinite(price) ? price : null}],
+      raw:mi,
+    };
+  }
+
+  function magnitProductToIiko(p){
+    const id = String(p?.id ?? p?.productId ?? "");
+    const priceRaw = p?.price;
+    const price = priceRaw === null || priceRaw === undefined || priceRaw === "" ? null : Number(priceRaw);
+    const groups = [];
+
+    const simpleIngredients = Array.isArray(p?.ingredients) ? p.ingredients : [];
+    if (simpleIngredients.length) {
+      groups.push({
+        id:"", sku:"", name:"Ингредиенты", sourceType:"ingredients",
+        restrictions:{minQuantity:0,maxQuantity:99,freeQuantity:0},
+        items:simpleIngredients.map(magnitIngredientToIiko),
+      });
+    }
+
+    const requiredGroups = Array.isArray(p?.ingredientsGroups) ? p.ingredientsGroups : [];
+    requiredGroups.forEach((g) => {
+      groups.push({
+        id:String(g?.id ?? ""),
+        sku:g?.sku || g?.code || "",
+        name:g?.name || "Группа ингредиентов",
+        sourceType:"ingredientsGroup",
+        restrictions:{minQuantity:1,maxQuantity:1,freeQuantity:0},
+        items:(Array.isArray(g?.ingredients) ? g.ingredients : []).map(magnitIngredientToIiko),
+        raw:g,
+      });
+    });
+
+    return {
+      id, itemId:id, productId:id,
+      sku:p?.sku || p?.code || p?.article || "", code:p?.code || p?.sku || p?.article || "",
+      name:p?.name || "Блюдо", description:p?.description || "",
+      orderItemType:"Product", type:"dish", isDeleted:false, isHidden:false,
+      categoryId:p?.categoryId || null, productCategoryId:p?.categoryId || null,
+      prices:[{organizationId:"magnit", price:Number.isFinite(price) ? price : null}],
+      itemSizes:[{
+        isDefault:true, itemId:id, id, sku:p?.sku || p?.code || p?.article || "", code:p?.code || p?.sku || p?.article || "",
+        sizeName:"", prices:[{organizationId:"magnit", price:Number.isFinite(price) ? price : null}],
+        itemModifierGroups:groups,
+      }],
+      raw:p,
+    };
+  }
+
+  async function magnitLoadMenu(){
+    logLine("=== MAGNIT LOAD MENU ===");
+    state.mRestaurantId = $("mRestaurantSelect").value || "";
+    if (!state.mRestaurantId) throw new Error("Не выбран ресторан Magnit");
+    const menuResp = await magnitApi(`api/v1/Menus/${encodeURIComponent(state.mRestaurantId)}`, undefined, "GET", null);
+    state.mMenu = menuResp;
+    const root = menuResp?.menuItems || menuResp || {};
+    const cats = Array.isArray(root?.categories) ? root.categories : [];
+    const products = Array.isArray(root?.products) ? root.products : [];
+    const categoryProducts = Array.isArray(root?.categoryProducts) ? root.categoryProducts : [];
+
+    const catMap = new Map(cats.map(c => [String(c.id), {id:String(c.id), sku:c?.sku || c?.code || c?.article || "", name:c.name || "Категория", items:[], raw:c}]));
+    const productCat = new Map(categoryProducts.map(cp => [String(cp.productId), String(cp.categoryId)]));
+    const unc = {id:"__uncat__", sku:"", name:"Без категории", items:[]};
+
+    for (const p of products) {
+      const item = magnitProductToIiko(p);
+      const cid = String(p?.categoryId ?? productCat.get(String(p?.id)) ?? "__uncat__");
+      if (cid === "__uncat__") unc.items.push(item);
+      else {
+        if (!catMap.has(cid)) catMap.set(cid, {id:cid, sku:"", name:"Без категории", items:[]});
+        catMap.get(cid).items.push(item);
+      }
+    }
+    const itemCategories = [...catMap.values(), ...(unc.items.length ? [unc] : [])].filter(c => c.items.length);
+    itemCategories.sort((a,b)=>String(a.name).localeCompare(String(b.name), "ru"));
+    state.menu = {itemCategories};
+    state.menuModel = menuResp;
+    state.itemsFlat = products.map(p => ({productId:String(p.id), name:p.name || "Блюдо", price:p.price ?? null, raw:p}));
+    state.uiOpenCats.clear();
+    state.builderSelections = {};
+    $("catCount").textContent = String(itemCategories.length);
+    $("itemCount").textContent = String(products.length);
+    $("menuInfo").textContent = `Magnit • ${state.mRestaurantId}`;
+    renderItemsList();
+    logLine(`Magnit меню: ${itemCategories.length} кат., ${products.length} позиций`);
+  }
+
+  async function magnitLoadStopLists(){
+    logLine("=== MAGNIT STOP LIST ===");
+    state.mRestaurantId = $("mRestaurantSelect").value || "";
+    if (!state.mRestaurantId) throw new Error("Не выбран ресторан Magnit");
+    const resp = await magnitApi(`api/v1/StopLists/${encodeURIComponent(state.mRestaurantId)}`, undefined, "GET", null);
+    const list = Array.isArray(resp?.stopList) ? resp.stopList : (Array.isArray(resp) ? resp : []);
+    state.mStopItems = new Set(list.filter(x => String(x?.type).toLowerCase() === "product").map(x => String(x.id)));
+    state.mStopModifiers = new Set(list.filter(x => String(x?.type).toLowerCase() === "ingredient").map(x => String(x.id)));
+    state.mStopCategories = new Set(list.filter(x => String(x?.type).toLowerCase() === "category").map(x => String(x.id)));
+    logLine(`Magnit stop-list: блюда=${state.mStopItems.size}, модификаторы=${state.mStopModifiers.size}, категории=${state.mStopCategories.size}`);
+    renderItemsList();
+    renderCart();
+  }
+
+  function generateUuid(){
+    if (globalThis.crypto?.randomUUID) return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+      const r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+
+  function magnitLineUnitPrice(line){
+    if (line.basePrice == null) return null;
+    let total = Number(line.basePrice);
+    for (const m of (line.modifiers || [])) {
+      if (m.price == null) return null;
+      total += Number(m.price) * Number(m.qty || 1);
+    }
+    return total;
+  }
+
+  function toggleMagnitDeliveryUi(){
+    const delivery = $("mExpeditionType")?.value === "delivery";
+    if ($("mPickupTaker")) $("mPickupTaker").disabled = delivery;
+    if ($("magnitCoordinates")) $("magnitCoordinates").style.display = delivery ? "block" : "none";
+    // Reuse the common address block for Magnit delivery.
+    if (apiMode === "magnit") {
+      $("deliveryFields").style.display = delivery ? "block" : "none";
+      $("pickupFields").style.display = delivery ? "none" : "block";
+    }
+  }
+
+  async function magnitSendOrder(){
+    logLine("=== MAGNIT SEND ORDER ===");
+    if (!state.mToken) throw new Error("Сначала подключись к Magnit API");
+    state.mRestaurantId = $("mRestaurantSelect").value || "";
+    if (!state.mRestaurantId) throw new Error("Не выбран ресторан Magnit");
+    if (!state.cart.length) throw new Error("Корзина пустая");
+
+    const bad = state.cart.filter(l => magnitLineUnitPrice(l) == null);
+    if (bad.length) throw new Error("В корзине есть позиции без цены");
+
+    const now = new Date();
+    const expected = new Date(now.getTime() + Number($("mExpectedMinutes")?.value || 30) * 60000).toISOString();
+    const expeditionType = $("mExpeditionType")?.value || "pickup";
+    const originalOrderId = ($("mOriginalOrderId")?.value || "").trim() || generateUuid();
+    $("mOriginalOrderId").value = originalOrderId;
+    const phone = ($("phone")?.value || "").trim() || "+79000000000";
+    const name = ($("custName")?.value || "").trim() || "ТЕСТ";
+
+    const products = state.cart.map(line => {
+      const unit = magnitLineUnitPrice(line);
+      const qty = Number(line.qty || 1);
+      return {
+        id:String(line.baseProductId),
+        name:line.name || "Блюдо",
+        price:Number(unit) * qty,
+        pricePerPiece:Number(unit),
+        quantity:qty,
+        ingredients:(line.modifiers || []).map(m => ({
+          id:String(m.productId || ""),
+          name:m.name || "Ингредиент",
+          price:Number(m.price || 0),
+          quantity:Number(m.qty || 1),
+          ...(m.groupName ? {groupName:m.groupName} : {}),
+        })),
+      };
+    });
+    const total = products.reduce((s,p)=>s+Number(p.price||0),0);
+    const body = {
+      originalOrderId,
+      preOrder:false,
+      createdAt:now.toISOString(),
+      customer:{name, phone},
+      payment:{type:"online"},
+      expeditionType,
+      products,
+      promotions:[],
+      comment:"Тестовый заказ (iiko API Console)",
+      price:{total, deliveryFee:0, discount:0},
+      personsQuantity:1,
+      callCenter:{phone:($("mCallCenterPhone")?.value || "+78002009002").trim()},
+    };
+
+    if (expeditionType === "pickup") {
+      body.pickup = {expectedTime:expected, taker:$("mPickupTaker")?.value || "courier"};
+    } else {
+      const city = ($("deliveryCity")?.value || "").trim();
+      const street = ($("deliveryStreet")?.value || "").trim();
+      const house = ($("deliveryHouse")?.value || "").trim();
+      const latitude = ($("mLatitude")?.value || "").trim();
+      const longitude = ($("mLongitude")?.value || "").trim();
+      if (!city || !street || !house || !latitude || !longitude) throw new Error("Для Magnit delivery нужны город, улица, дом и координаты");
+      body.delivery = {
+        expectedTime:expected,
+        address:{
+          city:{name:city}, street:{name:street}, houseNumber:house,
+          flatNumber:($("deliveryFlat")?.value || "").trim() || null,
+          entrance:($("deliveryEntrance")?.value || "").trim() || null,
+          floor:($("deliveryFloor")?.value || "").trim() || null,
+          coordinates:{latitude, longitude},
+        },
+      };
+    }
+
+    const resp = await magnitApi(`api/v1/Orders/${encodeURIComponent(state.mRestaurantId)}`, body, "POST");
+    const orderId = resp?.id || resp?.orderId || resp?.order_id || "";
+    if (orderId) {
+      state.lastOrderId = String(orderId);
+      $("lastOrderIdDisplay").value = String(orderId);
+      $("btnCancelOrder").disabled = false;
+      logLine(`MAGNIT ORDER ID: ${orderId}`);
+    }
+    setStatus("Magnit заказ отправлен ✓", "good");
+  }
+
+  async function magnitCancelOrder(){
+    const orderId = ($("lastOrderIdDisplay")?.value || "").trim() || state.lastOrderId;
+    state.mRestaurantId = $("mRestaurantSelect")?.value || state.mRestaurantId;
+    if (!orderId) throw new Error("Нет orderId");
+    if (!state.mRestaurantId) throw new Error("Не выбран ресторан Magnit");
+    const body = {status:"restaurant_cancelled"};
+    await magnitApi(`api/v1/Orders/${encodeURIComponent(state.mRestaurantId)}/${encodeURIComponent(orderId)}`, body, "PUT");
+    setStatus("Magnit заказ отменён ✓", "warn");
+    $("btnCancelOrder").disabled = true;
+    state.lastOrderId = null;
+    $("lastOrderIdDisplay").value = "";
+  }
+
   function fillSelect(sel, options, getText, getValue){
     sel.innerHTML = "";
     for (const o of options){
@@ -1609,7 +2106,8 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   // Структура ответа: terminalGroupStopLists[].items[].items[].productId
   function isInStopList(productId){
     if (!productId) return false;
-    if (apiMode === "yandex") return state.yStopItems.has(String(productId));
+    if (apiMode === "yandex") return state.yStopItems.has(String(productId)) || state.yStopModifiers.has(String(productId));
+    if (apiMode === "magnit") return state.mStopItems.has(String(productId)) || state.mStopModifiers.has(String(productId)) || state.mStopCategories.has(String(productId));
     if (!state.stopLists) return false;
     const outerGroups = state.stopLists?.terminalGroupStopLists || [];
     for (const outer of outerGroups){
@@ -1846,6 +2344,9 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
     .map(c => ({
       id: c.id || c.name,
       name: c.name,
+      sku: c.sku || c.code || "",
+      code: c.code || c.sku || "",
+      raw: c.raw || c,
       items: c.items || []
     }));
 
@@ -2034,37 +2535,51 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
   // esc - локальный хелпер для HTML-шаблонов
   const esc = (s) => (""+s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+  const entityValues = (x) => {
+    if (!x || typeof x !== "object") return [];
+    return [x.name,x.title,x.sku,x.code,x.id,x.itemId,x.productId,x.groupId,x.categoryId,x.sizeId,x.sizeCode,x.externalId]
+      .filter(v => v !== null && v !== undefined && v !== "");
+  };
+  const hasQuery = (values) => !q || values.some(v => String(v).toLowerCase().includes(q));
+  const itemMatchesDeep = (it) => {
+    if (!q) return true;
+    const values = [...entityValues(it)];
+    const sizes = Array.isArray(it?.itemSizes) ? it.itemSizes : [];
+    for (const s of sizes) {
+      values.push(...entityValues(s));
+      const groups = Array.isArray(s?.itemModifierGroups) ? s.itemModifierGroups : [];
+      for (const g of groups) {
+        values.push(...entityValues(g));
+        for (const mi of (Array.isArray(g?.items) ? g.items : [])) values.push(...entityValues(mi));
+      }
+    }
+    // Extra shapes used by API v1 and vendor APIs.
+    for (const mi of (Array.isArray(it?.modifiers) ? it.modifiers : [])) values.push(...entityValues(mi));
+    for (const g of (Array.isArray(it?.groupModifiers) ? it.groupModifiers : [])) {
+      values.push(...entityValues(g));
+      for (const mi of (Array.isArray(g?.childModifiers) ? g.childModifiers : [])) values.push(...entityValues(mi));
+    }
+    return hasQuery(values);
+  };
+
   let html = "";
   for(const c of cats){
-    // filter by search
-    const items = c.items.filter(it => {
-      if(!it || !it.name) return false;
-      if(!q) return true;
-
-      // Ищем по названию, SKU и productId/ID. Поддерживается и частичное совпадение.
-      const sizes = Array.isArray(it.itemSizes) ? it.itemSizes : [];
-      const searchableValues = [
-        it.name,
-        it.sku,
-        it.itemId,
-        it.id,
-        it.productId,
-        ...sizes.flatMap(s => s ? [s.sku, s.itemId, s.id, s.productId] : [])
-      ];
-
-      return searchableValues.some(v =>
-        v !== null && v !== undefined && String(v).toLowerCase().includes(q)
-      );
-    });
+    const categoryMatches = q && hasQuery(entityValues(c));
+    const items = c.items.filter(it => it && it.name && (!q || categoryMatches || itemMatchesDeep(it)));
 
     if(items.length === 0 && q) continue;
 
     const catId = String(c.id || c.name);
     const isOpen = state.uiOpenCats.has(catId);
     const openAttr = isOpen ? " open" : "";
-    html += `<details class="cat"${openAttr} data-cat-id="${esc(catId)}">
+    const catSku = c.sku || c.code || "-";
+    const catStop = apiMode === "magnit" && state.mStopCategories.has(String(c.id || ""));
+    html += `<details class="cat"${(isOpen || q) ? " open" : ""} data-cat-id="${esc(catId)}">
       <summary class="catHead">
-        <div class="catTitle">${esc(c.name)}</div>
+        <div class="catLeft">
+          <div class="catTitle">${catStop ? '<span class="dot dot-stop" title="Категория в стоп-листе"></span> ' : ''}${esc(c.name)}</div>
+          <div class="catId">SKU: ${esc(catSku)} • ID: ${esc(c.id || "-")}</div>
+        </div>
         <div class="catMeta">${items.length ? items.length + " поз." : ""}</div>
       </summary>
       <div class="catBody">`;
@@ -2091,13 +2606,19 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
       const baseId = sel.baseId;
       const itemProductId = (size && (size.itemId || size.id)) || item.itemId || item.id || null;
 
-      html += `<details class="itm">
+      const itemSku = item.sku || item.code || size?.sku || size?.code || "-";
+      const sizeId = size?.sizeId || size?.id || "";
+      const sizeSku = size?.sku || size?.code || "";
+      const sizeMeta = (sizeId && String(sizeId) !== String(itemProductId)) || (sizeSku && String(sizeSku) !== String(itemSku))
+        ? `<div class="itmId">SIZE SKU: ${esc(sizeSku || "-")} • SIZE ID: ${esc(sizeId || "-")}</div>` : "";
+      html += `<details class="itm"${q ? " open" : ""}>
           <summary class="itmRow">
             <div class="itmLeft">
               ${mkStatusDot(hidden, hasPrice, itemProductId, priceMissing)}
               <div class="itmName">${esc(item.name || "")}</div>
-              <div class="itmSku">${esc(item.sku || "")}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
+              <div class="itmSku">SKU: ${esc(itemSku)}${size && (size.sizeName||size.sizeCode) ? " • " + esc(size.sizeName||size.sizeCode) : ""}</div>
               <div class="itmId">ID: ${esc(itemProductId || "-")}</div>
+              ${sizeMeta}
             </div>
             <div class="itmRight">
               <div class="itmPrice"${priceMissing ? ' title="Базовая цена или цена выбранного модификатора не получена"' : ''}>${priceMissing ? "НЕТ ЦЕНЫ" : builtPrice.toFixed(2)}</div>
@@ -2118,9 +2639,14 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
               const label = minQ>0 ? `<span class="pill pill-req">обязат. ${minQ}${freeQ?` • бесплатно ${freeQ}`:""}</span>` : `<span class="pill">необяз.</span>`;
               const items=(g.items||[]).filter(mi=>mi && mi.name);
               if(items.length===0) return "";
+              const groupSku = g.sku || g.code || "-";
+              const groupId = g.id || g.groupId || "-";
               return `<div class="modGroup">
                 <div class="modHead">
-                  <div class="modTitle">${esc(g.name||"Модификаторы")}</div>
+                  <div>
+                    <div class="modTitle">${esc(g.name||"Модификаторы")}</div>
+                    <div class="modGroupIdentity">SKU: ${esc(groupSku)} • ID: ${esc(groupId)}</div>
+                  </div>
                   <div class="modMeta">${label}</div>
                 </div>
                 <div class="modList">
@@ -2134,10 +2660,13 @@ details.cat > summary::-webkit-details-marker, details.itm > summary::-webkit-de
                     const modPriceMissing = price == null;
                     const dot = mkStatusDot(mHidden, !modPriceMissing && price>0, mProductId, modPriceMissing);
                     const hintText = mStopped ? "в стоп-листе" : (mHidden ? "не в продаже" : (modPriceMissing ? "цена не получена" : ""));
+                    const modSku = mi.sku || mi.code || "-";
+                    const modId = mi.itemId || mi.id || mi.productId || "-";
                     return `<div class="modRow">
                       <div class="modLeft">
                         ${dot}
                         <div class="modName">${esc(mi.name)}</div>
+                        <div class="modEntityMeta">SKU: ${esc(modSku)} • ID: ${esc(modId)}</div>
                         <div class="modHint">${esc(hintText)}</div>
                       </div>
                       <div class="modRight">
@@ -2645,6 +3174,7 @@ async function loadMenuApi1(){
   state.menu = buildMenuModelFromNomenclature(nom);
   state.itemsFlat = flattenMenu(nom); // оставим для совместимости/экспорта
   state.uiOpenCats.clear();
+  state.builderSelections = {};
 
   $("catCount").textContent = String(state.menu?.itemCategories?.length || 0);
   renderItemsList();
@@ -2671,6 +3201,7 @@ async function loadMenuApi2External(){
   state.menu = menu;
   state.itemsFlat = flattenMenu(menu);
   state.uiOpenCats.clear();
+  state.builderSelections = {};
 
   $("menuInfo").textContent = state.externalMenuId;
   const loadedCats = Array.isArray(menu?.itemCategories) ? menu.itemCategories : [];
@@ -3507,6 +4038,8 @@ async function sendOrder(){
   $("workerVC").value = WORKER_BASE_DEFAULT;
   $("yWorkerCF").value = "";
   $("yWorkerVC").value = WORKER_BASE_DEFAULT;
+  $("mWorkerCF").value = "";
+  $("mWorkerVC").value = WORKER_BASE_DEFAULT;
   updateWorkerActiveUI();
   updateCloudCredentialUi();
   state.useApi1Menu = $("useApi1Menu").checked;
@@ -3517,6 +4050,11 @@ async function sendOrder(){
     const el = $(id);
     if (!el) return;
     el.value = localStorage.getItem("iiko_console_" + id) || "";
+    el.addEventListener("input", () => localStorage.setItem("iiko_console_" + id, el.value));
+  });
+  ["yWebhookUrl","yClientId","mWebhookUrl","mClientId"].forEach(id => {
+    const el = $(id); if (!el) return;
+    el.value = localStorage.getItem("iiko_console_" + id) || el.value || "";
     el.addEventListener("input", () => localStorage.setItem("iiko_console_" + id, el.value));
   });
   $("apiTagFilter")?.addEventListener("change", renderApiExplorer);
@@ -3585,6 +4123,7 @@ async function sendOrder(){
   $("btnConnect").addEventListener("click", async ()=>{
     try {
       if (apiMode === "yandex") await yandexConnect();
+      else if (apiMode === "magnit") await magnitConnect();
       else await connect();
     }
     catch(e){ logLine("CONNECT ERROR: " + String(e)); setStatus("Ошибка подключения", "bad"); }
@@ -3604,6 +4143,17 @@ async function sendOrder(){
     try { await yandexLoadAvailability(); }
     catch(e){ logLine("YANDEX STOP ERROR: " + String(e)); setStatus("Ошибка стоп-листа Yandex", "bad"); }
   });
+
+  $("btnMLoadMenu").addEventListener("click", async ()=>{
+    try { await magnitLoadMenu(); }
+    catch(e){ logLine("MAGNIT LOAD MENU ERROR: " + String(e)); setStatus("Ошибка меню Magnit", "bad"); }
+  });
+  $("btnMLoadStop").addEventListener("click", async ()=>{
+    try { await magnitLoadStopLists(); }
+    catch(e){ logLine("MAGNIT STOP ERROR: " + String(e)); setStatus("Ошибка стоп-листа Magnit", "bad"); }
+  });
+  $("mRestaurantSelect").addEventListener("change", ()=>{ state.mRestaurantId = $("mRestaurantSelect").value || ""; });
+  $("mExpeditionType").addEventListener("change", toggleMagnitDeliveryUi);
 
   $("search").addEventListener("input", renderItemsList);
 
@@ -3658,12 +4208,15 @@ async function sendOrder(){
 
   $("workerActive").addEventListener("change", updateWorkerActiveUI);
   $("yWorkerActive").addEventListener("change", updateWorkerActiveUI);
+  $("mWorkerActive").addEventListener("change", updateWorkerActiveUI);
 
   $("btnClearLog").addEventListener("click", ()=>{ logEl.value=""; });
 
   $("btnClear").addEventListener("click", ()=>{
-    state.token=""; state.menuModel=null; state.menu=null; state.itemsFlat=[]; state.cart=[]; state.lastOrderId=null; state.lastYandexEatsId=null;
+    state.token=""; state.yToken=""; state.mToken=""; state.menuModel=null; state.menu=null; state.itemsFlat=[]; state.cart=[]; state.lastOrderId=null; state.lastYandexEatsId=null;
+    state.mStopItems.clear(); state.mStopModifiers.clear(); state.mStopCategories.clear();
     state.uiOpenCats.clear();
+    state.builderSelections = {};
     $("accessToken").value="";
     $("itemsList").innerHTML="";
     $("cart").innerHTML="";
@@ -3700,6 +4253,17 @@ async function sendOrder(){
     URL.revokeObjectURL(a.href);
   });
 
+  $("btnExportM").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify({
+      exportedAt:new Date().toISOString(), apiMode:"magnit",
+      magnitUrl:$("mWebhookUrl").value, mRestaurantId:state.mRestaurantId,
+      cart:state.cart, lastOrderId:state.lastOrderId, menuLoaded:!!state.mMenu,
+      stopList:{products:[...state.mStopItems],ingredients:[...state.mStopModifiers],categories:[...state.mStopCategories]},
+      log:logEl.value,
+    }, null, 2)], {type:"application/json;charset=utf-8"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="magnit-api-export.json"; a.click(); URL.revokeObjectURL(a.href);
+  });
+
   // init
   updateApiModeUI();
   renderApiExplorer();
@@ -3713,6 +4277,7 @@ async function sendOrder(){
   $("btnManualCancel").addEventListener("click", async ()=>{
     try {
       if (apiMode === "yandex") await yandexCancelOrder();
+      else if (apiMode === "magnit") await magnitCancelOrder();
       else await cancelOrder();
     }
     catch(e){ logLine("CANCEL ORDER ERROR: " + String(e)); setStatus("Ошибка отмены заказа", "bad"); }
@@ -3721,6 +4286,7 @@ async function sendOrder(){
   $("btnCancelOrder").addEventListener("click", async ()=>{
     try {
       if (apiMode === "yandex") await yandexCancelOrder();
+      else if (apiMode === "magnit") await magnitCancelOrder();
       else await cancelOrder();
     }
     catch(e){ logLine("CANCEL ORDER ERROR: " + String(e)); setStatus("Ошибка отмены заказа", "bad"); }
@@ -3735,6 +4301,7 @@ async function sendOrder(){
   $("btnSendOrder").addEventListener("click", async ()=>{
     try {
       if (apiMode === "yandex") await yandexSendOrder();
+      else if (apiMode === "magnit") await magnitSendOrder();
       else await sendOrder();
     }
     catch(e){ logLine("SEND ORDER ERROR: " + String(e)); setStatus("Ошибка отправки заказа", "bad"); }
