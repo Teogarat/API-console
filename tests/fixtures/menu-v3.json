@@ -1,0 +1,228 @@
+{
+  "id": "15#3",
+  "name": "Синтетическое меню для проверки API v3",
+  "description": "Все названия и идентификаторы в этой фикстуре вымышлены.",
+  "buttonImageUrl": null,
+  "products": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "sku": "1001",
+      "type": "DISH",
+      "orderItemType": "Product",
+      "modifierSchemaId": "99999999-9999-4999-8999-999999999999",
+      "modifierSchemaName": "Проверочная пицца",
+      "splittable": false,
+      "canSetOpenPrice": false,
+      "measureUnit": "порц"
+    },
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "sku": "1002",
+      "type": "GOODS",
+      "orderItemType": "Product",
+      "measureUnit": "шт"
+    }
+  ],
+  "modifiers": [
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "sku": "2001",
+      "name": "Сыр из справочника",
+      "description": "Описание сыра из справочника",
+      "restrictions": {
+        "minQuantity": 0,
+        "maxQuantity": 2,
+        "freeQuantity": 0,
+        "defaultQuantity": 1,
+        "hideIfDefaultQuantity": false
+      },
+      "isHidden": true,
+      "weight": 25,
+      "measureUnitType": "GRAM",
+      "tags": ["справочник"],
+      "sizePrices": [
+        {"sizeId": "55555555-5555-4555-8555-555555555551", "price": 0},
+        {"sizeId": "55555555-5555-4555-8555-555555555552", "price": 35},
+        {"sizeId": null, "price": 12}
+      ]
+    },
+    {
+      "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "sku": "2002",
+      "name": "Соус из справочника",
+      "description": "Описание соуса из справочника",
+      "restrictions": {"minQuantity": 0, "maxQuantity": 1, "freeQuantity": 0, "defaultQuantity": 0},
+      "isHidden": false,
+      "sizePrices": [
+        {"sizeId": "55555555-5555-4555-8555-555555555551", "price": null},
+        {"sizeId": "55555555-5555-4555-8555-555555555552", "price": 0}
+      ]
+    },
+    {
+      "id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "sku": "2003",
+      "name": "Модификатор только без размера",
+      "restrictions": {"minQuantity": 0, "maxQuantity": 1, "defaultQuantity": 0},
+      "isHidden": false,
+      "sizePrices": [{"sizeId": null, "price": 5}]
+    }
+  ],
+  "itemsGroups": [
+    {
+      "id": "33333333-3333-4333-8333-333333333331",
+      "name": "Основное меню",
+      "isHidden": false,
+      "items": [
+        {
+          "productId": "11111111-1111-4111-8111-111111111111",
+          "menuItemId": "44444444-4444-4444-8444-444444444441",
+          "name": "Пицца — основное размещение",
+          "description": "Два размера; видимый сыр переопределяет isHidden справочника.",
+          "isHidden": false,
+          "sortOrder": 0,
+          "sizePrices": [
+            {
+              "sizeId": "55555555-5555-4555-8555-555555555551",
+              "menuItemSizeId": "66666666-6666-4666-8666-666666666661",
+              "sizeName": "25 см",
+              "sizeCode": "S",
+              "sku": "1001-S",
+              "isDefault": true,
+              "price": 390,
+              "isHidden": false,
+              "weight": 450,
+              "measureUnitType": "GRAM"
+            },
+            {
+              "sizeId": "55555555-5555-4555-8555-555555555552",
+              "menuItemSizeId": "66666666-6666-4666-8666-666666666662",
+              "sizeName": "35 см",
+              "sizeCode": "L",
+              "sku": "1001-L",
+              "isDefault": false,
+              "price": 590,
+              "isHidden": false,
+              "weight": 750,
+              "measureUnitType": "GRAM"
+            }
+          ],
+          "modifierGroups": [
+            {
+              "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1",
+              "name": "Добавки",
+              "sku": "3001",
+              "restrictions": {"minQuantity": 0, "maxQuantity": 3, "freeQuantity": 0, "defaultQuantity": 0},
+              "childModifiersHaveMinMaxRestrictions": true,
+              "isHidden": false,
+              "items": [
+                {
+                  "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                  "name": null,
+                  "description": "",
+                  "restrictions": null,
+                  "isHidden": false,
+                  "weight": 0,
+                  "measureUnitType": null,
+                  "tags": []
+                },
+                {
+                  "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+                  "name": "Соус к пицце",
+                  "description": null,
+                  "isHidden": null,
+                  "restrictions": {"minQuantity": 0, "maxQuantity": 1, "freeQuantity": 0, "defaultQuantity": 0}
+                },
+                {"id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc"}
+              ]
+            },
+            {
+              "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee2",
+              "name": "Отдельная группа с тем же модификатором",
+              "isHidden": true,
+              "restrictions": {"minQuantity": 0, "maxQuantity": 1, "defaultQuantity": 0},
+              "items": [
+                {
+                  "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                  "name": "Сыр в скрытой группе",
+                  "isHidden": false,
+                  "restrictions": {"minQuantity": 0, "maxQuantity": 1, "defaultQuantity": 0}
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "productId": "22222222-2222-4222-8222-222222222222",
+          "menuItemId": "44444444-4444-4444-8444-444444444442",
+          "name": "Вода — цена отсутствует",
+          "sizePrices": [
+            {"sizeId": null, "menuItemSizeId": "66666666-6666-4666-8666-666666666663", "isDefault": true, "price": null}
+          ],
+          "modifierGroups": []
+        }
+      ]
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333332",
+      "name": "Акции",
+      "isHidden": false,
+      "items": [
+        {
+          "productId": "11111111-1111-4111-8111-111111111111",
+          "menuItemId": "44444444-4444-4444-8444-444444444443",
+          "name": "Та же пицца — отдельное акционное размещение",
+          "description": "Тот же productId; другая цена и отдельные настройки модификаторов.",
+          "isHidden": false,
+          "sizePrices": [
+            {
+              "sizeId": "55555555-5555-4555-8555-555555555551",
+              "menuItemSizeId": "66666666-6666-4666-8666-666666666664",
+              "sizeName": "25 см",
+              "sizeCode": "S",
+              "isDefault": true,
+              "price": 350
+            }
+          ],
+          "modifierGroups": [
+            {
+              "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1",
+              "name": "Акционные добавки",
+              "restrictions": {"minQuantity": 0, "maxQuantity": 1, "defaultQuantity": 0},
+              "items": [
+                {
+                  "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                  "name": "Сыр к акции",
+                  "isHidden": false,
+                  "restrictions": {"minQuantity": 0, "maxQuantity": 1, "defaultQuantity": 0}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "name": "Скрытое размещение",
+      "isHidden": true,
+      "items": [
+        {
+          "productId": "22222222-2222-4222-8222-222222222222",
+          "menuItemId": "44444444-4444-4444-8444-444444444444",
+          "name": "Вода — нулевая цена, скрыта категория",
+          "isHidden": false,
+          "sizePrices": [
+            {"sizeId": null, "menuItemSizeId": "66666666-6666-4666-8666-666666666665", "isDefault": true, "price": 0, "isHidden": false}
+          ],
+          "modifierGroups": [
+            {
+              "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee3",
+              "name": "Безразмерные модификаторы",
+              "items": [{"id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc"}]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
