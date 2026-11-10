@@ -128,34 +128,39 @@ test("catalogue preserves verbs, actual routes, body metadata and explicit repla
     "/api/inventory/v2/costings/calculate": { post: { tags: ["Inventory"] } },
   };
   const catalog = createCatalog(document, { retrievedAt: "2026-11-05T12:00:00.000Z", sourceText: "official snapshot" });
-  assert.equal(catalog.endpointCount, 7);
+  assert.equal(catalog.endpointCount, 4);
+  assert.equal(catalog.removedDeprecatedCount, 3);
   const v3 = catalog.endpoints.find(endpoint => endpoint.path === "/api/menu/v3/by_id");
   assert.equal(v3.requestBodyRequired, true);
   assert.equal(v3.requestSchema, "MenuRequest");
   assert.deepEqual(v3.sample, { externalMenuId: "{{externalMenuId}}", organizationId: "{{orgId}}", priceCategoryId: null });
   assert.equal(catalog.endpoints.find(endpoint => endpoint.path === "/api/2/menu").hasRequestBody, false);
-  assert.equal(catalog.endpoints.find(endpoint => endpoint.method === "GET").replacementMethod, "POST");
-  assert.equal(catalog.endpoints.find(endpoint => endpoint.path === "/api/2/menu/by_id").replacementPath, "/api/menu/v3/by_id");
-  assert.equal(catalog.endpoints.find(endpoint => endpoint.path === "/api/inventory/v1/costings/calculate").replacementPath, undefined);
+  assert.equal(catalog.endpoints.some(endpoint => endpoint.method === "GET" || endpoint.deprecated), false);
+  assert.equal(catalog.endpoints.some(endpoint => endpoint.path === "/api/2/menu/by_id"), false);
   assert.equal(catalog.source.sha256, "ec010a4a8e2c28ea4daeab923420d7fbabf8c826e9750af874421347e82eb7e4");
 });
 
-test("only known historical diagnostics are retained, visibly outside the current specification", () => {
+test("obsolete diagnostics from an older HTML file are not restored", () => {
   const previous = { endpoints: [
     { method: "POST", path: "/api/1/access_token", tag: "Authorization", sample: { apiLogin: "" } },
     { method: "POST", path: "/api/1/nomenclature", tag: "Menu", sample: { organizationId: "{{orgId}}" } },
-    { method: "POST", path: "/unrelated/old/path", tag: "Old", sample: {} },
   ] };
   const catalog = createCatalog(fixture({}), { previous });
-  assert.equal(catalog.endpointCount, 2);
+  assert.equal(catalog.endpointCount, 0);
   assert.equal(catalog.currentEndpointCount, 0);
-  assert.equal(catalog.legacyEndpointCount, 2);
-  for (const endpoint of catalog.endpoints) {
-    assert.equal(endpoint.sourceStatus, "legacy");
-    assert.equal(endpoint.deprecated, true);
-    assert.match(endpoint.sourceNote, /Доступность на сервере не подтверждена/);
-  }
-  assert.equal(catalog.endpoints.find(endpoint => endpoint.path.endsWith("nomenclature")).replacementPath, undefined);
+  assert.equal(catalog.legacyEndpointCount, 0);
+});
+
+test("list templates do not generate invalid empty filters or fabricated optional IDs", () => {
+  const document = fixture({});
+  const sample = buildSample(document, {
+    type: "object", properties: {
+      filters: { type: "array", items: { type: "object", properties: { field: { type: "string" }, op: { type: "string" } } } },
+      ids: { type: "array", items: { type: "string", format: "uuid" } },
+      limit: { type: "integer" }, offset: { type: "integer" },
+    },
+  });
+  assert.deepEqual(sample, { filters: [], limit: 100, offset: 0 });
 });
 
 test("HTML embedding replaces only the JSON constant and escapes script terminators", () => {

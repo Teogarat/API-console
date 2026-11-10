@@ -1,0 +1,46 @@
+name: API contract audit
+on:
+  push:
+    branches: [main, fix/api-audit-2026-11-10]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: api-audit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regression tests
+        shell: bash
+        run: |
+          mkdir -p audit
+          node --test tests/*.test.* | tee audit/unit-tests.txt
+      - name: Verify every request against the public iiko specification
+        shell: bash
+        run: node scripts/check-api-contracts.mjs | tee audit/contracts.json
+      - name: Install browser test dependencies
+        run: |
+          python3 -m pip install --quiet playwright==1.56.0
+          if ! command -v google-chrome >/dev/null && ! command -v chromium >/dev/null; then
+            python3 -m playwright install --with-deps chromium
+          fi
+      - name: Offline browser smoke tests
+        shell: bash
+        run: python3 tests/browser-smoke.py | tee audit/browser.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-audit-results
+          path: audit/
+          retention-days: 7
