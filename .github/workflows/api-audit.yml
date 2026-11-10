@@ -1,0 +1,59 @@
+name: API contract audit
+on:
+  push:
+    branches: [fix/api-audit-2026-11-10]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Existing regression tests
+        run: node --test tests/*.test.*
+      - name: Read public specification and inspect contracts
+        run: |
+          mkdir -p audit
+          node --input-type=module <<'JS'
+          import {readFile, writeFile} from 'node:fs/promises';
+          import {createCatalog, extractEmbeddedCatalog, resolveSchema, OPENAPI_URL} from './scripts/update-api-catalog.mjs';
+          const html=await readFile('index.html','utf8');
+          const previous=extractEmbeddedCatalog(html).catalog;
+          const response=await fetch(OPENAPI_URL,{signal:AbortSignal.timeout(60000)});
+          if(!response.ok) throw new Error(`Specification HTTP ${response.status}`);
+          const text=await response.text();
+          const spec=JSON.parse(text);
+          await writeFile('audit/openapi.json',text);
+          const catalog=createCatalog(spec,{previous,sourceText:text});
+          await writeFile('audit/catalog.json',JSON.stringify(catalog,null,2));
+          const current=catalog.endpoints.filter(e=>!e.deprecated && e.sourceStatus==='current');
+          console.log('COUNTS',JSON.stringify({previous:previous.endpoints.length,current:current.length,total:catalog.endpoints.length}));
+          const calls=[...new Set([...html.matchAll(/\b(?:api|cloudApi)\(\s*["'`]([^"'`]+)["'`]/g)].map(m=>m[1]))];
+          for(const path of calls) console.log('CALL',path,JSON.stringify(catalog.endpoints.filter(e=>e.path===path).map(e=>({method:e.method,deprecated:e.deprecated,status:e.sourceStatus,replacement:e.replacementPath,sample:e.sample}))));
+          for(const e of catalog.endpoints.filter(e=>/nomenclature|menu|stop_lists|payment_types|order_types|terminal_groups|organizations|available_restaurant_sections/.test(e.path))) {
+            console.log('CONTRACT',JSON.stringify(e));
+            const op=spec.paths[e.path]?.[e.method.toLowerCase()];
+            const schema=op?.responses?.['200']?.content?.['application/json']?.schema;
+            if(schema) console.log('RESPONSE',e.path,JSON.stringify(resolveSchema(spec,schema)));
+          }
+          for(const [name,schema] of Object.entries(spec.components?.schemas||{})) {
+            if(/nomenclature/i.test(name)) console.log('SCHEMA',name,JSON.stringify(schema));
+          }
+          await writeFile('audit/requests.txt',calls.join('\n'));
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-audit-source
+          path: |
+            audit/
+            index.html
+            scripts/
+            tests/
+            README.md
+          retention-days: 3
