@@ -1,95 +1,46 @@
 name: API contract audit
 on:
   push:
-    branches: [fix/api-audit-2026-11-10]
+    branches: [main, fix/api-audit-2026-11-10]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: api-audit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply checksum-verified source update
-        id: materialize
+      - name: Regression tests
         shell: bash
         run: |
-          if [ -f scripts/.audit-delta-0.b64 ]; then
-            python3 - <<'PY'
-          import base64,gzip,hashlib,json
-          from pathlib import Path
-          chunks=[Path(f'scripts/.audit-delta-{i}.b64').read_text() for i in range(3)]
-          chunks[1]=chunks[1].replace('IrGIr17SC','IrG17SC')
-          chunks[2]=chunks[2].replace('caZS7rUqa','ca7aXJUqa')
-          encoded=''.join(chunks).encode('ascii')
-          assert hashlib.sha256(encoded).hexdigest()=='180f08386097fb1c5ec9327523488c4d05ebfeca6b1f2088766411c99f09fdae','Transfer checksum mismatch'
-          updates=json.loads(gzip.decompress(base64.b64decode(encoded,validate=True)))
-          allowed={'index.html','README.md','scripts/update-api-catalog.mjs','scripts/check-api-contracts.mjs','tests/console.test.cjs','tests/catalog-generator.test.mjs','tests/browser-smoke.py'}
-          for item in updates:
-            assert item['path'] in allowed
-            path=Path(item['path'])
-            old=path.read_bytes() if path.exists() else b''
-            assert hashlib.sha256(old).hexdigest()==item['before'],f'Unexpected base: {path}'
-            lines=old.decode('utf-8').splitlines(keepends=True)
-            for edit in reversed(item['edits']):
-              lines[edit['start']:edit['end']]=[edit['text']]
-            data=''.join(lines).encode('utf-8')
-            assert hashlib.sha256(data).hexdigest()==item['after'],f'Output checksum mismatch: {path}'
-            path.parent.mkdir(parents=True,exist_ok=True)
-            path.write_bytes(data)
-            print('Updated',path)
-          PY
-            echo 'changed=true' >> "$GITHUB_OUTPUT"
-          fi
-      - name: Retrieve public OpenAPI specification
-        run: |
           mkdir -p audit
-          node --input-type=module <<'JS'
-          import {writeFile} from 'node:fs/promises';
-          import {createHash} from 'node:crypto';
-          import {OPENAPI_URL} from './scripts/update-api-catalog.mjs';
-          const response=await fetch(OPENAPI_URL,{signal:AbortSignal.timeout(60000)});
-          if(!response.ok) throw new Error(`OpenAPI HTTP ${response.status}`);
-          const text=await response.text();
-          const hash=createHash('sha256').update(text).digest('hex');
-          if(hash!=='663772624785f7183e1054e7d6cf93d38874fb0c0d7c1a38a54d16bb46403038') throw new Error('Specification changed; review before publishing');
-          await writeFile('audit/openapi.json',text);
-          JS
-      - name: Regenerate current-only catalog
-        if: steps.materialize.outputs.changed == 'true'
-        run: node scripts/update-api-catalog.mjs --input audit/openapi.json --write-html --retrieved-at 2026-11-10T17:42:28Z
-      - name: Regression tests
-        run: node --test tests/*.test.* | tee audit/unit-tests.txt
-      - name: Verify every current request contract
-        run: node scripts/check-api-contracts.mjs audit/openapi.json | tee audit/contracts.json
+          node --test tests/*.test.* | tee audit/unit-tests.txt
+      - name: Verify every request against the public iiko specification
+        shell: bash
+        run: node scripts/check-api-contracts.mjs | tee audit/contracts.json
       - name: Install browser test dependencies
-        run: python3 -m pip install --quiet playwright==1.56.0
-      - name: Browser UI smoke tests, mocked restaurant responses only
-        run: python3 tests/browser-smoke.py | tee audit/browser.json
-      - name: Publish verified files to the isolated fix branch
-        if: steps.materialize.outputs.changed == 'true'
-        env:
-          EXPECTED_BRANCH: fix/api-audit-2026-11-10
         run: |
-          test "$GITHUB_REF_NAME" = "$EXPECTED_BRANCH"
-          git rm scripts/.audit-delta-0.b64 scripts/.audit-delta-1.b64 scripts/.audit-delta-2.b64
-          git add index.html README.md scripts/update-api-catalog.mjs scripts/check-api-contracts.mjs tests/console.test.cjs tests/catalog-generator.test.mjs tests/browser-smoke.py
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Replace discontinued nomenclature API, refresh 361 request contracts and add regression coverage'
-          git push origin "HEAD:$EXPECTED_BRANCH"
+          python3 -m pip install --quiet playwright==1.56.0
+          if ! command -v google-chrome >/dev/null && ! command -v chromium >/dev/null; then
+            python3 -m playwright install --with-deps chromium
+          fi
+      - name: Offline browser smoke tests
+        shell: bash
+        run: python3 tests/browser-smoke.py | tee audit/browser.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: verified-api-console
-          path: |
-            audit/
-            index.html
-            README.md
-            scripts/
-            tests/
-          retention-days: 3
+          name: api-audit-results
+          path: audit/
+          retention-days: 7
