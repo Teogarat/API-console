@@ -151,7 +151,7 @@ function harness({ initialize = false } = {}) {
     globalThis.subject = {
       state, normalizeExternalMenuV3, flattenMenu, buildExternalMenuV3Request,
       buildCloudOrderItems, buildApiExplorerSample, prepareApiExplorerRequestBody,
-      getFilteredApiEndpoints, loadMenuApi1, loadMenuApi3External, clearCloudMenuState,
+      getFilteredApiEndpoints, normalizeNomenclatureV2, readNomenclaturePages, loadExternalMenuDirectory, loadMenuNomenclatureV2, loadMenuApi3External, clearCloudMenuState, sendApiExplorerRequest,
       reloadOrgDeps, renderItemsList, renderCart, api, catalogue: API_DOCS_EMBEDDED,
     };
   `, context);
@@ -367,7 +367,7 @@ test('order serialization rejects unsupported, foreign and unpriced lines while 
   }
 });
 
-test('v3 request and Explorer samples use live singular organization while v2 retains its own contract', () => {
+test('v3 request and Explorer samples use live singular organization and the menu list stays bodyless', () => {
   const h = harness();
   h.state.orgId = OTHER_ORG;
   h.state.externalMenuId = 'stale-menu';
@@ -377,9 +377,6 @@ test('v3 request and Explorer samples use live singular organization while v2 re
   });
   assert.deepEqual(plain(h.buildApiExplorerSample({ path: '/api/menu/v3/by_id' })), {
     externalMenuId: '15#3', organizationId: ORG, priceCategoryId: null,
-  });
-  assert.deepEqual(plain(h.buildApiExplorerSample({ path: '/api/2/menu/by_id' })), {
-    externalMenuId: '15#3', organizationIds: [ORG], priceCategoryId: null, version: 2,
   });
   assert.deepEqual(plain(h.buildApiExplorerSample({ path: '/api/2/menu' })), {});
 });
@@ -421,7 +418,7 @@ test('bodyless menu-list operation stays POST on the wire without fabricating JS
   assert.equal(calls[0].options.headers.Authorization, 'Bearer synthetic-test-token');
 });
 
-test('catalogue defaults to current methods and keeps legacy requests explicitly discoverable', () => {
+test('catalogue contains only current methods even when a stale legacy filter is restored', () => {
   const h = harness();
   const current = h.getFilteredApiEndpoints();
   assert.ok(current.some(endpoint => endpoint.path === '/api/menu/v3/by_id'));
@@ -429,8 +426,8 @@ test('catalogue defaults to current methods and keeps legacy requests explicitly
   assert.equal(current.some(endpoint => endpoint.deprecated || endpoint.sourceStatus === 'legacy'), false);
   h.element('apiStatusFilter').value = 'legacy';
   const legacy = h.getFilteredApiEndpoints();
-  assert.ok(legacy.some(endpoint => endpoint.path === '/api/2/menu/by_id'));
-  assert.ok(legacy.some(endpoint => endpoint.path === '/api/1/nomenclature' && endpoint.sourceStatus === 'legacy'));
+  assert.equal(legacy.length, 0);
+  assert.equal(h.catalogue.endpoints.some(e => e.path === '/api/1/nomenclature' || e.path === '/api/2/menu/by_id'), false);
   h.element('apiStatusFilter').value = 'all';
   assert.equal(h.getFilteredApiEndpoints().length, h.catalogue.endpoints.length);
 });
@@ -459,7 +456,7 @@ test('late menu responses cannot overwrite a different organization, menu, price
     ['menu', h => h.element('menuSelect').value = 'other-menu'],
     ['price category', h => h.element('priceCatSelect').value = CATEGORY],
     ['vendor API', h => h.setMode('magnit')],
-    ['historical nomenclature', h => h.state.useApi1Menu = true],
+    ['historical nomenclature', h => h.state.useNomenclatureMenu = true],
   ];
   for (const [name, change] of cases) {
     await t.test(name, async () => {
@@ -498,20 +495,20 @@ test('a late historical v1 reply cannot replace an already loaded v3 menu', asyn
   const calls = [];
   h.stubApi(async url => {
     calls.push(url);
-    if (url === '/api/1/nomenclature') return legacy.promise;
+    if (url === '/api/nomenclature/v2/product/list') return legacy.promise;
     assert.equal(url, '/api/menu/v3/by_id');
     return fixture();
   });
-  h.state.useApi1Menu = true;
-  const oldLoading = h.loadMenuApi1();
-  h.state.useApi1Menu = false;
+  h.state.useNomenclatureMenu = true;
+  const oldLoading = h.loadMenuNomenclatureV2();
+  h.state.useNomenclatureMenu = false;
   await h.loadMenuApi3External();
   const currentMenu = h.state.menu;
   const currentResponse = h.state.menuModel;
-  legacy.resolve({ revision: 999, products: [], productCategories: [] });
+  legacy.resolve({ items: [], totalCount: 0, offset: 0 });
   await oldLoading;
 
-  assert.deepEqual(calls, ['/api/1/nomenclature', '/api/menu/v3/by_id']);
+  assert.deepEqual(calls, ['/api/nomenclature/v2/product/list', '/api/menu/v3/by_id']);
   assert.equal(h.state.menu, currentMenu);
   assert.equal(h.state.menuModel, currentResponse);
   assert.equal(h.state.menu.apiVersion, 3);
@@ -593,11 +590,11 @@ test('v3 normalizer rejects a v2 response instead of silently producing an empty
 test('application startup wires version filtering and Clear invalidates an actual pending menu load', async () => {
   const h = harness({ initialize: true });
   assert.equal(h.element('apiDocCount').textContent, String(h.catalogue.endpointCount));
-  assert.ok(h.element('apiDocSource').textContent.includes('в спецификации'));
+  assert.ok(h.element('apiDocSource').textContent.includes('актуальных'));
   h.element('apiStatusFilter').value = 'legacy';
   h.element('apiStatusFilter').dispatch('change');
   assert.ok(h.getFilteredApiEndpoints().every(endpoint => endpoint.deprecated || endpoint.sourceStatus === 'legacy'));
-  assert.equal(h.element('btnApiSend').disabled, false);
+  assert.equal(h.element('btnApiSend').disabled, true);
   const pending = deferred();
   h.stubApi(() => pending.promise);
   const loading = h.loadMenuApi3External();
@@ -608,4 +605,133 @@ test('application startup wires version filtering and Clear invalidates an actua
   assert.equal(h.state.menuModel, null);
   assert.equal(h.state.itemsFlat.length, 0);
   assert.equal(h.element('catCount').textContent, '0');
+});
+
+const rawFixture = () => ({
+  products: [
+    { productId: 'p-one', name: 'Блюдо без iikoWeb', type: 'DISH', defaultIncludedInMenu: true, parentGroupId: 'g-one', defaultSalePrice: 250,
+      modifiers: [{ modifierId: 'm-one', defaultAmount: 1, minimumAmount: 0, maximumAmount: 2 }] },
+    { productId: 'm-one', name: 'Добавка', type: 'MODIFIER', defaultSalePrice: 20 },
+    { productId: 'p-zero', name: 'Нулевая цена', type: 'GOODS', defaultSalePrice: 0 },
+    { productId: 'p-null', name: 'Нет цены', type: 'DISH', defaultSalePrice: null },
+    { productId: 'p-sized', name: 'Размерное блюдо', type: 'DISH', productScaleId: 'scale', defaultSalePrice: 300 },
+    { productId: 'p-schema', name: 'Схема', type: 'DISH', modifierSchemaId: 'schema', defaultSalePrice: 100 },
+    { productId: 'p-deleted', name: 'Удалено', type: 'DISH', isDeleted: true, defaultSalePrice: 10 },
+  ],
+  groups: [{ groupId: 'g-one', name: 'Кухня' }],
+  scales: [{ id: 'scale', productSizes: [{ id: 'size-small', name: 'Малый', default: true }, { id: 'size-large', name: 'Большой' }] }],
+});
+
+test('nomenclature v2 maps actual schema fields, grouped IDs, zero/null and does not invent size prices', () => {
+  const h = harness();
+  const snapshot = freezeDeep(rawFixture());
+  const menu = h.normalizeNomenclatureV2(snapshot, ORG);
+  const items = menu.itemCategories.flatMap(c => c.items);
+  assert.equal(items.length, 5);
+  assert.equal(items.some(i => i.productId === 'm-one' || i.productId === 'p-deleted'), false);
+  assert.equal(items.find(i => i.productId === 'p-zero').itemSizes[0].prices[0].price, 0);
+  assert.equal(items.find(i => i.productId === 'p-null').itemSizes[0].prices[0].price, null);
+  const sized = items.find(i => i.productId === 'p-sized');
+  assert.deepEqual(plain(sized.itemSizes.map(s => [s.sizeId, s.prices[0].price])), [['size-small', null], ['size-large', null]]);
+  assert.match(sized.orderBlockReason, /цен.*размер/);
+  const one = items.find(i => i.productId === 'p-one');
+  assert.equal(one.itemSizes[0].itemModifierGroups[0].items[0].productGroupId, null);
+  assert.equal(one.itemSizes[0].itemModifierGroups[0].items[0].productId, 'm-one');
+  assert.equal(one.itemSizes[0].itemModifierGroups[0].items[0].prices[0].price, 20);
+  assert.equal(h.flattenMenu(menu).length, 5);
+});
+
+test('nomenclature cart requires explicit price/scope confirmation and blocks incomplete schemas', () => {
+  const h = harness();
+  const menu = h.normalizeNomenclatureV2(rawFixture(), ORG);
+  h.state.menu = menu; h.renderItemsList();
+  const one = menu.itemCategories.flatMap(c => c.items).find(i => i.productId === 'p-one');
+  control(h, 'data-add-item', one.itemSizes[0].placementKey).dispatch('click');
+  assert.match(h.element('itemsList').innerHTML, /defaultSalePrice/);
+  assert.equal(h.element('totalSum').textContent, '270.00');
+  assert.throws(() => h.buildCloudOrderItems(h.state.cart, ORG), /Подтверди/);
+  h.state.catalogPricesConfirmed = true;
+  const order = h.buildCloudOrderItems(h.state.cart, ORG);
+  assert.equal(order[0].productId, 'p-one');
+  assert.equal(order[0].modifiers[0].productId, 'm-one');
+  assert.equal('productGroupId' in order[0].modifiers[0], false);
+  const schema = menu.itemCategories.flatMap(c => c.items).find(i => i.productId === 'p-schema');
+  control(h, 'data-add-item', schema.itemSizes[0].placementKey).dispatch('click');
+  assert.throws(() => h.buildCloudOrderItems(h.state.cart, ORG), /Схема модификаторов/);
+});
+
+test('nomenclature pages use current routes and exact bodies without fabricated organizationId', async () => {
+  const h = harness();
+  h.state.useNomenclatureMenu = true;
+  h.setContext({ externalMenuId: '' });
+  const source = rawFixture(), calls = [];
+  h.stubApi(async (url, body) => {
+    calls.push({ url, body: plain(body) });
+    assert.deepEqual(Object.keys(body).sort(), ['filters', 'limit', 'offset']);
+    if (url === '/api/nomenclature/v2/product/list') return { items: source.products, totalCount: source.products.length, offset: 0 };
+    if (url === '/api/nomenclature/v2/group/list') return { groups: body.offset === 0 ? source.groups : [] };
+    if (url === '/api/nomenclature/v1/product-scale/list') return { items: source.scales, totalCount: source.scales.length, offset: 0 };
+    throw new Error('Unexpected route ' + url);
+  });
+  await h.loadMenuNomenclatureV2();
+  assert.equal(h.state.menu.source, 'nomenclature-v2');
+  assert.equal(h.element('itemCount').textContent, '5');
+  assert.equal(calls.length, 4);
+  assert.equal(calls[2].body.offset, 1);
+  assert.equal(calls.some(c => c.url === '/api/1/nomenclature' || c.url.includes('/by_id')), false);
+});
+
+test('pagination follows a server-limited page and rejects repeats, malformed and truncated responses', async () => {
+  const h = harness();
+  let calls = 0;
+  h.stubApi(async () => (++calls === 1 ? { items: [{ productId: 'a' }], totalCount: 2, offset: 0 } : { items: [{ productId: 'b' }], totalCount: 2, offset: 1 }));
+  assert.equal((await h.readNomenclaturePages('/test', 'items', 'productId', () => true)).length, 2);
+  h.stubApi(async () => ({ items: [{ productId: 'repeat' }] }));
+  await assert.rejects(h.readNomenclaturePages('/test', 'items', 'productId', () => true), /повторяющиеся/);
+  h.stubApi(async () => ({ wrong: [] }));
+  await assert.rejects(h.readNomenclaturePages('/test', 'items', 'productId', () => true), /ожидается массив/);
+  h.stubApi(async () => ({ items: [], totalCount: 3 }));
+  await assert.rejects(h.readNomenclaturePages('/test', 'items', 'productId', () => true), /пустая страница/);
+});
+
+test('raw catalogue permissions fail explicitly, never fall back to discontinued calls', async () => {
+  const h = harness(); h.state.useNomenclatureMenu = true;
+  for (const status of [403, 404, 410]) {
+    const calls = [];
+    h.stubApi(async url => { calls.push(url); const error = new Error('denied'); error.status = status; throw error; });
+    await assert.rejects(h.loadMenuNomenclatureV2(), status === 403 ? /403/ : /недоступна номенклатура/);
+    assert.deepEqual(calls, ['/api/nomenclature/v2/product/list']);
+  }
+});
+
+test('optional external menu directory failure does not block raw catalogue, auth failure is not hidden', async () => {
+  const h = harness();
+  h.stubApi(async () => { const e = new Error('denied'); e.status = 403; throw e; });
+  assert.deepEqual(plain(await h.loadExternalMenuDirectory()), { externalMenus: [], priceCategories: [] });
+  h.stubApi(async () => { const e = new Error('expired'); e.status = 401; throw e; });
+  await assert.rejects(h.loadExternalMenuDirectory(), /expired/);
+});
+
+test('HTTP errors preserve status, diagnostic description and correlationId', async () => {
+  const h = harness();
+  h.setFetch(async () => ({ ok: false, status: 403, headers: { get: () => 'proxy-rid' }, text: async () => JSON.stringify({ error: 'ACCESS_DENIED', errorDescription: 'Check permissions', correlationId: 'correlation-test' }) }));
+  await assert.rejects(h.api('/api/nomenclature/v2/product/list', {}), error => error.status === 403 && /Check permissions/.test(error.message) && error.correlationId === 'correlation-test');
+});
+
+test('all embedded operations are current, sample filters are arrays, and body requirements are retained', () => {
+  const h = harness();
+  assert.equal(h.catalogue.endpointCount, 361);
+  assert.equal(h.catalogue.removedDeprecatedCount, 57);
+  const seen = new Set();
+  for (const endpoint of h.catalogue.endpoints) {
+    assert.equal(endpoint.deprecated, false);
+    assert.equal(endpoint.sourceStatus, 'current');
+    const key = endpoint.method + ' ' + endpoint.path;
+    assert.equal(seen.has(key), false); seen.add(key);
+    const sample = h.buildApiExplorerSample(endpoint);
+    assert.doesNotThrow(() => JSON.stringify(sample));
+    if (Array.isArray(sample.filters)) assert.equal(sample.filters.length, 0);
+    if (endpoint.requestBodyRequired) assert.throws(() => h.prepareApiExplorerRequestBody(endpoint, undefined), /JSON-тело/);
+    if (!endpoint.hasRequestBody) assert.equal(h.prepareApiExplorerRequestBody(endpoint, {}), undefined);
+  }
 });

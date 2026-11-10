@@ -32,7 +32,6 @@ const USEFUL_OPTIONAL_FIELDS = new Set([
   ...Object.keys(CONTEXT_FIELDS), ...Object.keys(ARRAY_FIELDS),
   "order", "priceCategoryId", "limit", "offset", "returnAdditionalInfo", "startRevision",
 ]);
-const LEGACY_PATHS = new Set(["/api/1/access_token", "/api/1/nomenclature"]);
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 
@@ -174,6 +173,8 @@ export function buildSample(document, source, options = {}) {
         const include = explicitlyRequired || extra.include?.has(name) || USEFUL_OPTIONAL_FIELDS.has(name)
           || OWN(resolved, "default") || OWN(resolved, "example") || required.size === 0;
         if (!include || (resolved.deprecated && !explicitlyRequired)) continue;
+        // A fabricated optional ID narrows a list to a non-existent record.
+        if (!explicitlyRequired && /^(ids|productIds|groupIds)$/.test(name) && !OWN(resolved, "default") && !OWN(resolved, "example")) continue;
         // Null is meaningful, especially for the base price category; never replace it with 0/"".
         if (!explicitlyRequired && resolved.nullable && !CONTEXT_FIELDS[name]) {
           result[name] = OWN(resolved, "default") ? clone(resolved.default) : null;
@@ -184,7 +185,7 @@ export function buildSample(document, source, options = {}) {
       return result;
     }
     if (type === "array") {
-      if (schema.maxItems === 0) return [];
+      if (schema.maxItems === 0 || (field === "filters" && !schema.minItems)) return [];
       const count = Math.max(1, Math.min(5, Number(schema.minItems) || 1));
       if ((schema.minItems || 0) > 5) notes.add("Массив сокращён до пяти примеров; проверь minItems в документации.");
       const itemField = ARRAY_FIELDS[field] || field.replace(/Ids$/, "Id");
@@ -267,7 +268,8 @@ export function createCatalog(document, { previous = {}, sourceText, retrievedAt
     }
   }
   const keys = new Set(operations.map(({ method, path }) => `${method} ${path}`));
-  const endpoints = operations.map(({ method, path, operation }) => {
+  const activeOperations = operations.filter(({ operation }) => operation.deprecated !== true);
+  const endpoints = activeOperations.map(({ method, path, operation }) => {
     const body = operation.requestBody?.$ref ? dereference(document, operation.requestBody.$ref) : operation.requestBody;
     const content = body?.content || {};
     const contentType = OWN(content, "application/json") ? "application/json" : Object.keys(content)[0];
@@ -288,23 +290,13 @@ export function createCatalog(document, { previous = {}, sourceText, retrievedAt
     return endpoint;
   });
 
-  // Absence from the published specification does not prove a route stopped working.
-  // Retain just these two historical diagnostics, visibly outside the current catalogue.
-  for (const old of previous.endpoints || []) {
-    if (!LEGACY_PATHS.has(old.path) || keys.has(`${old.method} ${old.path}`)) continue;
-    endpoints.push({
-      ...old, deprecated: true, sourceStatus: "legacy",
-      sourceNote: "Исторический запрос: отсутствует в текущей OpenAPI. Доступность на сервере не подтверждена.",
-      hasRequestBody: old.method !== "GET", requestBodyRequired: false,
-      requestContentType: old.method !== "GET" ? "application/json" : null,
-      ...(old.path === "/api/1/access_token" ? { replacementPath: "/api/v2/access_token", replacementMethod: "POST" } : {}),
-    });
-  }
+  // Removed/deprecated operations are intentionally not offered or preserved.
   endpoints.sort((a, b) => a.tag.localeCompare(b.tag, "en") || a.path.localeCompare(b.path, "en") || a.method.localeCompare(b.method));
   return {
     title: document.info?.title || "iikoCloud API", openapi: document.openapi,
-    endpointCount: endpoints.length, currentEndpointCount: operations.length,
-    legacyEndpointCount: endpoints.length - operations.length,
+    endpointCount: endpoints.length, currentEndpointCount: endpoints.length,
+    legacyEndpointCount: 0,
+    removedDeprecatedCount: operations.length - endpoints.length,
     source: {
       url: OPENAPI_URL, retrievedAt,
       sha256: createHash("sha256").update(sourceText ?? JSON.stringify(document)).digest("hex"),
